@@ -7,6 +7,7 @@ create table if not exists public.areas (
   id uuid primary key,
   user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
   name text not null,
+  color text not null default 'slate',
   sort int not null default 0,
   updated_at timestamptz not null default now(),
   deleted boolean not null default false
