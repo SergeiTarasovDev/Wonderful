@@ -2,7 +2,7 @@
 <html lang="ru" data-theme="light">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#15171c" media="(prefers-color-scheme: dark)">
@@ -438,7 +438,8 @@
 
   dialog.sheet {
     position: fixed;
-    inset-inline: 0; inset-block-end: 0; inset-block-start: auto;
+    inset-inline: 0; inset-block-start: auto;
+    inset-block-end: var(--kb, 0px);
     margin: 0 auto;
     inline-size: 100%; max-inline-size: 640px;
     border-radius: var(--r-lg) var(--r-lg) 0 0;
@@ -447,6 +448,10 @@
     overflow: hidden;
   }
   dialog.sheet[open] { display: flex; flex-direction: column; animation: sheet-in var(--dur-3) var(--ease); }
+
+  /* клавиатура открыта: панель не выше свободного места, под ней ничего не мешает */
+  body.kb-open dialog.sheet[open] { max-block-size: calc(100dvh - var(--kb, 0px) - 12px); }
+  body.kb-open .fab, body.kb-open .tabbar { display: none; }
   dialog.sheet > form { display: flex; flex-direction: column; flex: 1; min-block-size: 0; }
   @keyframes sheet-in { from { transform: translateY(24px); opacity: 0.6; } }
 
@@ -461,7 +466,7 @@
   }
   .dlg-head h2 { font-size: 1.125rem; }
 
-  .dlg-body { flex: 1; min-block-size: 0; padding: 0 var(--sp-4) var(--sp-4); overflow-y: auto; overscroll-behavior: contain; }
+  .dlg-body { flex: 1; min-block-size: 0; padding: 0 var(--sp-4) var(--sp-4); overflow-y: auto; overscroll-behavior: contain; scroll-padding-block: var(--sp-4); }
   .dlg-body:focus, .dlg-body:focus-visible { outline: none; }
 
   .dlg-foot {
@@ -2121,6 +2126,29 @@ alter publication supabase_realtime add table public.reviews;`;
     if (idx > -1) { e.preventDefault(); go(NAV[idx][0]); }
   });
 
+  /* ---------------- клавиатура на телефоне ---------------- */
+  function bindKeyboard() {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const apply = function () {
+      const gap = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+      document.documentElement.style.setProperty("--kb", gap + "px");
+      document.body.classList.toggle("kb-open", gap > 80);
+    };
+    vv.addEventListener("resize", apply);
+    vv.addEventListener("scroll", apply);
+    window.addEventListener("orientationchange", function () { setTimeout(apply, 250); });
+    apply();
+  }
+
+  document.addEventListener("focusin", function (e) {
+    const el = e.target;
+    if (!el || !el.closest || !el.closest("dialog[open]")) return;
+    setTimeout(function () {
+      try { el.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (err) { el.scrollIntoView(); }
+    }, 280);
+  });
+
   window.addEventListener("online", () => { setSync("idle"); syncNow(); });
   window.addEventListener("offline", () => setSync("offline"));
   window.addEventListener("focus", () => { if (session) syncNow(); });
@@ -2133,6 +2161,7 @@ alter publication supabase_realtime add table public.reviews;`;
   } catch (e) { cfg = { url: "", key: "" }; }
 
   paintTheme(currentPref());
+  bindKeyboard();
   try {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const onScheme = function () { if (currentPref() === "auto") paintTheme("auto"); };
