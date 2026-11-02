@@ -1558,8 +1558,18 @@ alter publication supabase_realtime add table public.reviews;`;
   document.addEventListener("submit", async (e) => {
     if (e.target.id === "setup-form") {
       e.preventDefault();
-      const url = ($("#s-url").value || "").trim().replace(/\/+$/, "");
+      let url = ($("#s-url").value || "").trim().replace(/\/+$/, "");
       const key = ($("#s-key").value || "").trim();
+
+      const dash = url.match(/supabase\.com\/dashboard\/project\/([a-z0-9]+)/i);
+      if (dash) {
+        url = "https://" + dash[1].toLowerCase() + ".supabase.co";
+        toast("Это была ссылка на панель — беру адрес проекта");
+      }
+      if (/supabase\.com/i.test(url) && !/\.supabase\.co$/i.test(url)) {
+        renderSetup("Похоже на ссылку панели. Нужен Project URL: Project Settings → API, вида https://<ref>.supabase.co");
+        return;
+      }
       if (!/^https?:\/\//.test(url) || key.length < 20) { renderSetup("Проверь адрес проекта и ключ."); return; }
       cfg = { url: url, key: key };
       localStorage.setItem(K.cfg, JSON.stringify(cfg));
