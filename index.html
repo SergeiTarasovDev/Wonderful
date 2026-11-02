@@ -1,0 +1,1655 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Wonderful — разбор задач</title>
+<style>
+@layer reset, tokens, base, components, utilities;
+
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; }
+  * { margin: 0; }
+  html, body { height: 100%; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { background: none; border: 0; cursor: pointer; }
+  h1, h2, h3, p, ul, ol { margin: 0; }
+  ul { list-style: none; padding: 0; }
+  img, svg { display: block; max-width: 100%; }
+}
+
+@layer tokens {
+  :root {
+    --paper-0: oklch(0.99 0.003 250);
+    --paper-1: oklch(0.972 0.004 250);
+    --paper-2: oklch(0.952 0.005 250);
+    --card-0: oklch(1 0 0);
+
+    --ink-0: oklch(0.22 0.012 250);
+    --ink-1: oklch(0.44 0.010 250);
+    --ink-2: oklch(0.58 0.008 250);
+    --line:  oklch(0.90 0.006 250);
+
+    --teal-600: oklch(0.48 0.095 195);
+    --teal-500: oklch(0.55 0.095 195);
+    --teal-100: oklch(0.95 0.020 195);
+
+    --amber-600: oklch(0.52 0.150 45);
+    --green-600: oklch(0.50 0.100 150);
+
+    --surface-canvas: var(--paper-0);
+    --surface-soft:   var(--paper-1);
+    --surface-sink:   var(--paper-2);
+    --surface-card:   var(--card-0);
+
+    --text-primary:   var(--ink-0);
+    --text-secondary: var(--ink-1);
+    --text-faint:     var(--ink-2);
+    --border-hair:    var(--line);
+
+    --action-primary: var(--teal-600);
+    --action-primary-hover: var(--teal-500);
+    --accent-weak: var(--teal-100);
+    --on-accent: oklch(0.99 0.003 195);
+
+    --status-warn: var(--amber-600);
+    --status-warn-weak: oklch(0.96 0.03 45);
+    --status-ok: var(--green-600);
+
+    --sb-thumb: oklch(0.72 0.010 250 / 0.55);
+
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-7: 2.5rem;
+    --space-8: 3rem;
+    --space-9: 4rem;
+
+    --radius-sm: 8px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-pill: 999px;
+
+    --text-display: clamp(1.5rem, 1.3rem + 0.9vw, 2rem);
+    --text-h2: 1.125rem;
+    --text-body: 1rem;
+    --text-small: 0.875rem;
+    --text-caption: 0.75rem;
+    --text-mono: 0.8125rem;
+
+    --shadow-sm: 0 1px 1px oklch(0.2 0.02 250 / 0.04), 0 2px 4px oklch(0.2 0.02 250 / 0.05);
+    --shadow-md: 0 1px 1px oklch(0.2 0.02 250 / 0.04), 0 6px 16px -4px oklch(0.2 0.02 250 / 0.10);
+    --shadow-lg: 0 1px 1px oklch(0.2 0.02 250 / 0.05), 0 12px 24px -6px oklch(0.2 0.02 250 / 0.12), 0 32px 48px -12px oklch(0.2 0.02 250 / 0.14);
+
+    --dur-fast: 120ms;
+    --dur-base: 200ms;
+    --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --surface-canvas: oklch(0.175 0.010 250);
+      --surface-soft:   oklch(0.205 0.010 250);
+      --surface-sink:   oklch(0.160 0.010 250);
+      --surface-card:   oklch(0.228 0.010 250);
+
+      --text-primary:   oklch(0.945 0.004 250);
+      --text-secondary: oklch(0.760 0.006 250);
+      --text-faint:     oklch(0.620 0.006 250);
+      --border-hair:    oklch(0.305 0.008 250);
+
+      --action-primary: oklch(0.74 0.090 195);
+      --action-primary-hover: oklch(0.80 0.085 195);
+      --accent-weak: oklch(0.300 0.040 195);
+      --on-accent: oklch(0.16 0.02 195);
+
+      --status-warn: oklch(0.76 0.140 45);
+      --status-warn-weak: oklch(0.300 0.060 45);
+      --status-ok: oklch(0.72 0.110 150);
+
+      --sb-thumb: oklch(0.55 0.010 250 / 0.55);
+
+      --shadow-sm: 0 1px 1px oklch(0 0 0 / 0.30);
+      --shadow-md: 0 1px 1px oklch(0 0 0 / 0.30), 0 6px 16px -4px oklch(0 0 0 / 0.45);
+      --shadow-lg: 0 1px 1px oklch(0 0 0 / 0.35), 0 12px 24px -6px oklch(0 0 0 / 0.5), 0 32px 48px -12px oklch(0 0 0 / 0.55);
+    }
+  }
+}
+
+@layer base {
+  * { scrollbar-width: thin; scrollbar-color: var(--sb-thumb) transparent; }
+  *::-webkit-scrollbar { width: 11px !important; height: 11px !important; }
+  *::-webkit-scrollbar-track { background: transparent !important; }
+  *::-webkit-scrollbar-thumb {
+    background: var(--sb-thumb) !important;
+    border: 3px solid transparent !important;
+    border-radius: var(--radius-pill) !important;
+    background-clip: padding-box !important;
+  }
+  *::-webkit-scrollbar-thumb:hover { background: var(--text-faint) !important; background-clip: padding-box !important; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    background: var(--surface-canvas);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: var(--text-body);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--action-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  ::selection { background: var(--accent-weak); color: var(--text-primary); }
+
+  h1 { font-size: var(--text-display); line-height: 1.15; letter-spacing: -0.015em; font-weight: 600; }
+  h2 { font-size: var(--text-h2); line-height: 1.25; letter-spacing: -0.01em; font-weight: 600; text-wrap: balance; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+}
+
+@layer components {
+  .app { display: flex; flex-direction: column; min-height: 100dvh; }
+
+  /* ---------- header ---------- */
+  .top {
+    display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-4); align-items: center;
+    padding: var(--space-3) var(--space-5);
+    background: var(--surface-soft);
+    border-block-end: 1px solid var(--border-hair);
+    position: sticky; inset-block-start: 0; z-index: 20;
+  }
+
+  .brand {
+    display: flex; align-items: center; gap: var(--space-2);
+    font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; margin-inline-end: var(--space-2);
+  }
+  .brand svg { width: 20px; height: 20px; stroke: var(--action-primary); }
+
+  .capture { display: flex; gap: var(--space-2); flex: 1 1 320px; max-inline-size: 680px; min-inline-size: 0; }
+  .capture input {
+    flex: 1 1 auto; min-inline-size: 0;
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface-card);
+    border: 1px solid var(--border-hair);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-body);
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+  .capture input::placeholder { color: var(--text-faint); }
+  .capture input:hover { border-color: var(--text-faint); }
+  .capture input:focus-visible { outline: 2px solid var(--action-primary); outline-offset: 1px; }
+
+  .top-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-inline-start: auto; align-items: center; }
+
+  /* ---------- shell ---------- */
+  .shell {
+    display: grid; grid-template-columns: 232px minmax(0, 1fr);
+    flex: 1; width: 100%; max-inline-size: 1180px; margin-inline: auto; align-items: start;
+  }
+
+  /* ---------- nav ---------- */
+  .side {
+    display: flex; flex-direction: column; gap: var(--space-4);
+    padding: var(--space-5) var(--space-3) var(--space-5) var(--space-4);
+    position: sticky; inset-block-start: 73px;
+    max-block-size: calc(100dvh - 73px); overflow-y: auto;
+  }
+  .navgroup { display: flex; flex-direction: column; gap: 2px; }
+
+  .navitem {
+    display: flex; align-items: center; gap: var(--space-3);
+    inline-size: 100%; padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm); color: var(--text-secondary);
+    font-size: var(--text-small); text-align: start;
+    transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .navitem:hover { background: var(--surface-sink); color: var(--text-primary); }
+  .navitem[aria-current="page"] { background: var(--accent-weak); color: var(--action-primary); font-weight: 600; }
+  .navitem .label { flex: 1; min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .navitem .count {
+    font-size: var(--text-caption); font-variant-numeric: tabular-nums;
+    color: var(--text-faint); padding-inline: var(--space-2);
+    border-radius: var(--radius-pill); background: var(--surface-sink);
+    min-inline-size: 1.5rem; text-align: center;
+  }
+  .navitem[aria-current="page"] .count { background: transparent; color: var(--action-primary); }
+  .navitem .count.warn { background: var(--status-warn-weak); color: var(--status-warn); font-weight: 600; }
+  .nav-flag { display: grid; place-items: center; flex: none; color: var(--status-warn); }
+  .nav-flag svg { width: 13px; height: 13px; }
+
+  /* ---------- sync pill ---------- */
+  .sync {
+    display: flex; align-items: center; gap: var(--space-2);
+    font-size: var(--text-caption); color: var(--text-faint);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    background: var(--surface-sink);
+    line-height: 1.4;
+  }
+  .sync .dot { inline-size: 8px; block-size: 8px; border-radius: 50%; flex: none; background: var(--text-faint); }
+  .sync.ok .dot { background: var(--status-ok); }
+  .sync.working .dot { background: var(--action-primary); animation: pulse 1.2s var(--ease-out) infinite; }
+  .sync.offline .dot, .sync.error .dot { background: var(--status-warn); }
+  .sync button { color: var(--action-primary); font-size: var(--text-caption); font-weight: 600; text-decoration: underline; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  /* ---------- main ---------- */
+  main { padding: var(--space-6) var(--space-5) var(--space-9); min-inline-size: 0; max-inline-size: 880px; }
+  main:focus, main:focus-visible { outline: none; }
+
+  .view-head { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); align-items: baseline; justify-content: space-between; margin-block-end: var(--space-2); }
+  .view-sub { color: var(--text-secondary); font-size: var(--text-small); max-inline-size: 62ch; margin-block-end: var(--space-5); }
+
+  .group-head {
+    display: flex; align-items: center; gap: var(--space-3);
+    margin: var(--space-5) 0 var(--space-3);
+    font-size: var(--text-caption); font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--text-faint);
+  }
+  .group-head::after { content: ""; flex: 1; block-size: 1px; background: var(--border-hair); }
+  .group-head:first-child { margin-block-start: 0; }
+
+  /* ---------- task ---------- */
+  .task {
+    display: flex; gap: var(--space-3); align-items: flex-start;
+    background: var(--surface-card);
+    border: 1px solid var(--border-hair);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    margin-block-end: var(--space-2);
+    transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+  }
+  .task:hover { border-color: var(--text-faint); box-shadow: var(--shadow-sm); }
+  .task:focus-within { border-color: var(--action-primary); }
+
+  .check {
+    flex: none; inline-size: 44px; block-size: 44px;
+    display: grid; place-items: center; border-radius: var(--radius-sm);
+    color: var(--text-faint);
+    transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  }
+  .check svg { width: 18px; height: 18px; }
+  .check:hover { color: var(--status-ok); background: var(--surface-sink); }
+
+  .task-body { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+  .task-title {
+    font-size: var(--text-body); line-height: 1.45; overflow-wrap: anywhere;
+    text-align: start; inline-size: 100%; padding-block: 1px;
+  }
+  button.task-title:hover { color: var(--action-primary); }
+  .task-next { font-size: var(--text-small); color: var(--text-secondary); overflow-wrap: anywhere; max-inline-size: 68ch; }
+  .task-next .arrow { color: var(--text-faint); margin-inline-end: var(--space-1); }
+  .task-meta { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); font-size: var(--text-caption); color: var(--text-faint); margin-block-start: var(--space-1); }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    padding: 1px var(--space-2); border-radius: var(--radius-pill);
+    background: var(--surface-sink); color: var(--text-secondary);
+    font-size: var(--text-caption); white-space: nowrap;
+  }
+  .tag svg { width: 12px; height: 12px; }
+  .tag.warn { background: var(--status-warn-weak); color: var(--status-warn); font-weight: 600; }
+  .tag.ok { color: var(--status-ok); background: transparent; }
+
+  .triage { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-block-start: var(--space-3); padding-block-start: var(--space-3); border-block-start: 1px dashed var(--border-hair); }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+    min-block-size: 36px; padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm); border: 1px solid transparent;
+    font-size: var(--text-small); font-weight: 500; white-space: nowrap;
+    transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn svg { width: 15px; height: 15px; flex: none; }
+  .btn.primary { background: var(--action-primary); color: var(--on-accent); }
+  .btn.primary:hover { background: var(--action-primary-hover); }
+  .btn.secondary { background: var(--surface-card); border-color: var(--border-hair); color: var(--text-primary); }
+  .btn.secondary:hover { border-color: var(--text-faint); background: var(--surface-sink); }
+  .btn.ghost { color: var(--text-secondary); }
+  .btn.ghost:hover { background: var(--surface-sink); color: var(--text-primary); }
+  .btn.danger { color: var(--status-warn); }
+  .btn.danger:hover { background: var(--status-warn-weak); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn:disabled:hover { background: none; }
+  .btn.block { inline-size: 100%; }
+
+  /* ---------- now ---------- */
+  .slots { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+  .slot {
+    border: 1px dashed var(--border-hair); border-radius: var(--radius-md);
+    min-block-size: 96px; display: grid; place-items: center;
+    color: var(--text-faint); font-size: var(--text-small); text-align: center; padding: var(--space-3);
+  }
+  .slot.filled { border-style: solid; display: block; background: var(--surface-card); }
+  .slot .slot-no { font-size: var(--text-caption); color: var(--text-faint); font-variant-numeric: tabular-nums; }
+
+  /* ---------- waiting ---------- */
+  .wait-row {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2) var(--space-4); align-items: center;
+    background: var(--surface-card); border: 1px solid var(--border-hair);
+    border-radius: var(--radius-md); padding: var(--space-3); margin-block-end: var(--space-2);
+  }
+  .wait-row.overdue { border-color: var(--status-warn); }
+  .wait-row .w-body { min-inline-size: 0; }
+  .wait-row .w-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+  .wait-row input[type="date"] {
+    background: var(--surface-sink); border: 1px solid var(--border-hair);
+    border-radius: var(--radius-sm); padding: var(--space-1) var(--space-2);
+    font-size: var(--text-caption); color: var(--text-secondary); font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- review ---------- */
+  .review-steps { display: flex; flex-direction: column; gap: var(--space-2); margin-block-end: var(--space-5); }
+  .step {
+    display: grid; grid-template-columns: 44px minmax(0, 1fr) auto;
+    align-items: center; gap: var(--space-3);
+    background: var(--surface-card); border: 1px solid var(--border-hair);
+    border-radius: var(--radius-md); padding: var(--space-2) var(--space-3);
+  }
+  .step.done { border-color: var(--status-ok); }
+  .step-no {
+    inline-size: 28px; block-size: 28px; border-radius: 50%;
+    display: grid; place-items: center; font-size: var(--text-caption); font-weight: 600;
+    background: var(--surface-sink); color: var(--text-faint); font-variant-numeric: tabular-nums;
+  }
+  .step.done .step-no { background: var(--status-ok); color: var(--surface-card); }
+  .step p { font-size: var(--text-small); }
+  .step .hint { font-size: var(--text-caption); color: var(--text-faint); }
+
+  /* ---------- forms ---------- */
+  .field { display: flex; flex-direction: column; gap: var(--space-2); margin-block-end: var(--space-4); }
+  .field label { font-size: var(--text-caption); font-weight: 600; color: var(--text-secondary); letter-spacing: 0.02em; }
+  .field input, .field select, .field textarea {
+    inline-size: 100%; padding: var(--space-2) var(--space-3);
+    background: var(--surface-canvas); border: 1px solid var(--border-hair);
+    border-radius: var(--radius-sm); font-size: var(--text-small);
+  }
+  .field textarea { min-block-size: 72px; resize: vertical; }
+  .field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible { outline: 2px solid var(--action-primary); outline-offset: 1px; }
+  .field .help { font-size: var(--text-caption); color: var(--text-faint); line-height: 1.45; }
+  .field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: var(--space-3); }
+
+  /* ---------- dialog ---------- */
+  dialog {
+    border: 1px solid var(--border-hair); border-radius: var(--radius-lg);
+    background: var(--surface-card); color: var(--text-primary); padding: 0;
+    inline-size: min(560px, calc(100vw - var(--space-6))); box-shadow: var(--shadow-lg);
+  }
+  dialog::backdrop { background: oklch(0.15 0.01 250 / 0.45); }
+  .dlg-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-4) var(--space-5); border-block-end: 1px solid var(--border-hair); }
+  .dlg-body { padding: var(--space-5); max-block-size: 68dvh; overflow-y: auto; }
+  .dlg-foot { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: flex-end; padding: var(--space-3) var(--space-5); border-block-start: 1px solid var(--border-hair); background: var(--surface-soft); }
+  .dlg-foot .spacer { flex: 1; }
+
+  /* ---------- tables ---------- */
+  .results { overflow-x: auto; margin-block-start: var(--space-3); border: 1px solid var(--border-hair); border-radius: var(--radius-md); }
+  table { border-collapse: collapse; inline-size: 100%; font-size: var(--text-small); }
+  th, td { padding: var(--space-2) var(--space-3); text-align: start; border-block-end: 1px solid var(--border-hair); vertical-align: top; }
+  th { font-size: var(--text-caption); text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); background: var(--surface-soft); }
+  tbody tr:last-child td { border-block-end: 0; }
+  td.num { font-variant-numeric: tabular-nums; }
+
+  /* ---------- gate (setup / auth) ---------- */
+  .gate { display: grid; place-items: center; min-block-size: 100dvh; padding: var(--space-5); }
+  .gate-card {
+    inline-size: min(640px, 100%);
+    background: var(--surface-card);
+    border: 1px solid var(--border-hair);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-md);
+  }
+  .gate-card h1 { margin-block-end: var(--space-2); display: flex; align-items: center; gap: var(--space-2); }
+  .gate-card h1 svg { width: 24px; height: 24px; stroke: var(--action-primary); }
+  .gate-sub { color: var(--text-secondary); font-size: var(--text-small); margin-block-end: var(--space-5); max-inline-size: 56ch; }
+
+  /* ---------- code ---------- */
+  .code-wrap { position: relative; margin-block: var(--space-3) var(--space-4); }
+  .code-wrap pre {
+    background: var(--surface-sink);
+    border: 1px solid var(--border-hair);
+    border-radius: var(--radius-sm);
+    padding: var(--space-3);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    max-block-size: 240px;
+    overflow: auto;
+    white-space: pre;
+    color: var(--text-secondary);
+  }
+  .code-wrap .copy { position: absolute; inset-block-start: var(--space-2); inset-inline-end: var(--space-2); }
+
+  /* ---------- empty / banner ---------- */
+  .empty {
+    border: 1px dashed var(--border-hair); border-radius: var(--radius-md);
+    padding: var(--space-7) var(--space-5); text-align: center; color: var(--text-secondary);
+  }
+  .empty h2 { margin-block-end: var(--space-2); }
+  .empty p { font-size: var(--text-small); max-inline-size: 46ch; margin-inline: auto; }
+  .empty .btn { margin-block-start: var(--space-4); }
+
+  .banner {
+    display: flex; gap: var(--space-3); align-items: flex-start;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md); border: 1px solid var(--border-hair);
+    background: var(--surface-soft); font-size: var(--text-small); margin-block-end: var(--space-4);
+  }
+  .banner svg { width: 18px; height: 18px; flex: none; color: var(--action-primary); margin-block-start: 1px; }
+  .banner.error { border-color: var(--status-warn); background: var(--status-warn-weak); }
+  .banner.error svg { color: var(--status-warn); }
+  .banner.ok { border-color: var(--status-ok); }
+
+  /* ---------- toast ---------- */
+  #toast {
+    position: fixed; inset-block-end: var(--space-5); inset-inline: 0; margin-inline: auto;
+    inline-size: fit-content; max-inline-size: calc(100vw - var(--space-6));
+    background: var(--text-primary); color: var(--surface-canvas);
+    padding: var(--space-2) var(--space-4); border-radius: var(--radius-pill);
+    font-size: var(--text-small); box-shadow: var(--shadow-md);
+    opacity: 0; transform: translateY(8px); pointer-events: none;
+    transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+    z-index: 60;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 900px) {
+    .shell { grid-template-columns: minmax(0, 1fr); align-content: start; }
+    .side {
+      position: sticky; inset-block-start: 0; max-block-size: none;
+      flex-direction: row; gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      overflow-x: auto; overflow-y: hidden;
+      background: var(--surface-canvas);
+      border-block-end: 1px solid var(--border-hair);
+      z-index: 15; scrollbar-width: none;
+    }
+    .side::-webkit-scrollbar { display: none !important; }
+    .navgroup { flex-direction: row; gap: var(--space-2); }
+    .side .sync { display: none; }
+    .navitem { padding: var(--space-2) var(--space-3); min-block-size: 44px; }
+    main { padding: var(--space-5) var(--space-4) var(--space-8); }
+    .top { position: static; padding: var(--space-3) var(--space-4); }
+    .brand .brand-text { display: none; }
+    .gate-card { padding: var(--space-5) var(--space-4); }
+  }
+
+  @media (max-width: 560px) {
+    .top { row-gap: var(--space-2); }
+    .brand { order: 1; }
+    .top-actions { order: 2; margin-inline-start: auto; }
+    .capture { order: 3; flex: 1 1 100%; max-inline-size: none; }
+    .triage { display: grid; grid-template-columns: 1fr 1fr; }
+    .triage .btn { justify-content: flex-start; }
+    .wait-row { grid-template-columns: minmax(0, 1fr); }
+    .wait-row .w-actions { justify-content: flex-start; }
+    .step { grid-template-columns: 28px minmax(0, 1fr); }
+    .step .step-go { grid-column: 2; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  .sr-only { position: absolute; inline-size: 1px; block-size: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .stack { display: flex; flex-direction: column; gap: var(--space-3); }
+  .row { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+  .muted { color: var(--text-secondary); }
+  .faint { color: var(--text-faint); }
+  .small { font-size: var(--text-small); }
+  .caption { font-size: var(--text-caption); }
+}
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<dialog id="task-dialog" aria-labelledby="td-title">
+  <form id="task-form" method="dialog">
+    <div class="dlg-head">
+      <h2 id="td-title">Задача</h2>
+      <button class="btn ghost" type="button" data-close="task-dialog" aria-label="Закрыть">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </button>
+    </div>
+    <div class="dlg-body">
+      <div class="field">
+        <label for="f-title">Что нужно сделать</label>
+        <textarea id="f-title" maxlength="400" required></textarea>
+      </div>
+      <div class="field">
+        <label for="f-next">Следующее конкретное действие</label>
+        <input id="f-next" maxlength="300" placeholder="Например: позвонить в банк, 20 минут">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="f-bucket">Корзина</label>
+          <select id="f-bucket">
+            <option value="inbox">Входящие</option>
+            <option value="next">Дальше</option>
+            <option value="now">Сейчас</option>
+            <option value="waiting">Ждёт</option>
+            <option value="someday">Когда-нибудь</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-area">Направление</label>
+          <select id="f-area"></select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="f-waiting">Ждёт чего</label>
+          <input id="f-waiting" maxlength="200" placeholder="денег, ответа, времени">
+        </div>
+        <div class="field">
+          <label for="f-review">Дата пересмотра</label>
+          <input id="f-review" type="date">
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-note">Заметка</label>
+        <textarea id="f-note" maxlength="2000"></textarea>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn danger" type="button" id="f-delete">Удалить</button>
+      <span class="spacer"></span>
+      <button class="btn secondary" type="button" data-close="task-dialog">Отмена</button>
+      <button class="btn primary" type="submit">Сохранить</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="help-dialog" aria-labelledby="hd-title">
+  <div class="dlg-head">
+    <h2 id="hd-title">Как это работает</h2>
+    <button class="btn ghost" type="button" data-close="help-dialog" aria-label="Закрыть">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+    </button>
+  </div>
+  <div class="dlg-body">
+    <div class="stack">
+      <p class="small"><strong>Один вход.</strong> Всё пишется в «Входящие» одной строкой. Не думай, куда — потом разберёшь.</p>
+      <p class="small"><strong>Разбор.</strong> Каждый пункт получает решение: Сейчас · Дальше · Ждёт · Потом · Удалить.</p>
+      <p class="small"><strong>Сейчас — не больше трёх.</strong> Переключение съедает внимание, поэтому лимит.</p>
+      <p class="small"><strong>Ждёт — с датой пересмотра.</strong> Мозг отпускает петлю, у которой есть расписание.</p>
+      <p class="small"><strong>Правило действия.</strong> Нет глагола и оценки времени — это проект, а не задача.</p>
+      <p class="small"><strong>Обзор раз в неделю.</strong> Двадцать минут, иначе система умирает за три недели.</p>
+      <hr style="border:0;border-block-start:1px solid var(--border-hair);margin-block:var(--space-2)">
+      <p class="small"><strong>Синхронизация.</strong> Данные лежат в Supabase (Postgres) и доступны с ноутбука и телефона. В браузере хранится копия, поэтому приложение открывается и без сети — изменения уйдут, когда сеть появится.</p>
+      <p class="small caption faint">Клавиши: <kbd>n</kbd> или <kbd>/</kbd> — к вводу, <kbd>1</kbd>…<kbd>6</kbd> — разделы, <kbd>Esc</kbd> — закрыть.</p>
+    </div>
+  </div>
+  <div class="dlg-foot">
+    <button class="btn primary" type="button" data-close="help-dialog">Понятно</button>
+  </div>
+</dialog>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="vendor/supabase.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  const K = {
+    cfg: "wf.cfg",
+    cache: "wf.cache",
+    seeded: "wf.seeded"
+  };
+
+  const AREA_SEED = ["Работа", "Квартира", "Дача", "Дети", "Семья", "Здоровье", "Деньги", "Машина", "Документы", "Поиск работы", "Личное"];
+
+  const NAV = [
+    ["inbox", "Входящие"],
+    ["now", "Сейчас"],
+    ["next", "Дальше"],
+    ["waiting", "Ждёт"],
+    ["someday", "Когда-нибудь"],
+    ["done", "Закрыто"]
+  ];
+  const TOOLS = [["review", "Обзор"], ["data", "Данные"]];
+
+  const VIEW_INFO = {
+    inbox: ["Входящие", "Сюда попадает всё. Разбирай по одному: у каждого пункта должно появиться решение."],
+    now: ["Сейчас", "Максимум три. Пока одна не закрыта — новую не берём."],
+    next: ["Дальше", "Готово к запуску. Здесь только то, у чего есть конкретное следующее действие."],
+    waiting: ["Ждёт", "Заблокировано деньгами, временем или другими людьми. У каждого пункта есть дата пересмотра."],
+    someday: ["Когда-нибудь", "Без обязательств. Раз в квартал просматриваем и что-то возвращаем."],
+    done: ["Закрыто", "Доказательства. Смотри сюда, когда кажется, что ничего не движется."],
+    review: ["Недельный обзор", "Двадцать минут. Без него система умирает за три недели."],
+    data: ["Данные", "Выгрузка и прямые запросы к своей базе в Supabase."]
+  };
+
+  const SETUP_SQL = `-- 1. Таблицы
+create table if not exists public.areas (
+  id uuid primary key,
+  user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  name text not null,
+  sort int not null default 0,
+  updated_at timestamptz not null default now(),
+  deleted boolean not null default false
+);
+
+create table if not exists public.tasks (
+  id uuid primary key,
+  user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  title text not null,
+  next_action text,
+  bucket text not null default 'inbox',
+  area_id uuid,
+  waiting_on text,
+  review_at date,
+  note text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  done_at timestamptz,
+  deleted boolean not null default false
+);
+
+create table if not exists public.reviews (
+  id uuid primary key,
+  user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  done_at timestamptz not null default now(),
+  note text,
+  updated_at timestamptz not null default now(),
+  deleted boolean not null default false
+);
+
+-- 2. Индексы
+create index if not exists tasks_user_bucket on public.tasks(user_id, bucket);
+create index if not exists tasks_user_updated on public.tasks(user_id, updated_at);
+
+-- 3. RLS: доступ только к своим строкам
+alter table public.areas   enable row level security;
+alter table public.tasks   enable row level security;
+alter table public.reviews enable row level security;
+
+drop policy if exists areas_own on public.areas;
+create policy areas_own on public.areas for all to authenticated
+  using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists tasks_own on public.tasks;
+create policy tasks_own on public.tasks for all to authenticated
+  using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists reviews_own on public.reviews;
+create policy reviews_own on public.reviews for all to authenticated
+  using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+-- 4. Realtime (если таблица уже добавлена — ошибку можно игнорировать)
+alter publication supabase_realtime add table public.tasks;
+alter publication supabase_realtime add table public.areas;
+alter publication supabase_realtime add table public.reviews;`;
+
+  /* ---------------- state ---------------- */
+  let cfg = { url: "", key: "" };
+  let sb = null;
+  let session = null;
+  let S = { tasks: [], areas: [], reviews: [] };
+  let dirty = new Set();
+  let view = "inbox";
+  let editingId = null;
+  let syncing = false;
+  let syncKind = "idle";
+  let syncMsg = "";
+  let realtimeChannel = null;
+
+  const root = document.getElementById("root");
+  const $ = (sel, r) => (r || document).querySelector(sel);
+  const $$ = (sel, r) => Array.prototype.slice.call((r || document).querySelectorAll(sel));
+  const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  const pad = (n) => String(n).padStart(2, "0");
+  const todayStr = () => { const d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); };
+  const nowISO = () => new Date().toISOString();
+  const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); };
+
+  function uuid() {
+    if (window.crypto && crypto.randomUUID) {
+      try { return crypto.randomUUID(); } catch (e) {}
+    }
+    const b = new Uint8Array(16);
+    if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(b);
+    else for (let i = 0; i < 16; i++) b[i] = Math.floor(Math.random() * 256);
+    b[6] = (b[6] & 0x0f) | 0x40;
+    b[8] = (b[8] & 0x3f) | 0x80;
+    const h = Array.prototype.map.call(b, (x) => x.toString(16).padStart(2, "0")).join("");
+    return h.slice(0, 8) + "-" + h.slice(8, 12) + "-" + h.slice(12, 16) + "-" + h.slice(16, 20) + "-" + h.slice(20);
+  }
+
+  const MONTHS = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+  const fmtDate = (iso) => {
+    if (!iso) return "";
+    const p = String(iso).slice(0, 10).split("-");
+    if (p.length !== 3) return String(iso);
+    return Number(p[2]) + " " + MONTHS[Number(p[1]) - 1] + " " + p[0];
+  };
+  const fmtShort = (iso) => {
+    if (!iso) return "";
+    const p = String(iso).slice(0, 10).split("-");
+    return p.length === 3 ? Number(p[2]) + "." + p[1] : "";
+  };
+  const daysBetween = (a, b) => Math.round((new Date(b + "T00:00:00") - new Date(a + "T00:00:00")) / 86400000);
+  const ts = (x) => { const t = Date.parse(x || ""); return isNaN(t) ? 0 : t; };
+
+  /* ---------------- cache ---------------- */
+  function saveCache() {
+    try {
+      localStorage.setItem(K.cache, JSON.stringify({ S: S, dirty: Array.from(dirty), at: Date.now() }));
+    } catch (e) { /* quota */ }
+  }
+  function loadCache() {
+    try {
+      const c = JSON.parse(localStorage.getItem(K.cache) || "{}");
+      if (c.S) {
+        S.tasks = Array.isArray(c.S.tasks) ? c.S.tasks : [];
+        S.areas = Array.isArray(c.S.areas) ? c.S.areas : [];
+        S.reviews = Array.isArray(c.S.reviews) ? c.S.reviews : [];
+      }
+      if (Array.isArray(c.dirty)) dirty = new Set(c.dirty);
+    } catch (e) { /* ignore */ }
+  }
+  function clearCache() {
+    S = { tasks: [], areas: [], reviews: [] };
+    dirty = new Set();
+    try { localStorage.removeItem(K.cache); } catch (e) {}
+  }
+
+  /* ---------------- toast ---------------- */
+  let toastTimer = null;
+  function toast(msg) {
+    const el = $("#toast");
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+  }
+
+  function setSync(kind, msg) {
+    syncKind = kind;
+    syncMsg = msg || "";
+    renderSync();
+  }
+  function renderSync() {
+    const el = $("#sync");
+    if (!el) return;
+    const map = {
+      idle: "готово",
+      ok: "синхронизировано",
+      working: "синхронизация…",
+      offline: "офлайн",
+      error: "ошибка синхронизации"
+    };
+    let text = map[syncKind] || syncKind;
+    if (dirty.size) text += " · " + dirty.size + " в очереди";
+    if (syncKind === "error" && syncMsg) text = syncMsg.slice(0, 60);
+    el.className = "sync " + syncKind;
+    el.innerHTML = '<span class="dot" aria-hidden="true"></span><span>' + esc(text) + "</span>" +
+      (dirty.size || syncKind === "error" ? '<button type="button" data-act="sync">Сейчас</button>' : "");
+  }
+
+  /* ---------------- data helpers ---------------- */
+  const live = (bucket) => S.tasks.filter((t) => !t.deleted && t.bucket === bucket);
+  const areaName = (id) => { const a = S.areas.find((x) => x.id === id && !x.deleted); return a ? a.name : ""; };
+  const byCreated = (a, b) => String(a.created_at || "").localeCompare(String(b.created_at || ""));
+
+  function counts() {
+    const c = { inbox: 0, now: 0, next: 0, waiting: 0, someday: 0, done: 0, overdue: 0 };
+    const today = todayStr();
+    S.tasks.forEach((t) => {
+      if (t.deleted) return;
+      if (c[t.bucket] != null) c[t.bucket]++;
+      if (t.bucket === "waiting" && t.review_at && String(t.review_at).slice(0, 10) < today) c.overdue++;
+    });
+    return c;
+  }
+
+  function upsertLocal(table, row, markDirty) {
+    row.updated_at = nowISO();
+    if (row.deleted == null) row.deleted = false;
+    const arr = S[table];
+    const i = arr.findIndex((r) => r.id === row.id);
+    if (i >= 0) arr[i] = Object.assign({}, arr[i], row);
+    else arr.push(row);
+    if (markDirty !== false) dirty.add(table + ":" + row.id);
+    saveCache();
+    render();
+    scheduleFlush();
+    return row;
+  }
+
+  function softDelete(table, id) {
+    const arr = S[table];
+    const i = arr.findIndex((r) => r.id === id);
+    if (i < 0) return;
+    arr[i] = Object.assign({}, arr[i], { deleted: true, updated_at: nowISO() });
+    dirty.add(table + ":" + id);
+    saveCache();
+    render();
+    scheduleFlush();
+  }
+
+  function stripUser(r) {
+    const o = Object.assign({}, r);
+    delete o.user_id;
+    return o;
+  }
+
+  /* ---------------- sync ---------------- */
+  let flushTimer = null;
+  function scheduleFlush() {
+    clearTimeout(flushTimer);
+    flushTimer = setTimeout(() => flush(), 400);
+  }
+
+  async function flush() {
+    if (!sb || !session || syncing) return;
+    if (!dirty.size) { if (syncKind !== "ok") setSync("ok"); return; }
+    if (!navigator.onLine) { setSync("offline"); return; }
+    syncing = true;
+    setSync("working");
+    try {
+      const byTable = {};
+      Array.from(dirty).forEach((k) => {
+        const idx = k.indexOf(":");
+        const t = k.slice(0, idx), id = k.slice(idx + 1);
+        (byTable[t] = byTable[t] || []).push(id);
+      });
+      for (const t of Object.keys(byTable)) {
+        const rows = byTable[t]
+          .map((id) => S[t].find((r) => r.id === id))
+          .filter(Boolean)
+          .map(stripUser);
+        if (!rows.length) continue;
+        const res = await sb.from(t).upsert(rows, { onConflict: "id" });
+        if (res.error) throw new Error(res.error.message);
+        byTable[t].forEach((id) => dirty.delete(t + ":" + id));
+      }
+      saveCache();
+      setSync("ok");
+    } catch (e) {
+      setSync("error", e && e.message ? e.message : String(e));
+    } finally {
+      syncing = false;
+      renderSync();
+    }
+  }
+
+  async function pull() {
+    if (!sb || !session) return;
+    if (!navigator.onLine) { setSync("offline"); return; }
+    setSync("working");
+    try {
+      for (const t of ["tasks", "areas", "reviews"]) {
+        const res = await sb.from(t).select("*");
+        if (res.error) throw new Error(res.error.message);
+        const remote = res.data || [];
+        remote.forEach((rr) => {
+          const arr = S[t];
+          const i = arr.findIndex((r) => r.id === rr.id);
+          const isDirty = dirty.has(t + ":" + rr.id);
+          if (i < 0) { arr.push(rr); return; }
+          const lu = ts(arr[i].updated_at), ru = ts(rr.updated_at);
+          if (isDirty && lu >= ru) return;
+          if (ru > lu) arr[i] = rr;
+        });
+      }
+      saveCache();
+      setSync("ok");
+      render();
+    } catch (e) {
+      setSync(navigator.onLine ? "error" : "offline", e && e.message ? e.message : String(e));
+    }
+  }
+
+  async function syncNow() {
+    await flush();
+    await pull();
+    await flush();
+  }
+
+  function mergeRealtime(table, row) {
+    if (!row || !row.id) return;
+    if (dirty.has(table + ":" + row.id)) return;
+    const arr = S[table];
+    const i = arr.findIndex((r) => r.id === row.id);
+    if (i < 0) arr.push(row);
+    else if (ts(row.updated_at) > ts(arr[i].updated_at)) arr[i] = row;
+    else return;
+    saveCache();
+    render();
+  }
+
+  function subscribeRealtime() {
+    if (!sb || realtimeChannel) return;
+    try {
+      realtimeChannel = sb.channel("wf-changes")
+        .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, (p) => mergeRealtime("tasks", p.new))
+        .on("postgres_changes", { event: "*", schema: "public", table: "areas" }, (p) => mergeRealtime("areas", p.new))
+        .on("postgres_changes", { event: "*", schema: "public", table: "reviews" }, (p) => mergeRealtime("reviews", p.new))
+        .subscribe();
+    } catch (e) { /* realtime не обязателен */ }
+  }
+
+  async function seedAreas() {
+    if (!session) return;
+    const uid = session.user && session.user.id;
+    if (!uid) return;
+    if (localStorage.getItem(K.seeded) === uid) return;
+    if (S.areas.filter((a) => !a.deleted).length) { localStorage.setItem(K.seeded, uid); return; }
+    AREA_SEED.forEach((name, i) => {
+      const row = { id: uuid(), name: name, sort: i, updated_at: nowISO(), deleted: false };
+      S.areas.push(row);
+      dirty.add("areas:" + row.id);
+    });
+    saveCache();
+    localStorage.setItem(K.seeded, uid);
+    await flush();
+  }
+
+  /* ---------------- icons ---------------- */
+  const icons = {
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg>',
+    circle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle></svg>',
+    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>',
+    alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4M12 17h.01"></path></svg>',
+    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"></path></svg>',
+    logo: '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"></rect><path d="M8 12.2l2.4 2.4L16 8.6"></path></svg>',
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8h.01"></path></svg>'
+  };
+
+  /* ---------------- gate views ---------------- */
+  function renderSetup(err) {
+    root.innerHTML =
+      '<div class="gate"><div class="gate-card">' +
+        '<h1>' + icons.logo + "Wonderful</h1>" +
+        '<p class="gate-sub">Подключение к Supabase. Займёт пять минут: создать проект, выполнить один SQL-запрос, вставить два значения.</p>' +
+        (err ? '<div class="banner error">' + icons.alert + "<div>" + esc(err) + "</div></div>" : "") +
+        '<ol class="stack small" style="margin-block-end:var(--space-5);padding-inline-start:1.2em;list-style:decimal">' +
+          "<li>supabase.com → New project. Дождись, пока поднимется база.</li>" +
+          "<li>SQL Editor → вставь запрос ниже → Run.</li>" +
+          "<li>Project Settings → API → скопируй <strong>Project URL</strong> и <strong>anon public</strong> key.</li>" +
+          "<li>Authentication → Providers → Email: выключи «Confirm email», иначе придётся подтверждать адрес.</li>" +
+        "</ol>" +
+        '<div class="code-wrap"><pre id="setup-sql">' + esc(SETUP_SQL) + "</pre>" +
+          '<button class="btn secondary copy" type="button" data-act="copy-sql">Копировать</button></div>' +
+        '<form id="setup-form">' +
+          '<div class="field"><label for="s-url">Project URL</label>' +
+            '<input id="s-url" type="url" placeholder="https://xxxx.supabase.co" required autocomplete="off" spellcheck="false"></div>' +
+          '<div class="field"><label for="s-key">anon public key</label>' +
+            '<input id="s-key" type="text" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..." required autocomplete="off" spellcheck="false">' +
+            '<p class="help">Это публичный ключ для клиента. Не путай с service_role — тот сюда вставлять нельзя.</p></div>' +
+          '<button class="btn primary block" type="submit">Подключить</button>' +
+        "</form>" +
+      "</div></div>";
+  }
+
+  function renderAuth(err, info) {
+    root.innerHTML =
+      '<div class="gate"><div class="gate-card">' +
+        '<h1>' + icons.logo + "Wonderful</h1>" +
+        '<p class="gate-sub">Вход. После него задачи подтянутся с сервера, а изменения будут уходить на сервер сами.</p>' +
+        (err ? '<div class="banner error">' + icons.alert + "<div>" + esc(err) + "</div></div>" : "") +
+        (info ? '<div class="banner ok">' + icons.info + "<div>" + esc(info) + "</div></div>" : "") +
+        '<form id="auth-form">' +
+          '<div class="field"><label for="a-email">E-mail</label>' +
+            '<input id="a-email" type="email" required autocomplete="email"></div>' +
+          '<div class="field"><label for="a-pass">Пароль</label>' +
+            '<input id="a-pass" type="password" required minlength="6" autocomplete="current-password">' +
+            '<p class="help">Минимум 6 символов. Если аккаунта ещё нет — нажми «Создать».</p></div>' +
+          '<div class="row"><button class="btn primary" type="submit" id="a-in">Войти</button>' +
+            '<button class="btn secondary" type="button" id="a-up">Создать аккаунт</button></div>' +
+        "</form>" +
+        '<p class="caption faint" style="margin-block-start:var(--space-4)">' +
+          '<button type="button" data-act="reset-cfg" style="text-decoration:underline;color:inherit">Сменить проект Supabase</button></p>' +
+      "</div></div>";
+  }
+
+  function renderGateError(msg) {
+    root.innerHTML = '<div class="gate"><div class="gate-card"><h1>' + icons.logo + "Wonderful</h1>" +
+      '<div class="banner error">' + icons.alert + "<div><strong>Не удалось запустить.</strong><br>" + esc(msg) + "</div></div>" +
+      '<button class="btn secondary" type="button" data-act="reset-cfg">Сбросить настройки подключения</button>' +
+      "</div></div>";
+  }
+
+  /* ---------------- app shell ---------------- */
+  function renderApp() {
+    root.innerHTML =
+      '<div class="app">' +
+        '<header class="top">' +
+          '<div class="brand">' + icons.logo + '<span class="brand-text">Wonderful</span></div>' +
+          '<form class="capture" id="capture" autocomplete="off">' +
+            '<label class="sr-only" for="cap">Новая задача</label>' +
+            '<input id="cap" name="cap" type="text" placeholder="Выгрузить из головы…" maxlength="400" autocomplete="off" spellcheck="false">' +
+            '<button class="btn primary" type="submit">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Записать</button>' +
+          "</form>" +
+          '<div class="top-actions">' +
+            '<button class="btn ghost" type="button" data-open="help" title="Как это работает" aria-label="Справка">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M9.6 9.2a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5v.4"></path><path d="M12 17h.01"></path></svg></button>' +
+            '<button class="btn ghost" type="button" data-act="signout" title="Выйти" aria-label="Выйти">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"></path><path d="M10 8l-4 4 4 4M6 12h9"></path></svg></button>' +
+          "</div>" +
+        "</header>" +
+        '<div class="shell">' +
+          '<nav class="side" aria-label="Разделы">' +
+            '<div class="navgroup" id="nav-main"></div>' +
+            '<div class="navgroup" id="nav-tools"></div>' +
+            '<div class="sync" id="sync"></div>' +
+          "</nav>" +
+          '<main id="main" tabindex="-1"></main>' +
+        "</div>" +
+      "</div>";
+    renderNav();
+    renderMain();
+    renderSync();
+  }
+
+  function renderNav() {
+    const c = counts();
+    const nm = $("#nav-main");
+    if (!nm) return;
+    nm.innerHTML = NAV.map((item) => {
+      const k = item[0], label = item[1], n = c[k] || 0;
+      const od = k === "waiting" && c.overdue > 0;
+      const cur = view === k ? ' aria-current="page"' : "";
+      const flag = od ? '<span class="nav-flag" title="Просрочено пересмотров: ' + c.overdue + '">' + icons.alert + "</span>" : "";
+      return '<button class="navitem" type="button" data-view="' + k + '"' + cur + ">" + flag +
+        '<span class="label">' + label + "</span>" +
+        (n ? '<span class="count num' + (od ? " warn" : "") + '">' + n + "</span>" : "") +
+        "</button>";
+    }).join("");
+
+    const nt = $("#nav-tools");
+    if (!nt) return;
+    nt.innerHTML = TOOLS.map((item) => {
+      const k = item[0], label = item[1];
+      const cur = view === k ? ' aria-current="page"' : "";
+      return '<button class="navitem" type="button" data-view="' + k + '"' + cur + '><span class="label">' + label + "</span></button>";
+    }).join("");
+  }
+
+  function renderMain() {
+    const m = $("#main");
+    if (!m) return;
+    m.innerHTML = (RENDER[view] || renderInbox)();
+    if (view === "review") {
+      const t = $("#rev-note");
+      if (t) t.value = sessionStorage.getItem("wf.revnote") || "";
+    }
+  }
+
+  function render() {
+    if (!root.querySelector(".app")) { renderApp(); return; }
+    renderNav();
+    renderMain();
+    renderSync();
+  }
+
+  function go(v) {
+    view = v;
+    render();
+    const m = $("#main");
+    if (m) m.focus({ preventScroll: true });
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------------- task card ---------------- */
+  function taskCard(t, opts) {
+    opts = opts || {};
+    const done = t.bucket === "done";
+    const overdue = t.bucket === "waiting" && t.review_at && String(t.review_at).slice(0, 10) < todayStr();
+    const meta = [];
+    const an = areaName(t.area_id);
+    if (an) meta.push('<span class="tag">' + esc(an) + "</span>");
+    if (t.bucket === "waiting") {
+      if (t.waiting_on) meta.push('<span class="tag">' + icons.clock + esc(t.waiting_on) + "</span>");
+      if (t.review_at) {
+        if (overdue) meta.push('<span class="tag warn">' + icons.alert + "пересмотр " + esc(fmtShort(t.review_at)) + "</span>");
+        else meta.push('<span class="tag">пересмотр ' + esc(fmtShort(t.review_at)) + "</span>");
+      }
+    }
+    if (done && t.done_at) meta.push('<span class="tag ok">закрыто ' + esc(fmtShort(t.done_at)) + "</span>");
+    if (!done && t.bucket !== "waiting" && t.created_at) meta.push('<span class="faint">создано ' + esc(fmtShort(t.created_at)) + "</span>");
+
+    const triage = opts.triage
+      ? '<div class="triage">' +
+          '<button class="btn secondary" type="button" data-act="move" data-id="' + t.id + '" data-to="now">Сейчас</button>' +
+          '<button class="btn secondary" type="button" data-act="move" data-id="' + t.id + '" data-to="next">Дальше</button>' +
+          '<button class="btn secondary" type="button" data-act="move" data-id="' + t.id + '" data-to="waiting">Ждёт</button>' +
+          '<button class="btn secondary" type="button" data-act="move" data-id="' + t.id + '" data-to="someday">Потом</button>' +
+          '<button class="btn danger" type="button" data-act="drop" data-id="' + t.id + '">' + icons.trash + "Удалить</button>" +
+        "</div>"
+      : "";
+
+    return '<article class="task" data-id="' + t.id + '">' +
+      (done ? '<span class="check" aria-hidden="true">' + icons.check + "</span>"
+            : '<button class="check" type="button" data-act="done" data-id="' + t.id + '" aria-label="Закрыть: ' + esc(t.title) + '">' + icons.circle + "</button>") +
+      '<div class="task-body">' +
+        '<button class="task-title" type="button" data-act="edit" data-id="' + t.id + '">' + esc(t.title) + "</button>" +
+        (t.next_action ? '<p class="task-next"><span class="arrow" aria-hidden="true">→</span>' + esc(t.next_action) + "</p>" : "") +
+        (meta.length ? '<p class="task-meta">' + meta.join("") + "</p>" : "") +
+        triage + (opts.extra || "") +
+      "</div></article>";
+  }
+
+  function emptyState(title, text, action) {
+    return '<div class="empty"><h2>' + esc(title) + "</h2><p>" + esc(text) + "</p>" + (action || "") + "</div>";
+  }
+  function head(info, right) {
+    return '<div class="view-head"><h1>' + esc(info[0]) + "</h1>" + (right || "") + "</div>" +
+           '<p class="view-sub">' + esc(info[1]) + "</p>";
+  }
+
+  /* ---------------- views ---------------- */
+  function renderInbox() {
+    const rows = live("inbox").sort(byCreated);
+    let html = head(VIEW_INFO.inbox, rows.length ? '<span class="tag num">' + rows.length + " шт.</span>" : "");
+    html += rows.length
+      ? rows.map((t) => taskCard(t, { triage: true })).join("")
+      : emptyState("Входящие пусты", "Голова свободна. Всё, что появится — пиши в строку сверху, разберёшь потом.", "");
+    return html;
+  }
+
+  function renderNow() {
+    const rows = live("now").sort((a, b) => String(a.updated_at).localeCompare(String(b.updated_at)));
+    let html = head(VIEW_INFO.now, '<span class="tag num">' + rows.length + " / 3</span>");
+    html += '<div class="slots">';
+    for (let i = 0; i < 3; i++) {
+      const t = rows[i];
+      html += t
+        ? '<div class="slot filled">' + taskCard(t, {}) + "</div>"
+        : '<div class="slot"><div><p class="slot-no">слот ' + (i + 1) + "</p><p>свободен</p></div></div>";
+    }
+    html += "</div>";
+    if (rows.length > 3) html += '<h3 class="group-head">Сверх лимита</h3>' + rows.slice(3).map((t) => taskCard(t, {})).join("");
+    if (!rows.length) html += '<p class="view-sub" style="margin-block-start:var(--space-4)">Пусто. Возьми одну из «Дальше» — и объяви её главной.</p>';
+    return html;
+  }
+
+  function renderNext() {
+    const rows = live("next").sort(byCreated);
+    let html = head(VIEW_INFO.next, rows.length ? '<span class="tag num">' + rows.length + " шт.</span>" : "");
+    if (!rows.length) {
+      return html + emptyState("Ничего не готово к запуску", "Разбери «Входящие» — то, у чего есть конкретное действие, попадёт сюда.",
+        '<button class="btn primary" type="button" data-view="inbox">Открыть входящие</button>');
+    }
+    const groups = {};
+    rows.forEach((t) => {
+      const an = areaName(t.area_id) || "Без направления";
+      (groups[an] = groups[an] || []).push(t);
+    });
+    const names = Object.keys(groups).sort((a, b) => {
+      if (a === "Без направления") return 1;
+      if (b === "Без направления") return -1;
+      return a.localeCompare(b, "ru");
+    });
+    names.forEach((an) => {
+      html += '<h3 class="group-head">' + esc(an) + "</h3>";
+      html += groups[an].map((t) => taskCard(t, {
+        extra: '<div class="triage">' +
+          '<button class="btn ghost" type="button" data-act="move" data-id="' + t.id + '" data-to="now">В работу</button>' +
+          '<button class="btn ghost" type="button" data-act="move" data-id="' + t.id + '" data-to="waiting">Ждёт</button>' +
+          '<button class="btn ghost" type="button" data-act="move" data-id="' + t.id + '" data-to="someday">Потом</button>' +
+        "</div>"
+      })).join("");
+    });
+    return html;
+  }
+
+  function renderWaiting() {
+    const today = todayStr();
+    const rows = live("waiting").sort((a, b) => {
+      const ra = a.review_at ? String(a.review_at).slice(0, 10) : "9999";
+      const rb = b.review_at ? String(b.review_at).slice(0, 10) : "9999";
+      return ra.localeCompare(rb);
+    });
+    const overdueN = rows.filter((t) => t.review_at && String(t.review_at).slice(0, 10) < today).length;
+    let html = head(VIEW_INFO.waiting, overdueN ? '<span class="tag warn">' + icons.alert + "просрочено: " + overdueN + "</span>" : "");
+    if (!rows.length) {
+      return html + emptyState("Ничего не ждёт", "Сюда уходит то, что заблокировано: деньги, время, чужой ответ. Каждый пункт получает дату пересмотра — и перестаёт шуметь в голове.", "");
+    }
+    html += rows.map((t) => {
+      const od = t.review_at && String(t.review_at).slice(0, 10) < today;
+      const late = t.review_at ? daysBetween(String(t.review_at).slice(0, 10), today) : null;
+      const an = areaName(t.area_id);
+      return '<div class="wait-row' + (od ? " overdue" : "") + '">' +
+        '<div class="w-body">' +
+          '<button class="task-title" type="button" data-act="edit" data-id="' + t.id + '">' + esc(t.title) + "</button>" +
+          (t.waiting_on ? '<p class="task-next">' + esc(t.waiting_on) + "</p>" : "") +
+          '<p class="task-meta">' +
+            (an ? '<span class="tag">' + esc(an) + "</span>" : "") +
+            (od ? '<span class="tag warn">' + icons.alert + "просрочен на " + late + " дн.</span>"
+                : (t.review_at ? '<span class="tag">пересмотр ' + esc(fmtDate(t.review_at)) + "</span>" : '<span class="tag">без даты</span>')) +
+          "</p>" +
+        "</div>" +
+        '<div class="w-actions">' +
+          '<label class="sr-only" for="rd' + t.id + '">Дата пересмотра</label>' +
+          '<input id="rd' + t.id + '" type="date" value="' + esc(t.review_at ? String(t.review_at).slice(0, 10) : "") + '" data-act="review-date" data-id="' + t.id + '">' +
+          '<button class="btn secondary" type="button" data-act="move" data-id="' + t.id + '" data-to="next">Вернуть</button>' +
+          '<button class="btn ghost" type="button" data-act="move" data-id="' + t.id + '" data-to="someday">Потом</button>' +
+        "</div></div>";
+    }).join("");
+    return html;
+  }
+
+  function renderSomeday() {
+    const rows = live("someday").sort(byCreated);
+    let html = head(VIEW_INFO.someday, rows.length ? '<span class="tag num">' + rows.length + " шт.</span>" : "");
+    if (!rows.length) return html + emptyState("Пусто", "Сюда складывается то, что не сейчас, но и не мусор. Хранить — нормально.", "");
+    html += rows.map((t) => taskCard(t, {
+      extra: '<div class="triage"><button class="btn ghost" type="button" data-act="move" data-id="' + t.id + '" data-to="next">Вернуть в «Дальше»</button></div>'
+    })).join("");
+    return html;
+  }
+
+  function renderDone() {
+    const rows = live("done").sort((a, b) => String(b.done_at || "").localeCompare(String(a.done_at || ""))).slice(0, 80);
+    const all = live("done");
+    const week = all.filter((t) => t.done_at && ts(t.done_at) >= Date.now() - 7 * 86400000).length;
+    let html = head(VIEW_INFO.done, '<span class="tag num">за неделю: ' + week + " · всего: " + all.length + "</span>");
+    if (!rows.length) return html + emptyState("Пока пусто", "Закрытые задачи появятся здесь. Это твои доказательства движения.", "");
+    html += rows.map((t) => taskCard(t, {})).join("");
+    return html;
+  }
+
+  function renderReview() {
+    const c = counts();
+    const reviews = S.reviews.filter((r) => !r.deleted).sort((a, b) => String(b.done_at).localeCompare(String(a.done_at)));
+    const last = reviews[0];
+    const lastTxt = last
+      ? "последний обзор: " + fmtDate(last.done_at) + " · " + Math.max(0, daysBetween(String(last.done_at).slice(0, 10), todayStr())) + " дн. назад"
+      : "обзоров ещё не было";
+
+    const steps = [
+      { ok: c.inbox === 0, title: "Опустошить «Входящие»", hint: c.inbox ? ("осталось " + c.inbox) : "готово", go: c.inbox ? '<button class="btn secondary" type="button" data-view="inbox">Разобрать</button>' : "" },
+      { ok: c.overdue === 0, title: "Пересмотреть «Ждёт»", hint: c.overdue ? ("просрочено " + c.overdue) : "нет просроченных", go: c.overdue ? '<button class="btn secondary" type="button" data-view="waiting">Открыть</button>' : "" },
+      { ok: c.next === 0, title: "Просмотреть «Дальше»", hint: c.next ? ("в списке " + c.next) : "пусто", go: c.next ? '<button class="btn secondary" type="button" data-view="next">Открыть</button>' : "" },
+      { ok: c.now > 0 && c.now <= 3, title: "Определить, что в работе", hint: "в работе " + c.now + " из 3", go: '<button class="btn secondary" type="button" data-view="now">Сейчас</button>' }
+    ];
+
+    let html = head(VIEW_INFO.review, '<span class="tag">' + esc(lastTxt) + "</span>");
+    html += '<div class="review-steps">';
+    steps.forEach((s, i) => {
+      html += '<div class="step' + (s.ok ? " done" : "") + '">' +
+        '<span class="step-no">' + (s.ok ? "✓" : (i + 1)) + "</span>" +
+        "<div><p>" + esc(s.title) + '</p><p class="hint">' + esc(s.hint) + "</p></div>" +
+        '<div class="step-go">' + s.go + "</div></div>";
+    });
+    html += "</div>";
+    html += '<div class="row" style="margin-block-end:var(--space-5)">' +
+      '<span class="small muted">Отложить или удалить лишнее —</span>' +
+      '<button class="btn ghost" type="button" data-view="someday">«Когда-нибудь»: ' + c.someday + "</button></div>";
+    html += '<div class="field"><label for="rev-note">Что понял за неделю</label>' +
+      '<textarea id="rev-note" maxlength="2000" placeholder="Что двигалось, что нет и почему. Одна-две строки."></textarea></div>';
+    html += '<div class="row"><button class="btn primary" type="button" data-act="close-review">Закрыть обзор</button>' +
+      '<button class="btn ghost" type="button" data-act="push-waiting">Сбросить даты «Ждёт» на 2 недели</button></div>';
+    return html;
+  }
+
+  function renderData() {
+    const c = counts();
+    const total = S.tasks.filter((t) => !t.deleted).length;
+    let html = head(VIEW_INFO.data, '<span class="tag num">задач: ' + total + "</span>");
+    html += '<div class="banner">' + icons.info +
+      "<div>Все данные лежат в Postgres. Полные запросы удобнее делать в <strong>Supabase → SQL Editor</strong>: там можно всё, что умеет SQL.</div></div>";
+    html += '<div class="row" style="margin-block-end:var(--space-4)">' +
+      '<button class="btn secondary" type="button" data-act="export-json">Скачать JSON</button>' +
+      '<button class="btn secondary" type="button" data-act="export-csv">Скачать CSV задач</button>' +
+      '<button class="btn ghost" type="button" data-act="sync">Синхронизировать</button></div>';
+    html += '<h2 style="margin-block-end:var(--space-2)">Что в базе</h2>' +
+      '<div class="results"><table><thead><tr><th>Корзина</th><th>Штук</th></tr></thead><tbody>' +
+      ["inbox", "now", "next", "waiting", "someday", "done"].map((b) =>
+        "<tr><td>" + esc(b) + '</td><td class="num">' + (c[b] || 0) + "</td></tr>").join("") +
+      "</tbody></table></div>";
+    html += '<h2 style="margin-block:var(--space-5) var(--space-2)">Примеры запросов</h2>';
+    const ex = [
+      ["Просроченные пересмотры", "select title, waiting_on, review_at,\n       current_date - review_at as days_late\nfrom tasks\nwhere bucket = 'waiting' and review_at < current_date\norder by review_at;"],
+      ["Открытые по направлениям", "select coalesce(a.name, '—') as area,\n       count(*) filter (where t.bucket = 'next')    as next_n,\n       count(*) filter (where t.bucket = 'now')     as now_n,\n       count(*) filter (where t.bucket = 'waiting') as waiting_n\nfrom tasks t left join areas a on a.id = t.area_id\nwhere t.bucket in ('next','now','waiting') and not t.deleted\ngroup by 1 order by 2 desc;"],
+      ["Закрыто по неделям", "select date_trunc('week', done_at)::date as week, count(*)\nfrom tasks\nwhere bucket = 'done' and not deleted\n  and done_at >= current_date - interval '12 weeks'\ngroup by 1 order by 1 desc;"]
+    ];
+    ex.forEach((e) => {
+      html += '<p class="small" style="margin-block-end:var(--space-1)"><strong>' + esc(e[0]) + "</strong></p>" +
+        '<div class="code-wrap"><pre>' + esc(e[1]) + "</pre></div>";
+    });
+    return html;
+  }
+
+  const RENDER = {
+    inbox: renderInbox, now: renderNow, next: renderNext, waiting: renderWaiting,
+    someday: renderSomeday, done: renderDone, review: renderReview, data: renderData
+  };
+
+  /* ---------------- actions ---------------- */
+  function findTask(id) { return S.tasks.find((t) => t.id === id && !t.deleted); }
+
+  function moveTask(id, to) {
+    const t = findTask(id);
+    if (!t) return;
+    if (to === "now" && t.bucket !== "now" && counts().now >= 3) {
+      toast("Лимит: 3 в работе. Сначала закрой одну.");
+      return;
+    }
+    const patch = { bucket: to };
+    if (to === "waiting" && !t.review_at) patch.review_at = addDays(14);
+    if (to === "done") patch.done_at = nowISO();
+    if (to !== "done") patch.done_at = null;
+    upsertLocal("tasks", Object.assign({}, t, patch));
+    toast(to === "waiting" ? "В «Ждёт», пересмотр " + fmtDate(patch.review_at || t.review_at) : "Готово");
+  }
+
+  function openTask(id) {
+    editingId = id;
+    const t = findTask(id);
+    if (!t) return;
+    $("#td-title").textContent = "Задача";
+    $("#f-title").value = t.title || "";
+    $("#f-next").value = t.next_action || "";
+    $("#f-bucket").value = t.bucket === "done" ? "next" : t.bucket;
+    $("#f-waiting").value = t.waiting_on || "";
+    $("#f-review").value = t.review_at ? String(t.review_at).slice(0, 10) : "";
+    $("#f-note").value = t.note || "";
+    const areas = S.areas.filter((a) => !a.deleted).sort((a, b) => (a.sort || 0) - (b.sort || 0));
+    $("#f-area").innerHTML = '<option value="">— без направления —</option>' +
+      areas.map((a) => '<option value="' + a.id + '">' + esc(a.name) + "</option>").join("");
+    $("#f-area").value = t.area_id || "";
+    $("#task-dialog").showModal();
+  }
+
+  function closeReview() {
+    const note = ($("#rev-note") && $("#rev-note").value.trim()) || null;
+    upsertLocal("reviews", { id: uuid(), done_at: nowISO(), note: note, deleted: false });
+    sessionStorage.removeItem("wf.revnote");
+    toast("Обзор закрыт");
+  }
+
+  function download(name, text, type) {
+    const blob = new Blob([text], { type: type || "text/plain;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  /* ---------------- auth ---------------- */
+  async function initClient() {
+    if (!cfg.url || !cfg.key) { renderSetup(); return; }
+    if (typeof supabase === "undefined" || !supabase.createClient) { renderGateError("Клиент Supabase не загрузился: нет файла vendor/supabase.js."); return; }
+    try {
+      sb = supabase.createClient(cfg.url, cfg.key, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      const res = await sb.auth.getSession();
+      session = res && res.data ? res.data.session : null;
+    } catch (e) {
+      renderGateError(e && e.message ? e.message : String(e));
+      return;
+    }
+    sb.auth.onAuthStateChange((evt, s) => {
+      session = s;
+      if (s) afterLogin();
+      else { realtimeChannel = null; renderAuth(); }
+    });
+    if (session) afterLogin();
+    else renderAuth();
+  }
+
+  async function afterLogin() {
+    const uid = session && session.user ? session.user.id : null;
+    const owner = localStorage.getItem("wf.owner");
+    if (owner && uid && owner !== uid) clearCache();
+    if (uid) localStorage.setItem("wf.owner", uid);
+
+    loadCache();
+    renderApp();
+    setSync("working");
+    await pull();
+    await seedAreas();
+    await flush();
+    subscribeRealtime();
+    const cap = $("#cap");
+    if (cap) cap.focus();
+  }
+
+  async function doSign(mode) {
+    const email = ($("#a-email") || {}).value || "";
+    const pass = ($("#a-pass") || {}).value || "";
+    if (!email || !pass) { renderAuth("Заполни e-mail и пароль."); return; }
+    try {
+      if (mode === "up") {
+        const r = await sb.auth.signUp({ email: email, password: pass });
+        if (r.error) throw r.error;
+        if (r.data && r.data.session) { session = r.data.session; afterLogin(); }
+        else renderAuth(null, "Аккаунт создан. Подтверди адрес по письму, потом войди.");
+      } else {
+        const r = await sb.auth.signInWithPassword({ email: email, password: pass });
+        if (r.error) throw r.error;
+        session = r.data.session;
+        afterLogin();
+      }
+    } catch (e) {
+      const msg = e && e.message ? e.message : String(e);
+      renderAuth(/invalid/i.test(msg) ? "Неверный e-mail или пароль." : msg);
+    }
+  }
+
+  /* ---------------- events ---------------- */
+  document.addEventListener("click", async (e) => {
+    const nav = e.target.closest("[data-view]");
+    if (nav) { go(nav.getAttribute("data-view")); return; }
+
+    const open = e.target.closest("[data-open]");
+    if (open) { const d = $("#" + open.getAttribute("data-open") + "-dialog"); if (d) d.showModal(); return; }
+
+    const close = e.target.closest("[data-close]");
+    if (close) { const d = $("#" + close.getAttribute("data-close")); if (d) d.close(); return; }
+
+    const act = e.target.closest("[data-act]");
+    if (act) {
+      const a = act.getAttribute("data-act");
+      const id = act.getAttribute("data-id");
+      if (a === "review-date") return;
+
+      if (a === "move") { moveTask(id, act.getAttribute("data-to")); return; }
+      if (a === "done") { moveTask(id, "done"); return; }
+      if (a === "drop") {
+        const t = findTask(id);
+        softDelete("tasks", id);
+        toast("Удалено" + (t ? ": " + (t.title.length > 40 ? t.title.slice(0, 40) + "…" : t.title) : ""));
+        return;
+      }
+      if (a === "edit") { openTask(id); return; }
+      if (a === "sync") { await syncNow(); toast("Синхронизировано"); return; }
+      if (a === "close-review") { closeReview(); return; }
+      if (a === "push-waiting") {
+        const rows = live("waiting");
+        rows.forEach((t) => {
+          const cur = t.review_at ? String(t.review_at).slice(0, 10) : "";
+          const base = cur && cur < todayStr() ? addDays(14) : addDays(14);
+          upsertLocal("tasks", Object.assign({}, t, { review_at: base }));
+        });
+        toast("Даты пересмотра сдвинуты");
+        return;
+      }
+      if (a === "copy-sql") {
+        const pre = $("#setup-sql");
+        if (pre) {
+          const txt = pre.textContent;
+          try { await navigator.clipboard.writeText(txt); toast("SQL скопирован"); }
+          catch (err) {
+            const r = document.createRange(); r.selectNodeContents(pre);
+            const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+            toast("Выделено — нажми Ctrl+C");
+          }
+        }
+        return;
+      }
+      if (a === "reset-cfg") {
+        localStorage.removeItem(K.cfg);
+        cfg = { url: "", key: "" };
+        renderSetup();
+        return;
+      }
+      if (a === "signout") {
+        try { if (realtimeChannel && sb) await sb.removeChannel(realtimeChannel); } catch (err) {}
+        realtimeChannel = null;
+        await sb.auth.signOut();
+        session = null;
+        renderAuth();
+        return;
+      }
+      if (a === "export-json") {
+        download("wonderful-" + todayStr() + ".json", JSON.stringify({ tasks: S.tasks, areas: S.areas, reviews: S.reviews }, null, 2), "application/json");
+        toast("JSON скачан");
+        return;
+      }
+      if (a === "export-csv") {
+        const head = ["bucket", "title", "next_action", "area", "waiting_on", "review_at", "done_at", "created_at"];
+        const q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+        const lines = [head.join(",")];
+        S.tasks.filter((t) => !t.deleted).forEach((t) => {
+          lines.push([t.bucket, t.title, t.next_action, areaName(t.area_id), t.waiting_on, t.review_at, t.done_at, t.created_at].map(q).join(","));
+        });
+        download("wonderful-tasks-" + todayStr() + ".csv", "\uFEFF" + lines.join("\r\n"), "text/csv;charset=utf-8");
+        toast("CSV скачан");
+        return;
+      }
+    }
+  });
+
+  document.addEventListener("change", (e) => {
+    const el = e.target.closest('[data-act="review-date"]');
+    if (el) {
+      const t = findTask(el.getAttribute("data-id"));
+      if (!t) return;
+      upsertLocal("tasks", Object.assign({}, t, { review_at: el.value || null }));
+      toast(el.value ? "Пересмотр " + fmtDate(el.value) : "Дата убрана");
+    }
+  });
+
+  document.addEventListener("input", (e) => {
+    if (e.target.id === "rev-note") sessionStorage.setItem("wf.revnote", e.target.value);
+  });
+
+  document.addEventListener("submit", async (e) => {
+    if (e.target.id === "setup-form") {
+      e.preventDefault();
+      const url = ($("#s-url").value || "").trim().replace(/\/+$/, "");
+      const key = ($("#s-key").value || "").trim();
+      if (!/^https?:\/\//.test(url) || key.length < 20) { renderSetup("Проверь адрес проекта и ключ."); return; }
+      cfg = { url: url, key: key };
+      localStorage.setItem(K.cfg, JSON.stringify(cfg));
+      await initClient();
+      return;
+    }
+    if (e.target.id === "auth-form") {
+      e.preventDefault();
+      await doSign("in");
+      return;
+    }
+    if (e.target.id === "capture") {
+      e.preventDefault();
+      const inp = $("#cap");
+      const v = inp.value.trim();
+      if (!v) return;
+      upsertLocal("tasks", { id: uuid(), title: v, bucket: "inbox", created_at: nowISO(), updated_at: nowISO(), deleted: false });
+      inp.value = "";
+      inp.focus();
+      toast("Записано");
+      return;
+    }
+    if (e.target.id === "task-form") {
+      e.preventDefault();
+      if (editingId == null) return;
+      const t = findTask(editingId);
+      if (!t) return;
+      const title = $("#f-title").value.trim();
+      if (!title) { $("#f-title").focus(); return; }
+      const bucket = $("#f-bucket").value;
+      if (bucket === "now" && t.bucket !== "now" && counts().now >= 3) {
+        toast("Лимит: 3 в работе. Сначала закрой одну.");
+        return;
+      }
+      const patch = {
+        title: title,
+        next_action: $("#f-next").value.trim() || null,
+        bucket: bucket,
+        area_id: $("#f-area").value || null,
+        waiting_on: $("#f-waiting").value.trim() || null,
+        review_at: $("#f-review").value || null,
+        note: $("#f-note").value.trim() || null
+      };
+      if (bucket === "done" && !t.done_at) patch.done_at = nowISO();
+      if (bucket !== "done") patch.done_at = null;
+      upsertLocal("tasks", Object.assign({}, t, patch));
+      $("#task-dialog").close();
+      toast("Сохранено");
+      return;
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (e.target.id === "a-up") { doSign("up"); }
+    if (e.target.id === "f-delete" && editingId) {
+      const id = editingId;
+      $("#task-dialog").close();
+      softDelete("tasks", id);
+      toast("Удалено");
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    const tag = (e.target.tagName || "").toLowerCase();
+    const typing = tag === "input" || tag === "textarea" || tag === "select" || e.target.isContentEditable;
+    if (e.key === "Escape") {
+      const d = document.querySelector("dialog[open]");
+      if (d) d.close();
+      return;
+    }
+    if (typing || !root.querySelector(".app")) return;
+    if (e.key === "n" || e.key === "/") { e.preventDefault(); const c = $("#cap"); if (c) c.focus(); return; }
+    const idx = ["1", "2", "3", "4", "5", "6"].indexOf(e.key);
+    if (idx > -1) { e.preventDefault(); go(NAV[idx][0]); }
+  });
+
+  window.addEventListener("online", () => { setSync("idle"); syncNow(); });
+  window.addEventListener("offline", () => setSync("offline"));
+  window.addEventListener("focus", () => { if (session) syncNow(); });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && session) syncNow(); });
+
+  /* ---------------- boot ---------------- */
+  try {
+    const raw = localStorage.getItem(K.cfg);
+    if (raw) cfg = Object.assign({ url: "", key: "" }, JSON.parse(raw));
+  } catch (e) { cfg = { url: "", key: "" }; }
+
+  initClient();
+
+})();
+</script>
+</body>
+</html>

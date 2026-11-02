@@ -1,0 +1,13 @@
+# OS / IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Локальные файлы
+*.log
+.env
+.env.*
+supabase/.temp/
