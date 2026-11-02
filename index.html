@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-theme="teal">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -199,6 +199,7 @@
     padding: var(--sp-4) var(--sp-4) calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--sp-8));
     min-inline-size: 0;
   }
+  main:focus, main:focus-visible { outline: none; }
 
   /* ---------------- view header ---------------- */
   .view-head {
@@ -574,6 +575,50 @@
   }
   #toast.show { opacity: 1; transform: translateY(0); }
 
+  /* ---------------- метки и темы ---------------- */
+  .label-dot {
+    inline-size: 8px; block-size: 8px; border-radius: 50%;
+    background: var(--lc, var(--text-faint)); flex: none;
+  }
+  .label-inline { display: inline-flex; align-items: center; gap: 5px; }
+  .label-picker { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .label-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    min-block-size: 38px; padding-inline: 12px; border-radius: var(--r-sm);
+    background: var(--surface-sink); color: var(--text-secondary);
+    font-size: 0.8125rem; font-weight: 550;
+    transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease);
+  }
+  .label-chip:hover { background: var(--surface-soft); }
+  .label-chip[aria-pressed="true"] { background: var(--lb); color: var(--lc); font-weight: 650; }
+
+  .swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+  .swatch {
+    inline-size: 38px; block-size: 38px; border-radius: 50%;
+    background: var(--lc); border: 2px solid transparent;
+    transition: transform var(--dur-1) var(--ease);
+  }
+  .swatch:hover { transform: scale(1.06); }
+  .swatch[aria-pressed="true"] { border-color: var(--text-primary); }
+
+  .theme-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 132px), 1fr)); gap: var(--sp-2); }
+  .theme-card {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px; border-radius: var(--r-md);
+    background: var(--surface-sink); color: var(--text-primary);
+    font-size: 0.9375rem; font-weight: 550; text-align: start;
+    border: 2px solid transparent;
+    transition: background var(--dur-1) var(--ease);
+  }
+  .theme-card:hover { background: var(--surface-soft); }
+  .theme-card[aria-pressed="true"] { border-color: var(--accent); }
+  .theme-dot { inline-size: 22px; block-size: 22px; border-radius: 50%; flex: none; }
+
+  .field > .field-label {
+    font-size: var(--fs-tiny); font-weight: 650; color: var(--text-secondary); letter-spacing: 0.02em;
+  }
+
   /* ---------------- desktop ---------------- */
   @media (min-width: 900px) {
     .brand span { display: inline; }
@@ -637,6 +682,43 @@
   .mt-4 { margin-block-start: var(--sp-4); }
   .mb-4 { margin-block-end: var(--sp-4); }
 }
+/* ================= ТЕМЫ ================= */
+html[data-theme="teal"]  { --accent: oklch(0.47 0.092 195); --accent-hover: oklch(0.53 0.094 195); --accent-soft: oklch(0.95 0.020 195); --on-accent: oklch(0.99 0.003 195); }
+html[data-theme="olive"] { --accent: oklch(0.46 0.090 135); --accent-hover: oklch(0.52 0.092 135); --accent-soft: oklch(0.95 0.030 135); --on-accent: oklch(0.99 0.003 135); }
+html[data-theme="clay"]  { --accent: oklch(0.50 0.130 38);  --accent-hover: oklch(0.56 0.130 38);  --accent-soft: oklch(0.95 0.035 38);  --on-accent: oklch(0.99 0.003 38); }
+html[data-theme="plum"]  { --accent: oklch(0.47 0.110 335); --accent-hover: oklch(0.53 0.110 335); --accent-soft: oklch(0.95 0.030 335); --on-accent: oklch(0.99 0.003 335); }
+html[data-theme="slate"] { --accent: oklch(0.40 0.030 250); --accent-hover: oklch(0.46 0.030 250); --accent-soft: oklch(0.94 0.010 250); --on-accent: oklch(0.99 0.003 250); }
+
+@media (prefers-color-scheme: dark) {
+  html[data-theme="teal"]  { --accent: oklch(0.745 0.088 195); --accent-hover: oklch(0.800 0.084 195); --accent-soft: oklch(0.300 0.040 195); --on-accent: oklch(0.16 0.02 195); }
+  html[data-theme="olive"] { --accent: oklch(0.760 0.085 135); --accent-hover: oklch(0.810 0.080 135); --accent-soft: oklch(0.300 0.045 135); --on-accent: oklch(0.16 0.02 135); }
+  html[data-theme="clay"]  { --accent: oklch(0.750 0.120 45);  --accent-hover: oklch(0.800 0.115 45);  --accent-soft: oklch(0.310 0.055 45);  --on-accent: oklch(0.16 0.02 45); }
+  html[data-theme="plum"]  { --accent: oklch(0.760 0.100 335); --accent-hover: oklch(0.810 0.095 335); --accent-soft: oklch(0.300 0.045 335); --on-accent: oklch(0.16 0.02 335); }
+  html[data-theme="slate"] { --accent: oklch(0.780 0.020 250); --accent-hover: oklch(0.830 0.018 250); --accent-soft: oklch(0.290 0.012 250); --on-accent: oklch(0.16 0.02 250); }
+}
+
+/* ================= ЦВЕТА МЕТОК ================= */
+[data-c="teal"]   { --lc: oklch(0.52 0.090 195); --lb: oklch(0.945 0.025 195); }
+[data-c="blue"]   { --lc: oklch(0.50 0.110 250); --lb: oklch(0.945 0.025 250); }
+[data-c="violet"] { --lc: oklch(0.50 0.130 292); --lb: oklch(0.945 0.025 292); }
+[data-c="plum"]   { --lc: oklch(0.50 0.120 335); --lb: oklch(0.945 0.025 335); }
+[data-c="rose"]   { --lc: oklch(0.52 0.140 15);  --lb: oklch(0.950 0.025 15); }
+[data-c="clay"]   { --lc: oklch(0.52 0.120 45);  --lb: oklch(0.950 0.030 45); }
+[data-c="amber"]  { --lc: oklch(0.55 0.110 80);  --lb: oklch(0.950 0.040 80); }
+[data-c="olive"]  { --lc: oklch(0.50 0.090 135); --lb: oklch(0.945 0.030 135); }
+[data-c="slate"]  { --lc: oklch(0.48 0.020 250); --lb: oklch(0.940 0.008 250); }
+
+@media (prefers-color-scheme: dark) {
+  [data-c="teal"]   { --lc: oklch(0.800 0.080 195); --lb: oklch(0.300 0.040 195); }
+  [data-c="blue"]   { --lc: oklch(0.800 0.090 250); --lb: oklch(0.300 0.040 250); }
+  [data-c="violet"] { --lc: oklch(0.800 0.100 292); --lb: oklch(0.300 0.045 292); }
+  [data-c="plum"]   { --lc: oklch(0.800 0.095 335); --lb: oklch(0.300 0.045 335); }
+  [data-c="rose"]   { --lc: oklch(0.790 0.100 15);  --lb: oklch(0.310 0.050 15); }
+  [data-c="clay"]   { --lc: oklch(0.790 0.100 45);  --lb: oklch(0.310 0.050 45); }
+  [data-c="amber"]  { --lc: oklch(0.810 0.095 80);  --lb: oklch(0.300 0.045 80); }
+  [data-c="olive"]  { --lc: oklch(0.790 0.085 135); --lb: oklch(0.300 0.045 135); }
+  [data-c="slate"]  { --lc: oklch(0.760 0.015 250); --lb: oklch(0.290 0.010 250); }
+}
 </style>
 </head>
 <body>
@@ -696,8 +778,9 @@
         <input id="f-next" maxlength="300" placeholder="позвонить в банк, 20 минут">
       </div>
       <div class="field">
-        <label for="f-area">Направление</label>
-        <select id="f-area"></select>
+        <span class="field-label">Метка</span>
+        <div class="label-picker" id="label-picker" role="group" aria-label="Метка"></div>
+        <button class="btn ghost" type="button" data-act="labels" style="align-self:flex-start;padding-inline:0;min-block-size:32px">Управлять метками</button>
       </div>
       <div class="field-row">
         <div class="field">
@@ -748,6 +831,33 @@
   <div class="dlg-foot"><span class="spacer"></span><button class="btn primary" type="button" data-close="help-dialog">Понятно</button></div>
 </dialog>
 
+<dialog id="label-dialog" class="sheet" aria-labelledby="ld-title">
+  <div class="grabber" aria-hidden="true"></div>
+  <form id="label-form">
+    <div class="dlg-head">
+      <h2 id="ld-title">Метка</h2>
+      <button class="icon-btn" type="button" data-close="label-dialog" aria-label="Закрыть">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </button>
+    </div>
+    <div class="dlg-body">
+      <div class="field">
+        <label for="l-name">Название</label>
+        <input id="l-name" maxlength="60" placeholder="Квартира, Дача, Машина…" required autocomplete="off">
+      </div>
+      <div class="field">
+        <span class="field-label">Цвет</span>
+        <div class="swatches" id="l-colors" role="group" aria-label="Цвет метки"></div>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn danger" type="button" id="l-delete">Удалить</button>
+      <span class="spacer"></span>
+      <button class="btn primary" type="submit">Сохранить</button>
+    </div>
+  </form>
+</dialog>
+
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script src="vendor/supabase.js"></script>
@@ -757,7 +867,15 @@
 
   const K = { cfg: "wf.cfg", cache: "wf.cache", seeded: "wf.seeded" };
 
-  const AREA_SEED = ["Работа", "Квартира", "Дача", "Дети", "Семья", "Здоровье", "Деньги", "Машина", "Документы", "Поиск работы", "Личное"];
+  const THEMES = [
+    ["teal", "Бирюза", "oklch(0.52 0.09 195)"],
+    ["olive", "Олива", "oklch(0.52 0.09 135)"],
+    ["clay", "Терракота", "oklch(0.56 0.13 38)"],
+    ["plum", "Слива", "oklch(0.53 0.11 335)"],
+    ["slate", "Графит", "oklch(0.45 0.03 250)"]
+  ];
+  const LABEL_COLORS = ["teal", "blue", "violet", "plum", "rose", "clay", "amber", "olive", "slate"];
+  const THEME_KEY = "wf.theme";
 
   const NAV = [
     ["inbox", "Входящие"],
@@ -768,7 +886,7 @@
     ["done", "Закрыто"]
   ];
 
-  const MORE_VIEWS = ["someday", "done", "review", "data"];
+  const MORE_VIEWS = ["someday", "done", "labels", "review", "data"];
 
   const VIEW_INFO = {
     inbox: ["Входящие", "Разбери по одному: у каждого пункта должно появиться решение."],
@@ -777,6 +895,7 @@
     waiting: ["Ждёт", "Заблокировано. У каждого пункта есть дата пересмотра."],
     someday: ["Когда-нибудь", "Без обязательств. Раз в квартал что-то возвращаем."],
     done: ["Закрыто", "Доказательства движения."],
+    labels: ["Метки", "Проекты и направления. Цвет помогает узнавать их с одного взгляда."],
     review: ["Недельный обзор", "Двадцать минут, иначе система умирает за три недели."],
     data: ["Данные", "Выгрузка и запросы к своей базе."]
   };
@@ -851,6 +970,9 @@ alter publication supabase_realtime add table public.reviews;`;
   let view = "inbox";
   let editingId = null;
   let editingBucket = "inbox";
+  let editingAreaId = null;
+  let editingLabelId = null;
+  let editingLabelColor = "teal";
   let syncing = false;
   let syncKind = "idle";
   let syncMsg = "";
@@ -1048,19 +1170,77 @@ alter publication supabase_realtime add table public.reviews;`;
     } catch (e) {}
   }
 
-  async function seedAreas() {
-    if (!session) return;
-    const uid = session.user && session.user.id;
-    if (!uid) return;
-    if (localStorage.getItem(K.seeded) === uid) return;
-    if (S.areas.filter((a) => !a.deleted).length) { localStorage.setItem(K.seeded, uid); return; }
-    AREA_SEED.forEach((name, i) => {
-      const row = { id: uuid(), name: name, sort: i, updated_at: nowISO(), deleted: false };
-      S.areas.push(row);
-      dirty.add("areas:" + row.id);
+  /* ---------------- тема ---------------- */
+  function currentTheme() { return document.documentElement.getAttribute("data-theme") || "teal"; }
+
+  function applyTheme(name) {
+    document.documentElement.setAttribute("data-theme", name);
+    try { localStorage.setItem(THEME_KEY, name); } catch (e) {}
+    const pair = THEMES.find(function (t) { return t[0] === name; });
+    toast("Стиль: " + (pair ? pair[1] : name));
+  }
+
+  function openTheme() {
+    openSheet("Стиль",
+      '<div class="theme-grid">' + THEMES.map(function (t) {
+        const on = currentTheme() === t[0];
+        return '<button class="theme-card" type="button" data-theme-set="' + t[0] + '" aria-pressed="' + on + '">' +
+          '<span class="theme-dot" style="background:' + t[2] + '"></span><span>' + esc(t[1]) + "</span></button>";
+      }).join("") + "</div>" +
+      '<p class="caption faint mt-3">Стиль хранится на этом устройстве.</p>');
+  }
+
+  /* ---------------- метки ---------------- */
+  function renderLabels() {
+    const areas = S.areas.filter(function (a) { return !a.deleted; }).sort(function (a, b) { return (a.sort || 0) - (b.sort || 0); });
+    const cnt = {};
+    S.tasks.forEach(function (t) { if (!t.deleted && t.area_id) cnt[t.area_id] = (cnt[t.area_id] || 0) + 1; });
+
+    let html = head(VIEW_INFO.labels, areas.length ? areas.length + " шт." : "");
+    html += '<button class="btn primary block mb-4" type="button" data-act="label-new">Добавить метку</button>';
+    if (!areas.length) {
+      return html + emptyState("Меток нет", "Создай первую — «Квартира», «Дача», «Работа». Метка ставится в карточке задачи в один тап.", "");
+    }
+    html += '<div class="list">' + areas.map(function (a) {
+      return '<button class="menu-item" type="button" data-act="label-edit" data-id="' + a.id + '">' +
+        '<span class="label-dot" data-c="' + esc(a.color || "slate") + '"></span>' +
+        '<span style="flex:1">' + esc(a.name) + "</span>" +
+        (cnt[a.id] ? '<span class="m-count">' + cnt[a.id] + "</span>" : "") +
+      "</button>";
+    }).join("") + "</div>";
+    return html;
+  }
+
+  function openLabel(id) {
+    editingLabelId = id || null;
+    const a = id ? S.areas.find(function (x) { return x.id === id && !x.deleted; }) : null;
+    $("#ld-title").textContent = a ? "Метка" : "Новая метка";
+    $("#l-name").value = a ? a.name : "";
+    editingLabelColor = a ? (a.color || "slate") : "teal";
+    renderSwatches();
+    $("#l-delete").style.display = a ? "" : "none";
+    showSheet($("#label-dialog"));
+    setTimeout(function () { const n = $("#l-name"); if (n) n.focus(); }, 80);
+  }
+
+  function renderSwatches() {
+    const el = $("#l-colors");
+    if (!el) return;
+    el.innerHTML = LABEL_COLORS.map(function (c) {
+      return '<button class="swatch" type="button" data-c="' + c + '" data-color="' + c + '" aria-pressed="' + (c === editingLabelColor) + '" aria-label="' + c + '"></button>';
+    }).join("");
+  }
+
+  function buildLabelPicker() {
+    const el = $("#label-picker");
+    if (!el) return;
+    const areas = S.areas.filter(function (a) { return !a.deleted; }).sort(function (a, b) { return (a.sort || 0) - (b.sort || 0); });
+    let html = '<button class="label-chip" type="button" data-pick="" aria-pressed="' + (!editingAreaId ? "true" : "false") + '">без метки</button>';
+    areas.forEach(function (a) {
+      html += '<button class="label-chip" type="button" data-pick="' + a.id + '" data-c="' + esc(a.color || "slate") + '" aria-pressed="' + (editingAreaId === a.id ? "true" : "false") + '">' +
+        '<span class="label-dot"></span>' + esc(a.name) + "</button>";
     });
-    saveCache(); localStorage.setItem(K.seeded, uid);
-    await flush();
+    el.innerHTML = html;
   }
 
   /* ---------------- icons ---------------- */
@@ -1172,7 +1352,7 @@ alter publication supabase_realtime add table public.reviews;`;
     const bar = $("#tabbar");
 
     if (side) {
-      side.innerHTML = NAV.concat([["review", "Обзор"], ["data", "Данные"]]).map((item) => {
+      side.innerHTML = NAV.concat([["labels", "Метки"], ["review", "Обзор"], ["data", "Данные"]]).map((item) => {
         const k = item[0], label = item[1], n = c[k] || 0;
         const od = k === "waiting" && c.overdue > 0;
         const cur = view === k ? ' aria-current="page"' : "";
@@ -1220,10 +1400,11 @@ alter publication supabase_realtime add table public.reviews;`;
   }
 
   /* ---------------- markup ---------------- */
-  function metaLine(t) {
+  function metaLine(t, opts) {
+    opts = opts || {};
     const parts = [];
-    const an = areaName(t.area_id);
-    if (an) parts.push('<span>' + esc(an) + "</span>");
+    const areaObj = S.areas.find(function (x) { return x.id === t.area_id && !x.deleted; });
+    if (areaObj && !opts.hideLabel) parts.push('<span class="label-inline"><span class="label-dot" data-c="' + esc(areaObj.color || "slate") + '"></span>' + esc(areaObj.name) + "</span>");
 
     if (t.bucket === "waiting") {
       if (t.waiting_on) parts.push('<span>' + esc(t.waiting_on) + "</span>");
@@ -1253,7 +1434,7 @@ alter publication supabase_realtime add table public.reviews;`;
       '<div class="row-body">' +
         '<button class="row-title" type="button" data-act="edit" data-id="' + t.id + '">' + esc(t.title) + "</button>" +
         (t.next_action ? '<p class="row-next"><span class="arrow" aria-hidden="true">→</span>' + esc(t.next_action) + "</p>" : "") +
-        metaLine(t) +
+        metaLine(t, opts) +
         (opts.chips || "") +
         (opts.extra || "") +
       "</div></div>";
@@ -1335,7 +1516,7 @@ alter publication supabase_realtime add table public.reviews;`;
       return a.localeCompare(b, "ru");
     }).forEach((an) => {
       html += '<h2 class="group-title">' + esc(an) + "</h2>";
-      html += '<div class="list">' + groups[an].map((t) => row(t, { chips: chips.next(t.id) })).join("") + "</div>";
+      html += '<div class="list">' + groups[an].map((t) => row(t, { chips: chips.next(t.id), hideLabel: true })).join("") + "</div>";
     });
     return html;
   }
@@ -1436,7 +1617,7 @@ alter publication supabase_realtime add table public.reviews;`;
 
   const RENDER = {
     inbox: renderInbox, now: renderNow, next: renderNext, waiting: renderWaiting,
-    someday: renderSomeday, done: renderDone, review: renderReview, data: renderData
+    someday: renderSomeday, done: renderDone, labels: renderLabels, review: renderReview, data: renderData
   };
 
   /* ---------------- sheets ---------------- */
@@ -1459,6 +1640,9 @@ alter publication supabase_realtime add table public.reviews;`;
       '<div class="menu">' +
         '<button class="menu-item" type="button" data-view="someday">' + I.grid + "<span>Когда-нибудь</span>" + (c.someday ? '<span class="m-count">' + c.someday + "</span>" : "") + "</button>" +
         '<button class="menu-item" type="button" data-view="done">' + I.check + "<span>Закрыто</span>" + (c.done ? '<span class="m-count">' + c.done + "</span>" : "") + "</button>" +
+        '<div class="menu-sep" role="separator"></div>' +
+        '<button class="menu-item" type="button" data-view="labels">' + I.grid + "<span>Метки</span>" + (S.areas.filter(function(a){return !a.deleted;}).length ? '<span class="m-count">' + S.areas.filter(function(a){return !a.deleted;}).length + "</span>" : "") + "</button>" +
+        '<button class="menu-item" type="button" data-act="theme">' + I.target + "<span>Стиль</span></button>" +
         '<div class="menu-sep" role="separator"></div>' +
         '<button class="menu-item" type="button" data-view="review">' + I.repeat + "<span>Недельный обзор</span></button>" +
         '<button class="menu-item" type="button" data-view="data">' + I.help + "<span>Данные</span></button>" +
@@ -1508,10 +1692,8 @@ alter publication supabase_realtime add table public.reviews;`;
     $("#f-waiting").value = t.waiting_on || "";
     $("#f-review").value = t.review_at ? String(t.review_at).slice(0, 10) : "";
     $("#f-note").value = t.note || "";
-    const areas = S.areas.filter((a) => !a.deleted).sort((a, b) => (a.sort || 0) - (b.sort || 0));
-    $("#f-area").innerHTML = '<option value="">— без направления —</option>' +
-      areas.map((a) => '<option value="' + a.id + '">' + esc(a.name) + "</option>").join("");
-    $("#f-area").value = t.area_id || "";
+    editingAreaId = t.area_id || null;
+    buildLabelPicker();
     setBucketButton(t.bucket === "done" ? "next" : t.bucket);
     showSheet($("#task-dialog"));
   }
@@ -1558,7 +1740,6 @@ alter publication supabase_realtime add table public.reviews;`;
     renderApp();
     setSync("working");
     await pull();
-    await seedAreas();
     await flush();
     subscribeRealtime();
   }
@@ -1604,6 +1785,19 @@ alter publication supabase_realtime add table public.reviews;`;
     const bucketBtn = e.target.closest("[data-bucket]");
     if (bucketBtn) { setBucketButton(bucketBtn.getAttribute("data-bucket")); return; }
 
+    const pick = e.target.closest("[data-pick]");
+    if (pick) { editingAreaId = pick.getAttribute("data-pick") || null; buildLabelPicker(); return; }
+
+    const colorBtn = e.target.closest("[data-color]");
+    if (colorBtn) { editingLabelColor = colorBtn.getAttribute("data-color"); renderSwatches(); return; }
+
+    const themeBtn = e.target.closest("[data-theme-set]");
+    if (themeBtn) {
+      applyTheme(themeBtn.getAttribute("data-theme-set"));
+      const sd = $("#sheet-dialog"); if (sd && sd.open) sd.close();
+      return;
+    }
+
     const act = e.target.closest("[data-act]");
     if (act) {
       const a = act.getAttribute("data-act");
@@ -1613,6 +1807,10 @@ alter publication supabase_realtime add table public.reviews;`;
       if (a === "move") { moveTask(id, act.getAttribute("data-to")); return; }
       if (a === "done") { moveTask(id, "done"); return; }
       if (a === "edit") { openTask(id); return; }
+      if (a === "labels") { const td = $("#task-dialog"); if (td && td.open) td.close(); go("labels"); return; }
+      if (a === "label-new") { openLabel(null); return; }
+      if (a === "label-edit") { openLabel(id); return; }
+      if (a === "theme") { openTheme(); return; }
       if (a === "drop") { const t = findTask(id); softDelete("tasks", id); toast("Удалено" + (t ? ": " + t.title.slice(0, 30) : "")); return; }
       if (a === "sync") { await syncNow(); toast("Синхронизировано"); return; }
       if (a === "capture") { openCapture(); return; }
@@ -1693,6 +1891,23 @@ alter publication supabase_realtime add table public.reviews;`;
 
     if (e.target.id === "auth-form") { e.preventDefault(); await doSign("in"); return; }
 
+    if (e.target.id === "label-form") {
+      e.preventDefault();
+      const lname = $("#l-name").value.trim();
+      if (!lname) { $("#l-name").focus(); return; }
+      if (editingLabelId) {
+        const la = S.areas.find(function (x) { return x.id === editingLabelId; });
+        if (la) upsertLocal("areas", Object.assign({}, la, { name: lname, color: editingLabelColor }));
+      } else {
+        const active = S.areas.filter(function (x) { return !x.deleted; });
+        const sort = active.reduce(function (m, x) { return Math.max(m, x.sort || 0); }, 0) + 1;
+        upsertLocal("areas", { id: uuid(), name: lname, color: editingLabelColor, sort: sort, deleted: false });
+      }
+      $("#label-dialog").close();
+      toast("Метка сохранена");
+      return;
+    }
+
     if (e.target.id === "capture-form") {
       e.preventDefault();
       const ta = $("#cap-text");
@@ -1719,7 +1934,7 @@ alter publication supabase_realtime add table public.reviews;`;
         title: title,
         next_action: $("#f-next").value.trim() || null,
         bucket: bucket,
-        area_id: $("#f-area").value || null,
+        area_id: editingAreaId || null,
         waiting_on: $("#f-waiting").value.trim() || null,
         review_at: $("#f-review").value || null,
         note: $("#f-note").value.trim() || null,
@@ -1738,6 +1953,13 @@ alter publication supabase_realtime add table public.reviews;`;
       const id = editingId;
       $("#task-dialog").close();
       moveTask(id, "done");
+    }
+    if (e.target.id === "l-delete" && editingLabelId) {
+      const lid = editingLabelId;
+      $("#label-dialog").close();
+      softDelete("areas", lid);
+      editingLabelId = null;
+      toast("Метка удалена");
     }
     if (e.target.id === "f-delete" && editingId) {
       const id = editingId;
@@ -1776,6 +1998,11 @@ alter publication supabase_realtime add table public.reviews;`;
     const raw = localStorage.getItem(K.cfg);
     if (raw) cfg = Object.assign({ url: "", key: "" }, JSON.parse(raw));
   } catch (e) { cfg = { url: "", key: "" }; }
+
+  try {
+    const savedTheme = localStorage.getItem(THEME_KEY);
+    if (savedTheme) document.documentElement.setAttribute("data-theme", savedTheme);
+  } catch (e) {}
 
   initClient();
 })();
