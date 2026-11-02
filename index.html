@@ -506,6 +506,8 @@
 
   /* ---------------- capture sheet ---------------- */
   #capture-form { padding: 0 var(--sp-4) var(--sp-4); }
+  .cap-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); padding-block: var(--sp-2) var(--sp-3); }
+  .cap-head h2 { font-size: 1.0625rem; }
   #cap-text {
     inline-size: 100%; min-block-size: 96px; max-block-size: 40dvh;
     padding: var(--sp-3); border-radius: var(--r-md);
@@ -859,7 +861,12 @@ html[data-theme="contrast"] {
 <dialog id="capture-dialog" class="sheet" aria-labelledby="cap-title">
   <div class="grabber" aria-hidden="true"></div>
   <form id="capture-form">
-    <h2 id="cap-title" class="sr-only">Новая задача</h2>
+    <div class="cap-head">
+      <h2 id="cap-title">Новая мысль</h2>
+      <button class="icon-btn" type="button" data-close="capture-dialog" aria-label="Закрыть">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </button>
+    </div>
     <label for="cap-text" class="sr-only">Текст задачи</label>
     <textarea id="cap-text" rows="3" maxlength="400" placeholder="Выгрузить из головы…" autocomplete="off"></textarea>
     <div class="cap-row">
@@ -1994,6 +2001,16 @@ alter publication supabase_realtime add table public.reviews;`;
         toast("CSV скачан"); return;
       }
     }
+  });
+
+  /* тап по затемнению вокруг панели закрывает её */
+  document.addEventListener("click", function (e) {
+    const d = e.target;
+    if (!d || d.tagName !== "DIALOG" || !d.open) return;
+    if (e.detail === 0) return;               // активация с клавиатуры — не считаем
+    const r = d.getBoundingClientRect();
+    const outside = e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+    if (outside) d.close();
   });
 
   document.addEventListener("change", (e) => {
