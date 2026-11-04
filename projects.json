@@ -1,0 +1,15 @@
+[
+  {
+    "slug": "wonderful",
+    "title": "Wonderful",
+    "description": "Личный трекер задач: один вход, шесть корзин, недельный обзор. Supabase, офлайн-очередь, синхронизация.",
+    "tags": [
+      "задачи",
+      "supabase",
+      "pwa"
+    ],
+    "path": "projects/wonderful/index.html",
+    "updated": "2026-11-04",
+    "source": "projects/wonderful"
+  }
+]
