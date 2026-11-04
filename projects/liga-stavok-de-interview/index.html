@@ -1,10 +1,21 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="no-js">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" id="themeColor" content="#f7f9fa">
 <title>Лига Ставок · Data Engineer — полная подготовка к интервью</title>
 <meta name="description" content="Полный конспект подготовки к собеседованию Data Engineer в Лиге Ставок: SQL, ClickHouse, ETL/КХД, стек, антифрод, вопросы и оффер.">
+<script>
+  (function () {
+    var d = document.documentElement;
+    d.className = d.className.replace("no-js", "js");
+    try {
+      var t = localStorage.getItem("liga-theme");
+      if (t === "dark" || t === "light") d.setAttribute("data-theme", t);
+    } catch (e) {}
+  })();
+</script>
 <style>
 @layer reset, tokens, base, layout, components, utilities;
 
@@ -87,7 +98,7 @@
     --text-display: clamp(2rem, 1.35rem + 2.8vw, 3.25rem);
     --text-h2: clamp(1.45rem, 1.15rem + 1.1vw, 2rem);
     --text-h3: clamp(1.15rem, 1.02rem + 0.5vw, 1.35rem);
-    --text-body: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
+    --text-body: clamp(1.0625rem, 1rem + 0.35vw, 1.125rem);
     --text-sm: 0.9375rem;
     --text-xs: 0.8125rem;
 
@@ -98,7 +109,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
       --bg: oklch(0.205 0.012 240);
       --bg-elevated: oklch(0.245 0.012 240);
       --bg-soft: oklch(0.232 0.012 240);
@@ -121,6 +132,29 @@
       --danger-soft: oklch(0.305 0.050 25);
     }
   }
+
+  :root[data-theme="dark"] {
+    --bg: oklch(0.205 0.012 240);
+    --bg-elevated: oklch(0.245 0.012 240);
+    --bg-soft: oklch(0.232 0.012 240);
+    --bg-code: oklch(0.180 0.012 240);
+    --ink: oklch(0.940 0.006 240);
+    --ink-soft: oklch(0.790 0.010 240);
+    --ink-faint: oklch(0.670 0.012 240);
+    --line: oklch(0.320 0.012 240);
+    --line-strong: oklch(0.400 0.012 240);
+    --accent: oklch(0.770 0.100 200);
+    --accent-strong: oklch(0.860 0.080 200);
+    --accent-soft: oklch(0.320 0.045 200);
+    --accent-line: oklch(0.430 0.060 200);
+    --on-accent: oklch(0.180 0.020 200);
+    --ok: oklch(0.760 0.120 150);
+    --warn: oklch(0.810 0.120 75);
+    --danger: oklch(0.720 0.150 25);
+    --ok-soft: oklch(0.300 0.045 150);
+    --warn-soft: oklch(0.310 0.045 75);
+    --danger-soft: oklch(0.305 0.050 25);
+  }
 }
 
 @layer base {
@@ -128,7 +162,7 @@
   body {
     font-family: var(--font-sans);
     font-size: var(--text-body);
-    line-height: 1.62;
+    line-height: 1.68;
     color: var(--ink);
     background: var(--bg);
     -webkit-font-smoothing: antialiased;
@@ -421,6 +455,151 @@
   .mt-0 { margin-block-start: 0; }
 }
 
+@layer components {
+  /* ---------- Mobile reading shell ---------- */
+  .mobilebar { display: none; }
+
+  .iconbtn {
+    display: inline-grid; place-items: center; flex: none;
+    width: 44px; height: 44px; padding: 0;
+    border: 1px solid var(--line); border-radius: var(--radius-sm);
+    background: var(--bg-elevated); color: var(--ink-soft);
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+  }
+  .iconbtn:hover { background: var(--accent-soft); color: var(--accent-strong); border-color: var(--accent-line); }
+  .iconbtn:active { transform: translateY(1px); }
+  .iconbtn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+  #themeToggle .i-sun { display: none; }
+  #themeToggle[data-mode="dark"] .i-sun { display: block; }
+  #themeToggle[data-mode="dark"] .i-moon { display: none; }
+
+  .toc-dialog {
+    width: 100%; max-width: 100%;
+    height: 100dvh; max-height: 100dvh;
+    margin: 0; padding: 0; border: 0;
+    background: var(--bg); color: var(--ink);
+    overflow-y: auto; overscroll-behavior: contain;
+  }
+  .toc-dialog::backdrop { background: oklch(0 0 0 / .45); }
+  .toc-dialog__head {
+    position: sticky; top: 0; z-index: 1;
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+    padding: calc(env(safe-area-inset-top) + 10px) 16px 10px;
+    border-block-end: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .toc-dialog__head h2 { font-size: var(--text-h3); }
+  .toc-dialog nav { padding: 8px 12px calc(env(safe-area-inset-bottom) + 28px); display: grid; gap: 2px; }
+  .toc-dialog .nav-group { padding-block: var(--space-4) var(--space-2); padding-inline: 12px; }
+  .toc-dialog a {
+    display: flex; align-items: center; min-height: 52px; padding: 0 12px;
+    border-radius: var(--radius-sm);
+    color: var(--ink); text-decoration: none;
+    font-size: 1.0625rem; line-height: 1.3;
+    border-block-end: 1px solid var(--line);
+  }
+  .toc-dialog a:last-of-type { border-block-end: 0; }
+  .toc-dialog a:hover, .toc-dialog a:active { background: var(--bg-soft); }
+  .toc-dialog a.is-active { background: var(--accent-soft); color: var(--accent-strong); font-weight: 650; }
+
+  body:has(.toc-dialog[open]) { overflow: hidden; }
+
+  .fab {
+    position: fixed;
+    inset-inline-end: 16px;
+    inset-block-end: calc(env(safe-area-inset-bottom) + 16px);
+    z-index: 55;
+    width: 52px; height: 52px; padding: 0;
+    display: grid; place-items: center;
+    border: 1px solid var(--line-strong); border-radius: 50%;
+    background: var(--bg-elevated); color: var(--ink-soft);
+    box-shadow: var(--shadow-md); cursor: pointer;
+    opacity: 0; transform: translateY(10px); pointer-events: none; visibility: hidden;
+    transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out), background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+  }
+  .fab.is-visible { opacity: 1; transform: none; pointer-events: auto; visibility: visible; }
+  .fab:hover { background: var(--accent-soft); color: var(--accent-strong); border-color: var(--accent-line); }
+  .fab svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  @media (max-width: 1023px) {
+    .progress { display: none; }
+
+    html.js .mobilebar {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; gap: 8px;
+      min-height: 56px;
+      padding: calc(env(safe-area-inset-top) + 7px) 12px 7px;
+      background: color-mix(in oklab, var(--bg) 84%, transparent);
+      -webkit-backdrop-filter: blur(14px) saturate(1.3);
+      backdrop-filter: blur(14px) saturate(1.3);
+      border-block-end: 1px solid var(--line);
+    }
+    .mobilebar__section {
+      flex: 1 1 auto; min-width: 0;
+      text-align: center;
+      font-size: var(--text-sm); font-weight: 650; color: var(--ink);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .mobilebar__bar { position: absolute; inset-inline: 0; inset-block-end: -1px; height: 2px; background: transparent; }
+    .mobilebar__bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width 80ms linear; }
+
+    html.js .sidebar { display: none; }
+
+    section { scroll-margin-block-start: calc(56px + env(safe-area-inset-top) + 12px); }
+    .content { gap: var(--space-12); }
+    .masthead__inner { padding-block: var(--space-8) var(--space-6); }
+    .card { padding: var(--space-4); }
+    .callout { padding: var(--space-3) var(--space-4); }
+    .section-head { padding-block-end: var(--space-3); }
+    details.quiz > summary { min-height: 44px; align-items: center; }
+    .check { padding: var(--space-3); }
+    .lead { font-size: 1.0625rem; }
+    .fab { width: 56px; height: 56px; }
+  }
+
+  @media (max-width: 719px) {
+    /* Tables become readable cards — no horizontal scrolling */
+    html.js .table-wrap { border: 0; background: transparent; overflow: visible; }
+    html.js .table-wrap table { display: block; width: 100%; }
+    html.js .table-wrap thead { display: none; }
+    html.js .table-wrap tbody { display: grid; gap: var(--space-3); }
+    html.js .table-wrap tr {
+      display: block;
+      border: 1px solid var(--line); border-radius: var(--radius);
+      background: var(--bg-elevated);
+      padding: var(--space-3) var(--space-4);
+    }
+    html.js .table-wrap td {
+      display: block; border: 0; padding: 0.3rem 0;
+      font-size: var(--text-sm); line-height: 1.45;
+    }
+    html.js .table-wrap td::before {
+      content: attr(data-label);
+      display: block;
+      font-size: var(--text-xs); font-weight: 650;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-block-end: 1px;
+    }
+    html.js .table-wrap td:first-child { font-size: var(--text-body); font-weight: 650; color: var(--ink); }
+    html.js .table-wrap td:first-child::before { color: var(--accent-strong); }
+    html.js .table-wrap caption { display: block; padding: 0 0 var(--space-3); border: 0; }
+    html.js .table-wrap td code { white-space: normal; }
+  }
+
+  @media (max-width: 640px) {
+    /* Code wraps instead of scrolling sideways on a phone */
+    .code pre { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; padding: var(--space-3); font-size: 0.82rem; line-height: 1.6; }
+    .code__head { padding: 4px 8px; }
+    .code__label { font-size: 0.72rem; }
+    .btn-copy { min-height: 34px; }
+    kbd { white-space: normal; }
+    .timeline > li { padding-inline-start: var(--space-6); }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .01ms !important;
@@ -436,6 +615,45 @@
 <a class="skip" href="#main">К содержанию</a>
 <div class="progress" aria-hidden="true"><div class="progress__bar" id="progressBar"></div></div>
 
+<header class="mobilebar" id="mobilebar">
+  <button class="iconbtn" type="button" id="tocOpen" aria-label="Открыть содержание" aria-haspopup="dialog" aria-controls="tocDialog">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <span class="mobilebar__section" id="mbSection">Содержание</span>
+  <button class="iconbtn" type="button" id="themeToggle" aria-label="Переключить тему" aria-pressed="false">
+    <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+  <div class="mobilebar__bar" aria-hidden="true"><i id="mbBar"></i></div>
+</header>
+
+<dialog class="toc-dialog" id="tocDialog" aria-labelledby="tocDialogTitle">
+  <div class="toc-dialog__head">
+    <h2 id="tocDialogTitle">Содержание</h2>
+    <button class="iconbtn" type="button" id="tocClose" aria-label="Закрыть содержание">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <nav aria-label="Содержание страницы">
+    <a href="#company">00 · Компания и вакансия</a>
+    <a href="#plan">01 · План подготовки</a>
+    <p class="nav-group">Техника</p>
+    <a href="#sql">02 · SQL</a>
+    <a href="#ch-basic">03 · ClickHouse: база</a>
+    <a href="#ch-adv">04 · ClickHouse: продвинуто</a>
+    <a href="#dwh">05 · ETL/ELT и КХД</a>
+    <a href="#stack">06 · Python, CI, K8s, Kafka</a>
+    <a href="#fraud">07 · Антифрод и беттинг</a>
+    <p class="nav-group">Интервью</p>
+    <a href="#interview">08 · Процесс и вопросы</a>
+    <a href="#checklist">09 · Чек-лист и шпаргалка</a>
+  </nav>
+</dialog>
+
+<button class="fab" type="button" id="toTop" aria-label="Наверх">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+</button>
+
 <header class="masthead">
   <div class="wrap masthead__inner">
     <p class="eyebrow">Подготовка к собеседованию</p>
@@ -447,6 +665,8 @@
       <span class="chip"><strong>11 млн</strong> клиентов</span>
       <span class="chip"><strong>~750 тыс.</strong> ставок в день</span>
       <span class="chip">ClickHouse · MSSQL · Python · C#</span>
+      <span class="chip"><strong>~35 мин</strong> чтения</span>
+      <span class="chip">обновлено 04.11.2026</span>
     </div>
   </div>
 </header>
@@ -1502,45 +1722,144 @@ deploy:
 (function () {
   "use strict";
 
-  // Reading progress
+  var root = document.documentElement;
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  /* ---------- Reading progress (top + mobile bar) ---------- */
   var bar = document.getElementById("progressBar");
-  function updateProgress() {
+  var mbBar = document.getElementById("mbBar");
+  var toTop = document.getElementById("toTop");
+  var lastY = 0;
+
+  function updateScrollUI() {
     var doc = document.documentElement;
+    var y = doc.scrollTop;
     var max = doc.scrollHeight - doc.clientHeight;
-    var pct = max > 0 ? (doc.scrollTop / max) * 100 : 0;
+    var pct = max > 0 ? Math.min(100, Math.max(0, (y / max) * 100)) : 0;
     if (bar) bar.style.width = pct.toFixed(2) + "%";
+    if (mbBar) mbBar.style.width = pct.toFixed(2) + "%";
+    if (toTop) {
+      var goingUp = y < lastY - 2;
+      toTop.classList.toggle("is-visible", y > 900 && goingUp);
+    }
+    lastY = y;
   }
+
   var ticking = false;
   window.addEventListener("scroll", function () {
     if (!ticking) {
       ticking = true;
       window.requestAnimationFrame(function () {
-        updateProgress();
+        updateScrollUI();
         ticking = false;
       });
     }
   }, { passive: true });
-  updateProgress();
+  updateScrollUI();
 
-  // Collapse TOC on small screens
-  var toc = document.getElementById("toc");
-  if (toc && window.matchMedia("(max-width: 1023px)").matches) {
-    toc.open = false;
+  /* ---------- Table labels for the mobile card layout ---------- */
+  document.querySelectorAll("table").forEach(function (table) {
+    var heads = [];
+    table.querySelectorAll("thead th").forEach(function (th) {
+      heads.push(th.textContent.trim());
+    });
+    if (!heads.length) return;
+    table.querySelectorAll("tbody tr").forEach(function (tr) {
+      Array.prototype.forEach.call(tr.children, function (cell, i) {
+        if (heads[i]) cell.setAttribute("data-label", heads[i]);
+      });
+    });
+  });
+
+  /* ---------- Theme toggle ---------- */
+  var themeBtn = document.getElementById("themeToggle");
+  var darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+  function effectiveTheme() {
+    return root.getAttribute("data-theme") || (darkQuery.matches ? "dark" : "light");
+  }
+  function syncThemeUI() {
+    if (!themeBtn) return;
+    var mode = effectiveTheme();
+    themeBtn.setAttribute("data-mode", mode);
+    themeBtn.setAttribute("aria-pressed", mode === "dark" ? "true" : "false");
+    var meta = document.getElementById("themeColor");
+    if (meta) meta.setAttribute("content", mode === "dark" ? "#24272c" : "#f7f9fa");
+  }
+  if (themeBtn) {
+    themeBtn.addEventListener("click", function () {
+      var next = effectiveTheme() === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("liga-theme", next); } catch (e) {}
+      syncThemeUI();
+    });
+  }
+  if (darkQuery.addEventListener) darkQuery.addEventListener("change", syncThemeUI);
+  syncThemeUI();
+
+  /* ---------- Contents drawer ---------- */
+  var dialog = document.getElementById("tocDialog");
+  var tocOpen = document.getElementById("tocOpen");
+  var tocClose = document.getElementById("tocClose");
+
+  if (dialog && tocOpen) {
+    tocOpen.addEventListener("click", function () {
+      if (typeof dialog.showModal === "function") dialog.showModal();
+    });
+    if (tocClose) tocClose.addEventListener("click", function () { dialog.close(); });
+    dialog.addEventListener("click", function (event) {
+      if (event.target === dialog) { dialog.close(); return; }
+      var link = event.target.closest ? event.target.closest("a[href^='#']") : null;
+      if (link) dialog.close();
+    });
   }
 
-  // Scroll spy
-  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
-  var sections = links.map(function (a) {
-    return document.getElementById(a.getAttribute("href").slice(1));
-  }).filter(Boolean);
+  /* ---------- Back to top ---------- */
+  if (toTop) {
+    toTop.addEventListener("click", function () {
+      window.scrollTo({ top: 0, behavior: reduceMotion.matches ? "auto" : "smooth" });
+    });
+  }
+
+  /* ---------- Inline TOC behaviour on small screens ---------- */
+  var toc = document.getElementById("toc");
+  if (toc && window.matchMedia("(max-width: 1023px)").matches) toc.open = false;
+  if (toc) {
+    toc.addEventListener("click", function (event) {
+      if (event.target && event.target.tagName === "A" && window.matchMedia("(max-width: 1023px)").matches) {
+        toc.open = false;
+      }
+    });
+  }
+
+  /* ---------- Scroll spy (sidebar + drawer + mobile bar title) ---------- */
+  var links = Array.prototype.slice.call(
+    document.querySelectorAll("#toc a[href^='#'], #tocDialog a[href^='#']")
+  );
+  var mbSection = document.getElementById("mbSection");
+  var sections = [];
+  var seen = {};
+  links.forEach(function (a) {
+    var id = a.getAttribute("href").slice(1);
+    if (seen[id]) return;
+    seen[id] = true;
+    var el = document.getElementById(id);
+    if (el) sections.push(el);
+  });
 
   function setActive(id) {
+    var label = "";
     links.forEach(function (a) {
       var active = a.getAttribute("href") === "#" + id;
       a.classList.toggle("is-active", active);
-      if (active) a.setAttribute("aria-current", "true");
-      else a.removeAttribute("aria-current");
+      if (active) {
+        a.setAttribute("aria-current", "true");
+        if (!label) label = a.textContent.trim();
+      } else {
+        a.removeAttribute("aria-current");
+      }
     });
+    if (mbSection && label) mbSection.textContent = label;
   }
 
   if ("IntersectionObserver" in window && sections.length) {
@@ -1557,11 +1876,11 @@ deploy:
         if (Math.abs(top) < Math.abs(bestTop)) { bestTop = top; bestId = id; }
       });
       if (bestId) setActive(bestId);
-    }, { rootMargin: "-20% 0px -65% 0px", threshold: [0, 0.1, 0.5, 1] });
+    }, { rootMargin: "-18% 0px -62% 0px", threshold: [0, 0.1, 0.5, 1] });
     sections.forEach(function (s) { observer.observe(s); });
   }
 
-  // Copy buttons
+  /* ---------- Copy buttons ---------- */
   document.querySelectorAll(".btn-copy").forEach(function (btn) {
     btn.addEventListener("click", function () {
       var block = btn.closest(".code");
@@ -1592,7 +1911,7 @@ deploy:
     });
   });
 
-  // Checklist persistence
+  /* ---------- Checklist persistence ---------- */
   var STORAGE_KEY = "liga-de-interview-checklist";
   var saved = {};
   try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch (e) { saved = {}; }
@@ -1605,16 +1924,6 @@ deploy:
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(saved)); } catch (e) {}
     });
   });
-
-  // Close mobile TOC after navigation
-  if (toc) {
-    toc.addEventListener("click", function (event) {
-      var target = event.target;
-      if (target && target.tagName === "A" && window.matchMedia("(max-width: 1023px)").matches) {
-        toc.open = false;
-      }
-    });
-  }
 })();
 </script>
 </body>
