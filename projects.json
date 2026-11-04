@@ -39,5 +39,20 @@
     "path": "projects/etl-datamart-onboarding/index.html",
     "updated": "2026-11-04",
     "source": "Work/Vertica/ETL_datamart_operators"
+  },
+  {
+    "slug": "liga-stavok-de-interview",
+    "title": "Лига Ставок · Data Engineer — подготовка к интервью",
+    "description": "Полный конспект: SQL, ClickHouse, ETL/КХД, стек, антифрод, вопросы и оффер. С чек-листом и самопроверкой.",
+    "tags": [
+      "data engineering",
+      "clickhouse",
+      "sql",
+      "интервью",
+      "лига ставок"
+    ],
+    "path": "projects/liga-stavok-de-interview/index.html",
+    "updated": "2026-11-04",
+    "source": "Work/Vertica · подготовка к собеседованию"
   }
 ]

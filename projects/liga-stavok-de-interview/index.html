@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Лига Ставок · Data Engineer — полная подготовка к интервью</title>
+<meta name="description" content="Полный конспект подготовки к собеседованию Data Engineer в Лиге Ставок: SQL, ClickHouse, ETL/КХД, стек, антифрод, вопросы и оффер.">
+<style>
+@layer reset, tokens, base, layout, components, utilities;
+
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; }
+  * { margin: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  img, svg { display: block; max-width: 100%; }
+  button, input { font: inherit; color: inherit; }
+  :where(ul, ol) { padding-inline-start: 1.15em; }
+}
+
+@layer tokens {
+  :root {
+    --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+    --teal-100: oklch(0.952 0.028 200);
+    --teal-200: oklch(0.905 0.050 200);
+    --teal-300: oklch(0.830 0.080 200);
+    --teal-500: oklch(0.620 0.110 200);
+    --teal-600: oklch(0.520 0.100 200);
+    --teal-700: oklch(0.440 0.088 200);
+
+    --gray-25:  oklch(0.985 0.003 240);
+    --gray-50:  oklch(0.965 0.004 240);
+    --gray-100: oklch(0.935 0.005 240);
+    --gray-200: oklch(0.892 0.006 240);
+    --gray-300: oklch(0.845 0.007 240);
+    --gray-500: oklch(0.560 0.010 240);
+    --gray-600: oklch(0.470 0.012 240);
+    --gray-800: oklch(0.300 0.012 240);
+    --gray-900: oklch(0.220 0.012 240);
+
+    --bg: var(--gray-25);
+    --bg-elevated: oklch(0.998 0.001 240);
+    --bg-soft: var(--gray-50);
+    --bg-code: oklch(0.962 0.004 240);
+    --ink: var(--gray-900);
+    --ink-soft: oklch(0.420 0.012 240);
+    --ink-faint: oklch(0.520 0.010 240);
+    --line: var(--gray-200);
+    --line-strong: var(--gray-300);
+    --accent: var(--teal-600);
+    --accent-strong: var(--teal-700);
+    --accent-soft: var(--teal-100);
+    --accent-line: var(--teal-300);
+    --on-accent: oklch(0.990 0.004 200);
+
+    --ok: oklch(0.520 0.115 150);
+    --warn: oklch(0.600 0.120 70);
+    --danger: oklch(0.545 0.175 25);
+    --ok-soft: oklch(0.955 0.030 150);
+    --warn-soft: oklch(0.965 0.035 75);
+    --danger-soft: oklch(0.960 0.028 25);
+
+    --sb-thumb: color-mix(in oklab, var(--ink-faint) 62%, transparent);
+
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-20: 5rem;
+
+    --radius-sm: 8px;
+    --radius: 12px;
+    --radius-lg: 16px;
+    --radius-pill: 999px;
+
+    --shadow-sm: 0 1px 1px oklch(0 0 0 / .04), 0 2px 2px oklch(0 0 0 / .05);
+    --shadow-md: 0 2px 2px oklch(0 0 0 / .04), 0 8px 16px -6px oklch(0 0 0 / .08);
+    --shadow-lg: 0 1px 1px oklch(0 0 0 / .04), 0 10px 24px -8px oklch(0 0 0 / .10), 0 24px 40px -16px oklch(0 0 0 / .10);
+
+    --text-display: clamp(2rem, 1.35rem + 2.8vw, 3.25rem);
+    --text-h2: clamp(1.45rem, 1.15rem + 1.1vw, 2rem);
+    --text-h3: clamp(1.15rem, 1.02rem + 0.5vw, 1.35rem);
+    --text-body: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
+    --text-sm: 0.9375rem;
+    --text-xs: 0.8125rem;
+
+    --duration-fast: 120ms;
+    --duration-base: 200ms;
+    --duration-slow: 320ms;
+    --ease-out: cubic-bezier(.2, .8, .2, 1);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: oklch(0.205 0.012 240);
+      --bg-elevated: oklch(0.245 0.012 240);
+      --bg-soft: oklch(0.232 0.012 240);
+      --bg-code: oklch(0.180 0.012 240);
+      --ink: oklch(0.940 0.006 240);
+      --ink-soft: oklch(0.790 0.010 240);
+      --ink-faint: oklch(0.670 0.012 240);
+      --line: oklch(0.320 0.012 240);
+      --line-strong: oklch(0.400 0.012 240);
+      --accent: oklch(0.770 0.100 200);
+      --accent-strong: oklch(0.860 0.080 200);
+      --accent-soft: oklch(0.320 0.045 200);
+      --accent-line: oklch(0.430 0.060 200);
+      --on-accent: oklch(0.180 0.020 200);
+      --ok: oklch(0.760 0.120 150);
+      --warn: oklch(0.810 0.120 75);
+      --danger: oklch(0.720 0.150 25);
+      --ok-soft: oklch(0.300 0.045 150);
+      --warn-soft: oklch(0.310 0.045 75);
+      --danger-soft: oklch(0.305 0.050 25);
+    }
+  }
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.62;
+    color: var(--ink);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-wrap: anywhere;
+  }
+  h1, h2, h3, h4 { line-height: 1.16; letter-spacing: -0.02em; text-wrap: balance; }
+  h1 { font-size: var(--text-display); font-weight: 700; letter-spacing: -0.03em; }
+  h2 { font-size: var(--text-h2); font-weight: 680; }
+  h3 { font-size: var(--text-h3); font-weight: 650; letter-spacing: -0.015em; }
+  h4 { font-size: var(--text-body); font-weight: 650; letter-spacing: -0.005em; }
+  p, li { max-width: 72ch; text-wrap: pretty; }
+  a { color: var(--accent-strong); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:hover { color: var(--accent); }
+  code, kbd, pre { font-family: var(--font-mono); font-size: 0.92em; }
+  strong { font-weight: 650; }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  ::selection { background: var(--accent-soft); color: var(--ink); }
+
+  * { scrollbar-width: thin; scrollbar-color: var(--sb-thumb) transparent; }
+  *::-webkit-scrollbar { width: 11px !important; height: 11px !important; }
+  *::-webkit-scrollbar-track { background: transparent !important; }
+  *::-webkit-scrollbar-thumb {
+    background: var(--sb-thumb) !important;
+    border: 3px solid transparent !important;
+    border-radius: var(--radius-pill) !important;
+    background-clip: padding-box !important;
+  }
+}
+
+@layer layout {
+  .wrap { width: 100%; max-width: 1240px; margin-inline: auto; padding-inline: clamp(1rem, 3vw, 1.5rem); }
+  .layout { display: grid; grid-template-columns: 1fr; gap: var(--space-8); padding-block: var(--space-8) var(--space-20); }
+  @media (min-width: 1024px) {
+    .layout { grid-template-columns: 250px minmax(0, 1fr); gap: var(--space-12); align-items: start; padding-block: var(--space-10) var(--space-20); }
+  }
+  .content { min-width: 0; display: grid; gap: var(--space-16); }
+  @media (min-width: 1024px) { .content { gap: var(--space-20); } }
+}
+
+@layer components {
+  .skip {
+    position: absolute; inset-inline-start: -999px; top: var(--space-2);
+    background: var(--accent); color: var(--on-accent);
+    padding: var(--space-2) var(--space-4); border-radius: var(--radius-sm); z-index: 100;
+  }
+  .skip:focus { inset-inline-start: var(--space-2); }
+
+  .progress {
+    position: fixed; inset-block-start: 0; inset-inline: 0; height: 3px;
+    background: transparent; z-index: 60; pointer-events: none;
+  }
+  .progress__bar { height: 100%; width: 0%; background: var(--accent); transition: width 80ms linear; }
+
+  .masthead {
+    border-block-end: 1px solid var(--line);
+    background:
+      radial-gradient(120% 100% at 100% 0%, color-mix(in oklab, var(--accent-soft) 55%, transparent) 0%, transparent 62%),
+      var(--bg-elevated);
+  }
+  .masthead__inner { padding-block: clamp(2rem, 5vw, 3.5rem) clamp(1.75rem, 4vw, 3rem); display: grid; gap: var(--space-5); }
+  .eyebrow {
+    font-size: var(--text-xs); font-weight: 650; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent-strong);
+  }
+  .masthead h1 { max-width: 20ch; }
+  .lead { font-size: clamp(1.05rem, 1rem + 0.5vw, 1.25rem); color: var(--ink-soft); max-width: 62ch; }
+  .chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .chip {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    padding: 0.3rem 0.7rem; border: 1px solid var(--line);
+    border-radius: var(--radius-pill); background: var(--bg);
+    font-size: var(--text-xs); color: var(--ink-soft);
+    white-space: normal; overflow-wrap: anywhere; max-width: 100%;
+  }
+  .chip strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  .sidebar { min-width: 0; }
+  .toc {
+    border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--bg-elevated); box-shadow: var(--shadow-sm); overflow: hidden;
+  }
+  .toc > summary {
+    cursor: pointer; list-style: none; padding: var(--space-3) var(--space-4);
+    font-size: var(--text-sm); font-weight: 650; display: flex; justify-content: space-between; align-items: center;
+  }
+  .toc > summary::-webkit-details-marker { display: none; }
+  .toc > summary::after { content: "▾"; color: var(--ink-faint); }
+  .toc[open] > summary { border-block-end: 1px solid var(--line); }
+  .toc nav { padding: var(--space-3); display: grid; gap: 2px; }
+  @media (min-width: 1024px) {
+    .sidebar { position: sticky; inset-block-start: var(--space-6); }
+    .toc > summary { display: none; }
+    .toc > nav { border-block-start: 0; }
+  }
+  .nav-group {
+    font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--ink-faint); font-weight: 650; padding: var(--space-3) var(--space-3) var(--space-1);
+  }
+  .toc a {
+    display: block; padding: 0.4rem var(--space-3); border-radius: var(--radius-sm);
+    color: var(--ink-soft); text-decoration: none; font-size: var(--text-sm);
+    border-inline-start: 2px solid transparent; transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+  }
+  .toc a:hover { background: var(--bg-soft); color: var(--ink); }
+  .toc a.is-active { color: var(--accent-strong); border-inline-start-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+
+  section { scroll-margin-block-start: 1.5rem; display: grid; gap: var(--space-5); min-width: 0; }
+  section > * { min-width: 0; }
+  .section-head { display: grid; gap: var(--space-3); padding-block-end: var(--space-4); border-block-end: 1px solid var(--line); }
+  .phase {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    font-size: var(--text-xs); font-weight: 650; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--accent-strong);
+  }
+  .phase::before { content: ""; width: 18px; height: 2px; background: var(--accent); border-radius: 2px; }
+  .section-head p { color: var(--ink-soft); }
+
+  .card {
+    border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-elevated);
+    padding: var(--space-5) var(--space-5); box-shadow: var(--shadow-sm);
+    min-width: 0; overflow-wrap: anywhere;
+  }
+  .card > h3 + p, .card > h3 + ul, .card > h4 + p, .card > h4 + ul { margin-block-start: var(--space-3); }
+  .stack { display: grid; gap: var(--space-4); }
+  .stack--tight { gap: var(--space-3); }
+
+  ul.clean { list-style: none; padding-inline-start: 0; display: grid; gap: var(--space-2); }
+  ul.clean > li { position: relative; padding-inline-start: 1.15em; }
+  ul.clean > li::before {
+    content: ""; position: absolute; inset-inline-start: 0; inset-block-start: 0.62em;
+    width: 6px; height: 6px; border-radius: 2px; background: var(--accent-line);
+  }
+  ul.clean--ok > li::before { background: var(--ok); }
+  ul.clean--warn > li::before { background: var(--warn); }
+
+  .callout {
+    border: 1px solid var(--line); border-inline-start: 3px solid var(--accent);
+    border-radius: var(--radius-sm); background: var(--bg-soft);
+    padding: var(--space-4) var(--space-5); display: grid; gap: var(--space-2);
+    min-width: 0;
+  }
+  .callout > * { min-width: 0; }
+  .callout p, .callout li { max-width: 68ch; }
+  .callout__label {
+    font-size: var(--text-xs); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent-strong);
+  }
+  .callout--trap { border-inline-start-color: var(--danger); background: var(--danger-soft); }
+  .callout--trap .callout__label { color: var(--danger); }
+  .callout--warn { border-inline-start-color: var(--warn); background: var(--warn-soft); }
+  .callout--warn .callout__label { color: var(--warn); }
+  .callout--ok { border-inline-start-color: var(--ok); background: var(--ok-soft); }
+  .callout--ok .callout__label { color: var(--ok); }
+
+  .code {
+    border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-code);
+    overflow: hidden;
+  }
+  .code__head {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+    padding: var(--space-2) var(--space-3); border-block-end: 1px solid var(--line);
+    background: color-mix(in oklab, var(--bg-elevated) 65%, transparent);
+  }
+  .code__label { font-size: var(--text-xs); font-family: var(--font-mono); color: var(--ink-faint); letter-spacing: 0.02em; }
+  .code pre { margin: 0; padding: var(--space-4); overflow-x: auto; line-height: 1.65; tab-size: 2; }
+  .code pre code { background: none; padding: 0; }
+  code:not(pre code) {
+    background: var(--bg-code); border: 1px solid var(--line);
+    padding: 0.08em 0.35em; border-radius: 5px;
+    white-space: normal; overflow-wrap: anywhere; word-break: break-word;
+  }
+
+  .btn-copy {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    min-height: 32px; padding: 0.25rem 0.65rem;
+    border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+    background: var(--bg-elevated); color: var(--ink-soft);
+    font-size: var(--text-xs); cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+  }
+  .btn-copy:hover { background: var(--accent-soft); color: var(--accent-strong); border-color: var(--accent-line); }
+  .btn-copy:active { transform: translateY(1px); }
+  .btn-copy.is-copied { color: var(--ok); border-color: var(--ok); background: var(--ok-soft); }
+  .btn-copy svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-elevated); }
+  table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+  caption { text-align: start; padding: var(--space-3) var(--space-4); color: var(--ink-faint); font-size: var(--text-xs); border-block-end: 1px solid var(--line); }
+  th, td { padding: 0.7rem var(--space-4); text-align: start; vertical-align: top; border-block-end: 1px solid var(--line); }
+  th { font-weight: 650; font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); background: var(--bg-soft); }
+  tr:last-child td { border-block-end: 0; }
+  td code { white-space: nowrap; }
+
+  details.quiz {
+    border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--bg-elevated);
+    padding: var(--space-3) var(--space-4);
+  }
+  details.quiz + details.quiz { margin-block-start: var(--space-2); }
+  details.quiz > summary {
+    cursor: pointer; font-weight: 600; font-size: var(--text-sm); list-style: none;
+    display: flex; gap: var(--space-2); align-items: baseline;
+  }
+  details.quiz > summary::-webkit-details-marker { display: none; }
+  details.quiz > summary::before { content: "+"; color: var(--accent); font-family: var(--font-mono); font-weight: 700; }
+  details.quiz[open] > summary::before { content: "−"; }
+  details.quiz > div { padding-block-start: var(--space-3); color: var(--ink-soft); font-size: var(--text-sm); }
+  details.quiz > div p { max-width: 68ch; }
+
+  .kv { display: grid; gap: var(--space-2); }
+  .kv > div { display: grid; grid-template-columns: minmax(7.5rem, 0.4fr) 1fr; gap: var(--space-3); padding-block: var(--space-2); border-block-end: 1px solid var(--line); }
+  .kv > div:last-child { border-block-end: 0; }
+  .kv dt { color: var(--ink-faint); font-size: var(--text-sm); }
+  .kv dd { margin: 0; font-size: var(--text-sm); }
+  @media (max-width: 520px) { .kv > div { grid-template-columns: 1fr; gap: 2px; } }
+
+  .timeline { list-style: none; padding: 0; display: grid; gap: 0; }
+  .timeline > li { position: relative; padding-inline-start: var(--space-8); padding-block-end: var(--space-5); }
+  .timeline > li::before {
+    content: ""; position: absolute; inset-inline-start: 7px; inset-block-start: 0.5em;
+    width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .timeline > li::after {
+    content: ""; position: absolute; inset-inline-start: 11px; inset-block-start: 1.4em; inset-block-end: 0;
+    width: 1px; background: var(--line);
+  }
+  .timeline > li:last-child::after { display: none; }
+  .timeline strong { display: block; }
+
+  .grid-2 { display: grid; gap: var(--space-4); grid-template-columns: 1fr; }
+  .grid-2 > * { min-width: 0; }
+  @media (min-width: 720px) { .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+  .checklist { display: grid; gap: var(--space-2); }
+  .check {
+    display: grid; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: start;
+    padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-sm);
+    background: var(--bg-elevated); cursor: pointer;
+    transition: border-color var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out);
+  }
+  .check:hover { border-color: var(--accent-line); }
+  .check input {
+    appearance: none; width: 20px; height: 20px; margin-block-start: 1px;
+    border: 1.5px solid var(--line-strong); border-radius: 5px; background: var(--bg);
+    display: grid; place-content: center; cursor: pointer; flex: none;
+  }
+  .check input::after {
+    content: ""; width: 10px; height: 10px; transform: scale(0); transition: transform var(--duration-fast) var(--ease-out);
+    background: var(--accent); clip-path: polygon(14% 44%, 0 65%, 40% 100%, 100% 16%, 82% 0, 40% 62%);
+  }
+  .check input:checked { border-color: var(--accent); background: var(--accent-soft); }
+  .check input:checked::after { transform: scale(1); }
+  .check input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .check span { font-size: var(--text-sm); }
+  .check input:checked + span { color: var(--ink-faint); text-decoration: line-through; }
+
+  .footer {
+    border-block-start: 1px solid var(--line); background: var(--bg-elevated);
+    padding-block: var(--space-8); color: var(--ink-faint); font-size: var(--text-sm);
+  }
+  .footer__inner { display: flex; flex-wrap: wrap; gap: var(--space-4); justify-content: space-between; align-items: center; }
+
+  .anchor-link { color: inherit; text-decoration: none; }
+  .anchor-link:hover { color: var(--accent-strong); }
+
+  .badge {
+    display: inline-block; font-size: var(--text-xs); font-weight: 650;
+    padding: 0.1em 0.5em; border-radius: var(--radius-pill);
+    background: var(--accent-soft); color: var(--accent-strong);
+  }
+  .badge--muted { background: var(--bg-soft); color: var(--ink-faint); }
+  .badge--danger { background: var(--danger-soft); color: var(--danger); }
+  .badge--ok { background: var(--ok-soft); color: var(--ok); }
+
+  .lead-in { font-size: var(--text-sm); color: var(--ink-faint); }
+  .divider { height: 1px; background: var(--line); border: 0; }
+}
+
+@layer utilities {
+  .visually-hidden {
+    position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .mono { font-family: var(--font-mono); }
+  .nowrap { white-space: nowrap; }
+  .mt-0 { margin-block-start: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .progress__bar { transition: none; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">К содержанию</a>
+<div class="progress" aria-hidden="true"><div class="progress__bar" id="progressBar"></div></div>
+
+<header class="masthead">
+  <div class="wrap masthead__inner">
+    <p class="eyebrow">Подготовка к собеседованию</p>
+    <h1>Data Engineer в Лиге Ставок</h1>
+    <p class="lead">Полный конспект: SQL, ClickHouse, ETL/КХД, инфраструктурный стек, антифрод и сам процесс интервью. Уровни — от базы к глубине, с ловушками и вопросами для самопроверки.</p>
+    <div class="chips">
+      <span class="chip"><strong>Москва</strong> · м. Белорусская</span>
+      <span class="chip"><strong>1 600</strong> сотрудников</span>
+      <span class="chip"><strong>11 млн</strong> клиентов</span>
+      <span class="chip"><strong>~750 тыс.</strong> ставок в день</span>
+      <span class="chip">ClickHouse · MSSQL · Python · C#</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="layout">
+    <aside class="sidebar">
+      <details class="toc" id="toc" open>
+        <summary>Содержание</summary>
+        <nav aria-label="Содержание страницы">
+          <a href="#company">00 · Компания и вакансия</a>
+          <a href="#plan">01 · План подготовки</a>
+          <p class="nav-group">Техника</p>
+          <a href="#sql">02 · SQL</a>
+          <a href="#ch-basic">03 · ClickHouse: база</a>
+          <a href="#ch-adv">04 · ClickHouse: продвинуто</a>
+          <a href="#dwh">05 · ETL/ELT и КХД</a>
+          <a href="#stack">06 · Python, CI, K8s, Kafka</a>
+          <a href="#fraud">07 · Антифрод и беттинг</a>
+          <p class="nav-group">Интервью</p>
+          <a href="#interview">08 · Процесс и вопросы</a>
+          <a href="#checklist">09 · Чек-лист и шпаргалка</a>
+        </nav>
+      </details>
+    </aside>
+
+    <main class="content" id="main">
+
+      <!-- 00 -->
+      <section id="company">
+        <div class="section-head">
+          <span class="phase">Блок 00 · Контекст</span>
+          <h2><a class="anchor-link" href="#company">Компания и вакансия</a></h2>
+          <p>Что нужно знать о работодателе до интервью — и где не перепутать его с другим.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Факты</h3>
+            <ul class="clean">
+              <li>Федеральный букмекер, бренд «Лига Ставок». Юрлицо — ООО «ПМБК», ОГРН 1087746968759 от 11.08.2008, лицензия Л027-108-77/396456 от 08.07.2009.</li>
+              <li>Позиционирование: «федеральная финтех-компания». Продукт — пари, платежи, геминг, клиентская аналитика.</li>
+              <li>Офис: Москва, ул. Лесная, 3 — минута от м. Белорусская. Формат: офис / гибрид / удалёнка.</li>
+              <li>Топ-100 рейтинга работодателей hh.ru, средний возраст ~30, средний срок работы ~4 года.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Технологические сигналы</h3>
+            <ul class="clean">
+              <li><strong>ClickHouse-кластер</strong> — ключевая технология. Есть публичный кейс про миграции в ClickHouse через Liquibase + GitLab CI + Python.</li>
+              <li><strong>MSSQL</strong> — отдельная вакансия DB-разработчика, значит есть legacy-слой.</li>
+              <li><strong>C#/.NET</strong> — бэкенд; Python — данные и скрипты; Kafka/стриминг — потоковые события.</li>
+              <li>Домен: трейдинг/линии, платежи, антифрод, клиентские метрики.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Портрет роли — архивная вакансия «Data Engineer middle, команда Риски»</h3>
+          <p class="lead-in">Позиция в архиве с 14.05.2025, но именно она лучше всего описывает, что ждут от DE.</p>
+          <div class="kv" style="margin-block-start: var(--space-4)">
+            <div><dt>Продукт</dt><dd>Антифрод-платформа: сбор и консолидация потоковых данных из разных шин компании для анализа и принятия решений. Клиентский web-сервис + модели оценки.</dd></div>
+            <div><dt>Задачи</dt><dd>Архитектура данных, разработка ELT/ETL, оптимизация и улучшение алгоритмов трансформаций.</dd></div>
+            <div><dt>Требования</dt><dd>DE от 3 лет · ClickHouse cluster от 1,5 лет · понимание принципов корпоративных хранилищ · ML-интеграции желательно · Python и C# в плюс · конфигурирование ClickHouse в плюс.</dd></div>
+            <div><dt>Условия</dt><dd>Удалёнка или гибрид на выбор, белая ЗП (обсуждается на интервью), ДМС со стоматологией и психологом, обучение, спорт.</dd></div>
+          </div>
+        </div>
+
+        <div class="callout callout--warn">
+          <span class="callout__label">Не перепутать</span>
+          <p>«Лига Цифровой Экономики» — другой работодатель (ИТ-интегратор), у него на Хабр Карьере висят свои Data Engineer и «Аналитик DWH». Это не Лига Ставок.</p>
+        </div>
+
+        <div class="callout">
+          <span class="callout__label">Что уточнить у HR до интервью</span>
+          <p>Команду и продукт, грейд, почему роль открыта (новая или замена), актуальный стек и версию ClickHouse, размер кластера, есть ли on-call. Сейчас в открытых вакансиях на hh DE нет — роль может быть закрытой.</p>
+        </div>
+      </section>
+
+      <!-- 01 -->
+      <section id="plan">
+        <div class="section-head">
+          <span class="phase">Блок 01 · Навигация</span>
+          <h2><a class="anchor-link" href="#plan">План подготовки: 7 фаз</a></h2>
+          <p>Идём от фундамента к домену. Каждая фаза — отдельный раздел страницы.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <caption>Порядок проработки и вес на интервью</caption>
+            <thead>
+              <tr><th>Фаза</th><th>Тема</th><th>Зачем</th><th>Вес</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>SQL</td><td>База любого DE-интервью: окна, джойны, NULL, планы</td><td><span class="badge">высокий</span></td></tr>
+              <tr><td>2</td><td>ClickHouse: база</td><td>Их основная БД; без этого не пройти техничку</td><td><span class="badge">критично</span></td></tr>
+              <tr><td>3</td><td>ClickHouse: продвинуто</td><td>Репликация, MV, дедуп, мутации — отличает middle от junior</td><td><span class="badge">критично</span></td></tr>
+              <tr><td>4</td><td>ETL/ELT и КХД</td><td>Инкременты, идемпотентность, SCD, Airflow, DQ</td><td><span class="badge">высокий</span></td></tr>
+              <tr><td>5</td><td>Python, CI, Docker/K8s, Kafka</td><td>Инженерная обвязка вокруг данных</td><td><span class="badge badge--muted">средний</span></td></tr>
+              <tr><td>6</td><td>Антифрод и беттинг</td><td>Домен команды Риски; показывает зрелость</td><td><span class="badge">высокий</span></td></tr>
+              <tr><td>7</td><td>Интервью, вопросы, оффер</td><td>Процесс, самопрезентация, торг</td><td><span class="badge badge--muted">средний</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--ok">
+          <span class="callout__label">Как читать страницу</span>
+          <p>В каждом разделе: «Минимум» — что спросят точно; «Глубже» — чем отличиться; «Ловушки» — где валят; «Проверь себя» — вопросы с ответами под раскрывающимся блоком. Прогресс по чек-листу сохраняется в браузере.</p>
+        </div>
+      </section>
+
+      <!-- 02 SQL -->
+      <section id="sql">
+        <div class="section-head">
+          <span class="phase">Фаза 1 · база</span>
+          <h2><a class="anchor-link" href="#sql">SQL</a></h2>
+          <p>Трёхзначная логика, джойны, окна, планы. Диалекты: V = Vertica, CH = ClickHouse, MS = MSSQL.</p>
+        </div>
+
+        <div class="card">
+          <h3>NULL — трёхзначная логика</h3>
+          <p><code>NULL</code> — это «неизвестно», а не «пусто». Сравнение с NULL даёт <code>NULL</code> (UNKNOWN), а не TRUE/FALSE.</p>
+          <div class="code">
+            <div class="code__head"><span class="code__label">sql</span><button class="btn-copy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Копировать</span></button></div>
+<pre><code>-- НЕВЕРНО: всегда 0 строк
+WHERE manager_id = NULL
+
+-- ВЕРНО
+WHERE manager_id IS NULL</code></pre>
+          </div>
+          <ul class="clean" style="margin-block-start: var(--space-4)">
+            <li><strong>Агрегаты игнорируют NULL</strong>, кроме <code>COUNT(*)</code>. <code>COUNT(col)</code> ≠ <code>COUNT(*)</code>; <code>AVG(col)</code> делит на число не-NULL.</li>
+            <li><strong><code>NOT IN</code> + NULL = пустой результат.</strong> Если подзапрос содержит NULL, <code>NOT IN</code> не вернёт ничего. Безопаснее <code>NOT EXISTS</code>.</li>
+            <li><strong>NULL заражает арифметику и конкатенацию:</strong> <code>1 + NULL = NULL</code>.</li>
+          </ul>
+          <div class="code" style="margin-block-start: var(--space-4)">
+            <div class="code__head"><span class="code__label">sql</span><button class="btn-copy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Копировать</span></button></div>
+<pre><code>COALESCE(a, b, 0)        -- первое не-NULL
+NULLIF(x, 0)             -- x, если x &lt;&gt; 0, иначе NULL (защита от деления на 0)
+x IS DISTINCT FROM y     -- NULL-safe сравнение (V, MS — через CASE)</code></pre>
+          </div>
+          <div class="callout callout--trap" style="margin-block-start: var(--space-4)">
+            <span class="callout__label">Ловушка ClickHouse</span>
+            <p>NULL — отдельный тип <code>Nullable(T)</code>, он дороже (битовая маска), по умолчанию колонки не Nullable. При <code>join_use_nulls=0</code> (дефолт) <code>LEFT JOIN</code> заполняет пропуски <strong>дефолтными значениями</strong> (0, ''), а не NULL.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>JOIN — типы и три ловушки</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Тип</th><th>Что вернёт</th></tr></thead>
+              <tbody>
+                <tr><td>INNER</td><td>Только совпадения</td></tr>
+                <tr><td>LEFT</td><td>Все левые + совпадения справа (или NULL/дефолт)</td></tr>
+                <tr><td>FULL OUTER</td><td>Всё с обеих сторон</td></tr>
+                <tr><td>CROSS</td><td>Декартово произведение</td></tr>
+                <tr><td>SEMI / ANTI</td><td>Есть / нет совпадения — через <code>EXISTS</code> / <code>NOT EXISTS</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h4 style="margin-block-start: var(--space-5)">Ловушка 1: фильтр не в том месте</h4>
+          <div class="code" style="margin-block-start: var(--space-3)">
+            <div class="code__head"><span class="code__label">sql</span><button class="btn-copy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Копировать</span></button></div>
+<pre><code>-- WHERE превращает LEFT JOIN в INNER
+SELECT *
+FROM orders o
+LEFT JOIN payments p ON p.order_id = o.id
+WHERE p.status = 'paid';          -- unmatched-строки отфильтрованы
+
+-- Нужны и неоплаченные — условие в ON
+LEFT JOIN payments p
+  ON p.order_id = o.id AND p.status = 'paid'</code></pre>
+          </div>
+
+          <h4 style="margin-block-start: var(--space-5)">Ловушка 2: fan-out (размножение строк)</h4>
+          <p>JOIN с таблицей, где больше одной строки на ключ, увеличивает <code>SUM</code>/<code>COUNT</code>. Лечится предварительной агрегацией в CTE до джойна.</p>
+
+          <h4 style="margin-block-start: var(--space-5)">Ловушка 3: анти-джойн</h4>
+          <div class="code" style="margin-block-start: var(--space-3)">
+            <div class="code__head"><span class="code__label">sql</span><button class="btn-copy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Копировать</span></button></div>
+<pre><code>-- Клиенты без заказов: NULL-безопасно
+SELECT c.*
+FROM customers c
+WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id);</code></pre>
+          </div>
+
+          <h4 style="margin-block-start: var(--space-5)">Оптимизация соединений</h4>
+          <ul class="clean">
+            <li><strong>Sargability:</strong> <code>WHERE date_trunc('day', ts) = ...</code> не использует индекс/партиции. Пишите диапазон: <code>ts &gt;= '2026-01-01' AND ts &lt; '2026-01-02'</code>.</li>
+            <li><strong>Неявные касты</strong> (<code>varchar</code> vs <code>int</code>) убивают hash/merge-join.</li>
+            <li>Фильтруйте <strong>до</strong> джойна — предикат-пушдаун.</li>
+            <li>Смотрите кардинальность: сильная ошибка оценки → плохой план.</li>
+            <li><strong>CH:</strong> правая таблица грузится в память, порядок <code>LEFT/RIGHT</code> важен; в распределённом режиме — <code>GLOBAL JOIN</code>.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Оконные функции</h3>
+          <p>Скелет: <code>func(...) OVER (PARTITION BY ... ORDER BY ... frame)</code>.</p>
+          <ul class="clean">
+            <li><strong>Дефолтный frame</strong> при наличии <code>ORDER BY</code> — <code>RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code>, то есть накопительный итог. Без <code>ORDER BY</code> — весь партишн.</li>
+            <li><code>ROWS</code> — по физическим строкам, <code>RANGE</code> — по значениям (дубликаты получают одинаковый итог).</li>
+          </ul>
+          <div class="table-wrap" style="margin-block-start: var(--space-4)">
+            <table>
+              <caption>Для значений 1, 1, 2</caption>
+              <thead><tr><th>Функция</th><th>Результат</th><th>Когда</th></tr></thead>
+              <tbody>
+                <tr><td><code>ROW_NUMBER()</code></td><td>1, 2, 3</td><td>Последняя запись на клиента</td></tr>
+                <tr><td><code>RANK()</code></td><td>1, 1, 3</td><td>Пропуски после дублей</td></tr>
+                <tr><td><code>DENSE_RANK()</code></td><td>1, 1, 2</td><td>Без пропусков</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="code" style="margin-block-start: var(--space-4)">
+            <div class="code__head"><span class="code__label">sql</span><button class="btn-copy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Копировать</span></button></div>
+<pre><code>-- Последний заказ на клиента
+SELECT * FROM (
+  SELECT o.*,
+         ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY created_at DESC) AS rn
+  FROM orders o
+) t
+WHERE rn = 1;
+
+-- Прирост к предыдущему дню
+SELECT dt, amount,
+       amount - LAG(amount) OVER (ORDER BY dt) AS delta
+FROM daily;
+
+-- Доля в партишне
+SELECT *, amount / SUM(amount) OVER (PARTITION BY month) AS share
+FROM sales;</code></pre>
+          </div>
+          <div class="callout callout--trap" style="margin-block-start: var(--space-4)">
+            <span class="callout__label">Ловушка</span>
+            <p><code>LAST_VALUE</code> с дефолтным frame возвращает текущую строку. Нужен явный <code>ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING</code>. <code>QUALIFY</code> есть в V и CH, в MS — только через подзапрос/CTE.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Планы запросов</h3>
+          <ul class="clean">
+            <li><code>EXPLAIN</code> — оценка; <code>EXPLAIN ANALYZE</code> — фактические метрики (V; в CH — через <code>send_logs_level</code> и <code>system.query_log</code>).</li>
+            <li>Читаем: порядок соединений, тип join (hash / merge / nested loop), full scan вместо pruning, оценка vs факт по строкам.</li>
+            <li><strong>V:</strong> проекции — «материализованный индекс»; проверить, использована ли проекция.</li>
+            <li><strong>CH:</strong> <code>read_rows</code>, <code>read_bytes</code>, MemoryTracker; главный враг — чтение лишних партиций и колонок.</li>
+            <li><strong>MS:</strong> actual execution plan, index scan vs seek, parameter sniffing.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Глубже: что ещё спросить могут</h3>
+          <div class="grid-2">
+            <div>
+              <h4>Подзапросы и CTE</h4>
+              <ul class="clean">
+                <li>CTE повышает читаемость, но в старых версиях MSSQL/Postgres может быть «optimization fence».</li>
+                <li>Коррелированный подзапрос vs <code>EXISTS</code> vs джойн — по плану.</li>
+                <li>Рекурсивный CTE — иерархии (партнёрские схемы, дерево агентов).</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Группировки и дедуп</h4>
+              <ul class="clean">
+                <li><code>GROUPING SETS</code>, <code>ROLLUP</code>, <code>CUBE</code> — отчёты с итогами.</li>
+                <li>Дедуп: <code>ROW_NUMBER() = 1</code>, <code>DISTINCT ON</code> (PG), <code>argMax</code> (CH).</li>
+                <li><code>HAVING</code> vs <code>WHERE</code>: фильтр по агрегату — только <code>HAVING</code>.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Проверь себя</h3>
+          <div class="stack stack--tight">
+            <details class="quiz"><summary>Почему <code>NOT IN</code> с NULL может вернуть 0 строк?</summary><div><p>Потому что <code>x &lt;&gt; NULL</code> даёт UNKNOWN, и итоговый предикат никогда не становится TRUE. Спасает <code>NOT EXISTS</code> или фильтр <code>IS NOT NULL</code> в подзапросе.</p></div></details>
+            <details class="quiz"><summary>Чем <code>WHERE</code> после LEFT JOIN отличается от условия в <code>ON</code>?</summary><div><p><code>ON</code> фильтрует до «дополнения» NULL-строками: unmatched остаются. <code>WHERE</code> применяется после и отбрасывает строки, где правая часть NULL, — LEFT JOIN фактически становится INNER.</p></div></details>
+            <details class="quiz"><summary>ROW_NUMBER vs RANK vs DENSE_RANK на 1,1,2</summary><div><p>1,2,3 / 1,1,3 / 1,1,2 соответственно.</p></div></details>
+            <details class="quiz"><summary>Что не так с <code>WHERE DATE(ts) = '2026-01-01'</code>?</summary><div><p>Функция на колонке ломает sargability: индекс и партиции не применяются, будет full scan. Переписать в диапазон по <code>ts</code>.</p></div></details>
+            <details class="quiz"><summary>Почему в ClickHouse LEFT JOIN вернул 0 вместо NULL?</summary><div><p>Дефолт <code>join_use_nulls=0</code>: пропуски заполняются дефолтными значениями типа. Включить <code>join_use_nulls=1</code> или обрабатывать явно.</p></div></details>
+          </div>
+        </div>
+      </section>
+
+      <!-- 03 ClickHouse basic -->
+      <section id="ch-basic">
+        <div class="section-head">
+          <span class="phase">Фаза 2 · база</span>
+          <h2><a class="anchor-link" href="#ch-basic">ClickHouse: база</a></h2>
+          <p>MergeTree-семейство, ORDER BY против PRIMARY KEY, партиционирование, жизненный цикл part'ов.</p>
+        </div>
+
+        <div class="callout">
+          <span class="callout__label">Главная идея</span>
+          <p>ClickHouse — колоночная OLAP-СУБД, оптимизированная под чтение. Она не «ещё один Postgres»: здесь нет настоящих транзакций и уникальных индексов, зато есть батчевые вставки, сжатие и чтение только нужных колонок.</p>
+        </div>
+
+        <div class="card">
+          <h3>Семейство MergeTree</h3>
+          <div class="table-wrap">
+            <table>
+              <caption>Движки, которые надо знать наизусть</caption>
+              <thead><tr><th>Движок</th><th>Что делает</th><th>Типичный кейс</th></tr></thead>
+              <tbody>
+                <tr><td><code>MergeTree</code></td><td>Базовый: сортировка, партиции, индексы, TTL</td><td>Сырые события, логи</td></tr>
+                <tr><td><code>ReplacingMergeTree(ver)</code></td><td>Оставляет последнюю версию по sorting key при мерже</td><td>CDC, upsert, дедуп</td></tr>
+                <tr><td><code>SummingMergeTree</code></td><td>Суммирует числовые колонки по ключу при мерже</td><td>Предагрегаты</td></tr>
+                <tr><td><code>AggregatingMergeTree</code></td><td>Хранит состояния агрегатных функций (<code>-State</code>), мержит их</td><td>MV-пайплайны, метрики</td></tr>
+                <tr><td><code>CollapsingMergeTree(sign)</code></td><td>Схлопывает пары +1/−1</td><td>Удаление/изменение строк</td></tr>
+                <tr><td><code>VersionedCollapsingMergeTree(sign, ver)</code></td><td>То же, но корректно при неупорядоченных вставках</td><td>Стриминг без порядка</td></tr>
+                <tr><td><code>Replicated*</code></td><td>Префикс даёт репликацию через Keeper</td><td>Отказоустойчивость</td></tr>
+                <tr><td><code>Distributed</code></td><td>Не хранит данные, фан-аут запросов по шардам</td><td>Шардированный кластер</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>ORDER BY vs PRIMARY KEY — самое важное</h3>
+          <ul class="clean">
+            <li><strong><code>ORDER BY</code></strong> — ключ сортировки. Определяет физический порядок строк в part'е и по нему строится разреженный первичный индекс.</li>
+            <li><strong><code>PRIMARY KEY</code></strong> — необязателен, должен быть <strong>префиксом</strong> сортировочного ключа. Задаёт, по каким колонкам строится разреженный индекс. Если не указан — равен <code>ORDER BY</code>.</li>
+            <li><strong>Разреженный индекс:</strong> одна запись на гранулу (<code>index_granularity</code>, по умолчанию 8192 строки). Поэтому индекс маленький и целиком в памяти.</li>
+            <li>Это <strong>не constraint</strong>: дубликаты и «нарушение порядка» не запрещены, просто данные физически отсортированы.</li>
+            <li>Правило выбора: в начало — колонки из <code>WHERE</code>, затем по возрастанию кардинальности. Но помните: ключ влияет и на скорость range-сканов.</li>
+          </ul>
+          <div class="code" style="margin-block-start: var(--space-4)">
+            <div class="code__head"><span class="code__label">sql</span><button class="btn-copy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Копировать</span></button></div>
+<pre><code>CREATE TABLE events (
+  dt        Date,
+  user_id   UInt64,
+  event     LowCardinality(String),
+  amount    Decimal(18, 2)
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMM(dt)
+ORDER BY (event, dt, user_id)
+SETTINGS index_granularity = 8192;</code></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Партиционирование и жизненный цикл данных</h3>
+          <ul class="clean">
+            <li><strong>Partition</strong> — директория на диске. Внутри партиции лежат <strong>part'ы</strong>, по одному на вставку.</li>
+            <li>Фоновые <strong>мержи</strong> объединяют мелкие part'ы в крупные. Пока идёт мерж, старые и новые part'ы читаются вместе.</li>
+            <li><strong>Слишком много партиций — плохо:</strong> ошибки «Too many parts», лишний overhead. Партиционируйте по месяцу/дню, а не по каждому значению.</li>
+            <li>Мониторинг: <code>system.parts</code>, <code>system.part_log</code>, <code>system.merges</code>.</li>
+            <li><code>OPTIMIZE TABLE ... FINAL</code> — принудительный мерж, тяжёлая операция, не для продакшена «по расписанию».</li>
+          </ul>
+          <div class="callout callout--trap" style="margin-block-start: var(--space-4)">
+            <span class="callout__label">Классическая ошибка</span>
+            <p>Вставлять по одной строке. Каждая вставка создаёт новый part, мержи не успевают — кластер деградирует. Вставляйте батчами (десятки тысяч строк) или используйте async inserts.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Как CH читает запрос</h3>
+          <ol class="clean">
+            <li><strong>Partition pruning</strong> — отбрасываются партиции вне диапазона <code>WHERE</code>.</li>
+            <li><strong>Primary key pruning</strong> — по разреженному индексу отбрасываются гранулы.</li>
+            <li><strong>Чтение только нужных колонок</strong> — сила колоночного хранения; <code>SELECT *</code> убивает её.</li>
+            <li><strong>PREWHERE</strong> — сначала читаются колонки из предиката, фильтрация до чтения остальных; современный оптимизатор часто сам переносит условия.</li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <h3>Проверь себя</h3>
+          <div class="stack stack--tight">
+            <details class="quiz"><summary>Чем <code>PRIMARY KEY</code> в ClickHouse отличается от обычной БД?</summary><div><p>Это не ограничение уникальности, а разреженный индекс: одна запись на гранулу, должен быть префиксом <code>ORDER BY</code>. Дубликаты разрешены.</p></div></details>
+            <details class="quiz"><summary>Что будет, если партиционировать по <code>user_id</code>?</summary><div><p>Тысячи/миллионы партиций → «Too many parts», катастрофический overhead на мержи и метаданные. Партиционируют по времени.</p></div></details>
+            <details class="quiz"><summary>Почему <code>SELECT *</code> в CH особенно плох?</summary><div><p>Колоночная БД читает только запрошенные колонки. <code>*</code> заставляет читать все, включая тяжёлые строковые, — кратный рост I/O.</p></div></details>
+            <details class="quiz"><summary>Зачем нужен <code>PREWHERE</code>?</summary><div><p>Позволяет отфильтровать строки, прочитав минимум колонок, до чтения остальных. Снижает объём I/O и памяти.</p></div></details>
+          </div>
+        </div>
+      </section>
+
+      <!-- 04 CH advanced -->
+      <section id="ch-adv">
+        <div class="section-head">
+          <span class="phase">Фаза 3 · продвинуто</span>
+          <h2><a class="anchor-link" href="#ch-adv">ClickHouse: продвинуто</a></h2>
+          <p>TTL, репликация и шардирование, мутации, async inserts, дедупликация, агрегаты и materialized views.</p>
+        </div>
+
+        <div class="card">
+          <h3>TTL</h3>
+          <p>Удаление, перемещение на «холодный» диск/том или фоновая агрегация по возрасту данных.</p>
+          <div class="code">
+            <div class="code__head"><span class="code__label">sql</span><button class="btn-copy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Копировать</span></button></div>
+<pre><code>ALTER TABLE events
+  MODIFY TTL dt + INTERVAL 90 DAY DELETE;
+
+-- Переезд старых данных на другой диск/том
+ALTER TABLE events
+  MODIFY TTL dt + INTERVAL 30 DAY TO VOLUME 'cold';
+
+-- Фоновая агрегация: свернуть детали в дневные суммы
+ALTER TABLE events
+  MODIFY TTL dt + INTERVAL 7 DAY
+  GROUP BY dt, event
+  SET amount = sum(amount);</code></pre>
+          </div>
+          <p class="lead-in" style="margin-block-start: var(--space-3)">TTL выполняется на фоне при мержах. Ускорять удаление целыми партициями помогает <code>ttl_only_drop_parts</code>.</p>
+        </div>
+
+        <div class="card">
+          <h3>Репликация и шардирование</h3>
+          <div class="grid-2">
+            <div>
+              <h4>Репликация</h4>
+              <ul class="clean">
+                <li><code>ReplicatedMergeTree('/clickhouse/tables/{shard}/events', '{replica}')</code>.</li>
+                <li>Координация — <strong>ClickHouse Keeper</strong> (замена ZooKeeper).</li>
+                <li>Реплика — полная копия шарда; запись можно в любую, чтение — с любой.</li>
+                <li>Репликация асинхронная: возможна задержка; смотреть <code>system.replicas</code>.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Шардирование</h4>
+              <ul class="clean">
+                <li>Данные делятся по <strong>sharding key</strong> между шардами.</li>
+                <li><code>Distributed(cluster, db, local_table, sharding_key)</code> — витрина поверх локальных таблиц.</li>
+                <li><code>ON CLUSTER</code> — DDL сразу на все узлы.</li>
+                <li><code>GLOBAL JOIN</code> / <code>GLOBAL IN</code> — транслируют правую часть на все шарды; обычный join видит только локальные данные.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="callout callout--trap" style="margin-block-start: var(--space-4)">
+            <span class="callout__label">Частая ошибка</span>
+            <p>Сделать <code>JOIN</code> распределённой таблицы с распределённой таблицей без <code>GLOBAL</code> — получите неполные результаты, потому что каждый шард соединяет только свои строки.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Мутации</h3>
+          <ul class="clean">
+            <li><code>ALTER TABLE ... UPDATE/DELETE</code> — <strong>асинхронные мутации</strong>: перезаписывают затронутые part'ы целиком.</li>
+            <li>Тяжело и дорого. Для частых изменений лучше <code>ReplacingMergeTree</code>/<code>CollapsingMergeTree</code> или удаление целых партиций (<code>ALTER TABLE ... DROP PARTITION</code>).</li>
+            <li><code>mutations_sync = 2</code> — дождаться выполнения (для тестов, не для прода).</li>
+            <li>Лёгкие удаления: <code>DELETE FROM ... WHERE</code> — маска удалённых строк, дешевле мутации (зависит от версии).</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Асинхронные вставки</h3>
+          <div class="code">
+            <div class="code__head"><span class="code__label">sql</span><button class="btn-copy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Копировать</span></button></div>
+<pre><code>SET async_insert = 1;
+SET wait_for_async_insert = 1;          -- ждать подтверждения буферизации
+SET async_insert_max_data_size = 10485760;
+SET async_insert_busy_timeout_ms = 200;</code></pre>
+          </div>
+          <p style="margin-block-start: var(--space-3)">Сервер буферизует мелкие вставки и сам формирует крупные блоки → меньше part'ов, меньше «too many parts». <code>wait_for_async_insert=1</code> даёт гарантию, что данные приняты в буфер (иначе можно потерять при падении).</p>
+        </div>
+
+        <div class="card">
+          <h3>Дедупликация — два разных уровня</h3>
+          <div class="grid-2">
+            <div>
+              <h4>1. На уровне вставок</h4>
+              <ul class="clean">
+                <li><code>insert_deduplicate=1</code> (по умолчанию для Replicated): повторная вставка <strong>того же блока</strong> игнорируется.</li>
+                <li>Спасает от ретраев, но <strong>не</strong> от логических дублей с другими данными.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>2. Логическая</h4>
+              <ul class="clean">
+                <li><code>ReplacingMergeTree(version)</code> + <code>FINAL</code> или <code>argMax</code> при чтении.</li>
+                <li>Дедуп происходит <strong>в момент мержа</strong>, а не мгновенно.</li>
+                <li><code>OPTIMIZE ... DEDUPLICATE BY ...</code> — принудительно.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="code" style="margin-block-start: var(--space-4)">
+            <div class="code__head"><span class="code__label">sql</span><button class="btn-copy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Копировать</span></button></div>
+<pre><code>-- Актуальная версия без FINAL (дешевле на больших объёмах)
+SELECT user_id, argMax(balance, updated_at) AS balance
+FROM balances
+GROUP BY user_id;</code></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Агрегатные функции</h3>
+          <ul class="clean">
+            <li><code>uniq()</code> — приблизительный HLL-подсчёт, быстрый; <code>uniqExact()</code> — точный и дорогой; <code>uniqCombined()</code> — компромисс.</li>
+            <li><code>quantile(0.95)(x)</code>, <code>quantiles(0.5, 0.9, 0.99)(x)</code> — перцентили.</li>
+            <li><code>argMax(value, ts)</code> / <code>argMin</code> — «последнее/первое значение по времени».</li>
+            <li><code>any()</code>, <code>anyLast()</code>, <code>groupArray()</code>, <code>groupUniqArray()</code>.</li>
+            <li><strong>Комбинаторы:</strong> <code>-If</code> (условный), <code>-Array</code> (по массиву), <code>-State</code>/<code>-Merge</code> (состояния для MV).</li>
+            <li><code>AggregateFunction(uniq, UInt64)</code> — тип состояния; <code>SimpleAggregateFunction(sum, UInt64)</code> — для sum/min/max/any.</li>
+          </ul>
+          <div class="code" style="margin-block-start: var(--space-4)">
+            <div class="code__head"><span class="code__label">sql</span><button class="btn-copy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Копировать</span></button></div>
+<pre><code>SELECT
+  toStartOfHour(ts) AS hour,
+  uniqExact(user_id) AS users,
+  quantile(0.95)(latency_ms) AS p95,
+  countIf(status = 'error') AS errors
+FROM events
+GROUP BY hour;</code></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Materialized views</h3>
+          <ul class="clean">
+            <li>MV — это <strong>триггер на INSERT</strong> в источнике: преобразует строки и пишет в целевую таблицу (или в таблицу через <code>TO</code>).</li>
+            <li>Старые данные MV <strong>не видит</strong> — нужен бэкфилл.</li>
+            <li><code>POPULATE</code> заполняет при создании, но не атомарно и может пропустить вставки — в проде лучше ручной бэкфилл.</li>
+            <li><strong>Канонический паттерн:</strong> источник → MV с <code>GROUP BY</code> и <code>-State</code> → <code>AggregatingMergeTree</code> → чтение через <code>-Merge</code>.</li>
+            <li>Refreshable MV (новые версии): <code>REFRESH EVERY 1 HOUR</code> — для батчевых витрин.</li>
+          </ul>
+          <div class="code" style="margin-block-start: var(--space-4)">
+            <div class="code__head"><span class="code__label">sql</span><button class="btn-copy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Копировать</span></button></div>
+<pre><code>CREATE TABLE events_hourly (
+  hour      DateTime,
+  event     LowCardinality(String),
+  users     AggregateFunction(uniq, UInt64),
+  amount    SimpleAggregateFunction(sum, Decimal(18,2))
+)
+ENGINE = AggregatingMergeTree
+ORDER BY (hour, event);
+
+CREATE MATERIALIZED VIEW mv_events_hourly TO events_hourly AS
+SELECT
+  toStartOfHour(ts) AS hour,
+  event,
+  uniqState(user_id) AS users,
+  sum(amount)         AS amount
+FROM events
+GROUP BY hour, event;
+
+-- Чтение:
+SELECT hour, event, uniqMerge(users), sum(amount)
+FROM events_hourly
+GROUP BY hour, event;</code></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Проверь себя</h3>
+          <div class="stack stack--tight">
+            <details class="quiz"><summary>Почему <code>FINAL</code> может быть дорогим и что вместо него?</summary><div><p><code>FINAL</code> заставляет схлопывать версии при чтении по всем затронутым part'ам. Альтернатива — <code>argMax</code>/<code>GROUP BY</code>, предварительный <code>OPTIMIZE</code> или проектирование так, чтобы дублей не было.</p></div></details>
+            <details class="quiz"><summary>Чем <code>GLOBAL JOIN</code> отличается от обычного в шардированном кластере?</summary><div><p>Обычный JOIN выполняется на каждом шарде только по локальным данным — результат неполный. GLOBAL транслирует правую таблицу на все шарды.</p></div></details>
+            <details class="quiz"><summary>Когда нужен <code>AggregatingMergeTree</code>, а когда <code>SummingMergeTree</code>?</summary><div><p>Summing — когда достаточно суммы простых числовых колонок. Aggregating — когда нужны состояния сложных агрегатов (uniq, quantile, avg), которые нельзя просто сложить.</p></div></details>
+            <details class="quiz"><summary>Материализованное представление увидит старые строки источника?</summary><div><p>Нет. MV реагирует только на новые вставки. Старые данные нужно залить в целевую таблицу отдельно (бэкфилл).</p></div></details>
+            <details class="quiz"><summary>Зачем <code>wait_for_async_insert=1</code>?</summary><div><p>Чтобы клиент получил подтверждение, что данные приняты в буфер сервера. С 0 можно «успешно» отправить и потерять при падении.</p></div></details>
+          </div>
+        </div>
+      </section>
+
+      <!-- 05 DWH -->
+      <section id="dwh">
+        <div class="section-head">
+          <span class="phase">Фаза 4 · база</span>
+          <h2><a class="anchor-link" href="#dwh">ETL/ELT и КХД</a></h2>
+          <p>Слои, инкрементальная загрузка, идемпотентность, late-arriving data, SCD, Airflow, качество данных.</p>
+        </div>
+
+        <div class="card">
+          <h3>Слои хранилища</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Слой</th><th>Что лежит</th><th>Правило</th></tr></thead>
+              <tbody>
+                <tr><td>ODS / staging</td><td>Сырые данные «как пришли», без бизнес-логики</td><td>Не терять историю, минимальные преобразования, легко перезалить</td></tr>
+                <tr><td>DDS / core</td><td>Нормализованное ядро, интегрированные данные</td><td>Единые справочники, ключи, история</td></tr>
+                <tr><td>CDM / marts</td><td>Витрины под конкретные домены (риски, маркетинг, финансы)</td><td>Денормализация под запросы, звёздная схема</td></tr>
+                <tr><td>ADS / reporting</td><td>Слой для BI и отчётов</td><td>Предрасчитанные метрики, быстрые чтения</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="margin-block-start: var(--space-3)">На интервью уметь объяснить: зачем столько слоёв — изоляция источников, повторное использование логики, контроль качества на границах.</p>
+        </div>
+
+        <div class="card">
+          <h3>Инкрементальная загрузка</h3>
+          <ul class="clean">
+            <li><strong>High-water mark:</strong> храним последний загруженный <code>ts</code>/<code>id</code> в control-таблице, тянем только новее.</li>
+            <li><strong>CDC:</strong> чтение лога изменений (Debezium, триггеры), а не опрос таблиц.</li>
+            <li><strong>UPSERT/MERGE:</strong> Vertica <code>MERGE</code>, MSSQL <code>MERGE</code>, ClickHouse <code>ReplacingMergeTree</code>.</li>
+            <li><strong>Partition overwrite:</strong> пересчитываем и заменяем целую партицию (идеально для больших пересчётов).</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Идемпотентность</h3>
+          <p>Повторный запуск пайплайна не должен менять результат. Это главный вопрос на собеседовании по ETL.</p>
+          <ul class="clean">
+            <li>Ключ + версия, дедуп на записи.</li>
+            <li><code>DELETE</code>/<code>DROP PARTITION</code> перед вставкой, затем загрузка.</li>
+            <li>Детерминированные трансформации: без <code>now()</code> и <code>rand()</code> в теле расчёта.</li>
+            <li>Транзакция или staging-таблица → атомарная подмена (<code>EXCHANGE PARTITION</code> / <code>SWAP</code>).</li>
+            <li>Идемпотентные ключи для внешних API.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Late-arriving data</h3>
+          <ul class="clean">
+            <li><strong>Lookback-окно:</strong> пересчитываем последние N дней, а не только «новые».</li>
+            <li><strong>Watermark + allowed lateness:</strong> насколько опоздавшие события ещё принимаем.</li>
+            <li><strong>Reprocessing/backfill:</strong> отдельный DAG/запуск за исторический период.</li>
+            <li>Для стриминга: оконные агрегаты и апдейты результатов по мере прихода событий.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>SCD — медленно меняющиеся измерения</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Тип</th><th>Поведение</th><th>Когда</th></tr></thead>
+              <tbody>
+                <tr><td>SCD 0</td><td>Не меняется</td><td>Константы</td></tr>
+                <tr><td>SCD 1</td><td>Перезапись значения</td><td>Исправление ошибок, не нужна история</td></tr>
+                <tr><td>SCD 2</td><td>Новая строка с <code>valid_from</code>/<code>valid_to</code>/<code>is_current</code></td><td>Полная история изменений</td></tr>
+                <tr><td>SCD 3</td><td>Колонка «предыдущее значение»</td><td>Нужен только один предыдущий срез</td></tr>
+                <tr><td>SCD 4/6</td><td>Гибрид: история + текущее значение</td><td>Быстрые запросы + история</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="code" style="margin-block-start: var(--space-4)">
+            <div class="code__head"><span class="code__label">sql — SCD2</span><button class="btn-copy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Копировать</span></button></div>
+<pre><code>-- 1) закрыть текущую строку, если атрибуты изменились
+UPDATE dim_client
+SET valid_to = :load_ts, is_current = 0
+WHERE client_id = :id AND is_current = 1
+  AND row_hash &lt;&gt; :new_hash;
+
+-- 2) вставить новую версию
+INSERT INTO dim_client
+  (client_id, attr, row_hash, valid_from, valid_to, is_current)
+VALUES (:id, :attr, :new_hash, :load_ts, '9999-12-31', 1);</code></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Оркестрация: Airflow</h3>
+          <div class="grid-2">
+            <div>
+              <h4>Что знать</h4>
+              <ul class="clean">
+                <li>DAG, task, operator, TaskFlow API (<code>@task</code>).</li>
+                <li>Идемпотентные таски; <code>catchup</code>, <code>backfill</code>, data interval.</li>
+                <li>XCom — только для маленьких данных; крупное — в storage.</li>
+                <li>Sensors в режиме <code>reschedule</code>, чтобы не занимать слот.</li>
+                <li><code>retries</code>, <code>retry_delay</code>, <code>trigger_rule</code>, pools, SLA.</li>
+                <li><code>max_active_runs</code>, concurrency.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Что могут спросить</h4>
+              <ul class="clean">
+                <li>Как сделать бэкфилл за год и не убить источник?</li>
+                <li>Чем <code>execution_date</code> отличается от реального времени запуска?</li>
+                <li>Что делать, если таск упал на середине загрузки?</li>
+                <li>Как тестировать DAG?</li>
+                <li>Airflow 2 vs 3: asset/dataset-триггеры.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Качество данных (DQ)</h3>
+          <ul class="clean">
+            <li><strong>Полнота</strong> — доля NULL, пропущенные дни/партиции.</li>
+            <li><strong>Уникальность</strong> — дубли по ключу.</li>
+            <li><strong>Валидность</strong> — диапазоны, форматы, допустимые значения.</li>
+            <li><strong>Согласованность</strong> — ссылочная целостность, сверки между слоями.</li>
+            <li><strong>Свежесть</strong> — задержка данных, «последняя запись не старше N минут».</li>
+            <li><strong>Объём</strong> — аномалии row count относительно предыдущих дней.</li>
+          </ul>
+          <p style="margin-block-start: var(--space-3)">Инструменты: dbt tests, Great Expectations, Soda Core, собственные проверки. Паттерн: проверка → карантинная таблица → алерт, а не молчаливое удаление строк.</p>
+        </div>
+
+        <div class="card">
+          <h3>Проверь себя</h3>
+          <div class="stack stack--tight">
+            <details class="quiz"><summary>Как сделать пайплайн идемпотентным при загрузке в ClickHouse?</summary><div><p>Загружать в staging/временную партицию, затем атомарно подменять (<code>EXCHANGE PARTITION</code> или удаление и вставка партиции), либо использовать <code>ReplacingMergeTree</code> с версией и дедуп по ключу.</p></div></details>
+            <details class="quiz"><summary>Чем SCD2 отличается от SCD1 и когда что выбирать?</summary><div><p>SCD1 перезаписывает атрибут (история теряется), SCD2 добавляет версии строк с интервалами действия. SCD2 — когда нужна история изменений для отчётности.</p></div></details>
+            <details class="quiz"><summary>Как обрабатывать опоздавшие события?</summary><div><p>Lookback-окно, watermark + allowed lateness, периодический reprocessing затронутых партиций, бэкфилл DAG.</p></div></details>
+            <details class="quiz"><summary>Почему XCom нельзя использовать для больших данных?</summary><div><p>XCom хранится в метабазе Airflow и сериализуется — большие объёмы перегрузят БД и замедлят планировщик. Данные передают через storage, а в XCom — путь/идентификатор.</p></div></details>
+          </div>
+        </div>
+      </section>
+
+      <!-- 06 stack -->
+      <section id="stack">
+        <div class="section-head">
+          <span class="phase">Фаза 5 · база</span>
+          <h2><a class="anchor-link" href="#stack">Python, CI/CD, Docker/K8s, Kafka</a></h2>
+          <p>Инженерная обвязка: чем быстрее пишете и надёжнее деплоите — тем выше грейд.</p>
+        </div>
+
+        <div class="card">
+          <h3>Python для DE</h3>
+          <div class="grid-2">
+            <div>
+              <h4>Данные</h4>
+              <ul class="clean">
+                <li><code>pandas</code> / <code>polars</code> / <code>pyarrow</code>; ленивые вычисления в polars.</li>
+                <li>Чтение чанками: <code>chunksize</code>, генераторы — не тянуть всё в память.</li>
+                <li>Типизация, <code>dataclasses</code>, <code>pydantic</code> для схем.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Инженерия</h4>
+              <ul class="clean">
+                <li>HTTP: пагинация, ретраи с backoff, rate limit, idempotency key.</li>
+                <li><code>pytest</code>: фикстуры, <code>parametrize</code>, моки.</li>
+                <li>Логирование, конфиг из ENV, секреты не в коде.</li>
+                <li>Транзакции, пул соединений, батчевые вставки.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>C# — уровень «читаю и понимаю»</h3>
+          <ul class="clean">
+            <li>Типы, <code>var</code>, <code>async/await</code>, <code>Task</code>, <code>IDisposable</code>.</li>
+            <li>LINQ: <code>Where/Select/GroupBy/Join</code> — аналог лямбд над коллекциями.</li>
+            <li>DI-контейнер (<code>Microsoft.Extensions.DependencyInjection</code>), EF Core как ORM.</li>
+            <li>NuGet-пакеты, .NET 8, структура решения.</li>
+            <li>Достаточно уметь объяснить чужой код, не писать с нуля.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>GitLab CI</h3>
+          <div class="code">
+            <div class="code__head"><span class="code__label">yaml</span><button class="btn-copy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Копировать</span></button></div>
+<pre><code>stages: [test, build, deploy]
+
+test:
+  stage: test
+  image: python:3.12-slim
+  script:
+    - pip install -r requirements.txt
+    - pytest -q
+
+build:
+  stage: build
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
+deploy:
+  stage: deploy
+  script: ./deploy.sh
+  environment: production
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: manual</code></pre>
+          </div>
+          <ul class="clean" style="margin-block-start: var(--space-4)">
+            <li><code>stages</code>, <code>script</code>, <code>rules</code>, <code>needs</code>, <code>artifacts</code>, <code>cache</code>.</li>
+            <li><code>include</code> и <code>extends</code> — переиспользование конфигов; <code>parallel:matrix</code>.</li>
+            <li>Protected variables и окружения; секреты не в логах.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Docker и Kubernetes</h3>
+          <div class="grid-2">
+            <div>
+              <h4>Docker</h4>
+              <ul class="clean">
+                <li>Образ vs контейнер; слои и кэш; <code>.dockerignore</code>.</li>
+                <li>Multi-stage build — меньше итоговый образ.</li>
+                <li>Non-root пользователь, <code>ENTRYPOINT</code> vs <code>CMD</code>.</li>
+                <li>Не хранить данные и секреты в образе.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Kubernetes</h4>
+              <ul class="clean">
+                <li>Pod, Deployment, ReplicaSet, Service, Ingress.</li>
+                <li>ConfigMap, Secret, Job, CronJob, Namespace.</li>
+                <li><code>requests/limits</code>, liveness/readiness/startup probes, HPA.</li>
+                <li><code>kubectl get/describe/logs/exec/port-forward</code>; Helm.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Kafka и стриминг</h3>
+          <ul class="clean">
+            <li><strong>Topic → partitions → offsets.</strong> Порядок гарантирован только внутри партиции.</li>
+            <li><strong>Ключ сообщения</strong> определяет партицию — ключ по <code>user_id</code> даёт порядок событий пользователя.</li>
+            <li><strong>Consumer group:</strong> партиция читается одним консьюмером группы; ребалансировка при изменении состава.</li>
+            <li><strong>Семантики доставки:</strong> at-most-once, at-least-once (дефолт), exactly-once (идемпотентный продюсер + транзакции).</li>
+            <li><strong>Retention</strong> по времени/размеру; <strong>compaction</strong> — хранить последнее значение по ключу.</li>
+            <li>Продюсер: <code>acks</code>, батчинг, linger. Консьюмер: ручной коммит, <code>max.poll.interval</code>.</li>
+            <li>Мониторинг: <strong>consumer lag</strong>, здоровье брокеров, размер партиций.</li>
+          </ul>
+          <div class="callout callout--warn" style="margin-block-start: var(--space-4)">
+            <span class="callout__label">Связка с антифродом</span>
+            <p>Потоковые события (ставки, платежи, логины) идут через Kafka → расчёт фич → онлайн-скоринг. На интервью уместно связать Kafka-партиционирование с задержкой принятия решения.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 07 fraud -->
+      <section id="fraud">
+        <div class="section-head">
+          <span class="phase">Фаза 6 · домен</span>
+          <h2><a class="anchor-link" href="#fraud">Антифрод и беттинг</a></h2>
+          <p>Команда Риски — это антифрод. Понимание домена выделяет вас среди «просто DE».</p>
+        </div>
+
+        <div class="card">
+          <h3>Домен беттинга в двух абзацах</h3>
+          <p>Букмекер принимает ставки на спортивные события. Линия и коэффициенты формирует трейдинг (в Лиге — 3000+ событий в день), маржа заложена в коэффициенты. Ставка проходит жизненный цикл: приём → расчёт (settlement) → выплата или возврат. Платежи (депозиты/выводы) — это «банк внутри компании».</p>
+          <p style="margin-block-start: var(--space-3)">Для данных это означает: высокая частота событий, жёсткие требования к свежести, финансовая точность (Decimal, а не float) и регуляторные требования к хранению истории.</p>
+        </div>
+
+        <div class="card">
+          <h3>Типы фрода</h3>
+          <div class="grid-2">
+            <div>
+              <ul class="clean">
+                <li><strong>Мультиаккаунтинг</strong> — один человек под разными аккаунтами ради бонусов.</li>
+                <li><strong>Bonus abuse</strong> — злоупотребление промо и фрибетами.</li>
+                <li><strong>Арбитраж / вилки</strong> — ставки на все исходы ради безрисковой прибыли.</li>
+                <li><strong>Account takeover</strong> — угон аккаунта.</li>
+              </ul>
+            </div>
+            <div>
+              <ul class="clean">
+                <li><strong>Payment fraud</strong> — украденные карты, chargeback, отмывание.</li>
+                <li><strong>Match-fixing / insider betting</strong> — договорные матчи, инсайд.</li>
+                <li><strong>Affiliate fraud</strong> — накрутка партнёрских начислений.</li>
+                <li><strong>Collusion</strong> — сговор групп аккаунтов.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Типовая архитектура антифрода</h3>
+          <ol class="clean">
+            <li><strong>Сбор событий:</strong> ставки, депозиты, выводы, логины, устройства, IP — в Kafka.</li>
+            <li><strong>Обогащение и фичи:</strong> окна (1 мин / 1 час / 1 день), velocity, связки device/IP/карта, графовые признаки.</li>
+            <li><strong>Правила + ML-скоринг:</strong> rule engine даёт детерминированные срабатывания, модель — вероятность фрода.</li>
+            <li><strong>Решение:</strong> пропустить / лимитировать / заблокировать / отправить на ручной разбор.</li>
+            <li><strong>Case management:</strong> аналитик подтверждает или отклоняет — это источник меток.</li>
+            <li><strong>Обратная связь:</strong> метки → переобучение и бэктест; мониторинг дрифта.</li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <h3>Особенности данных и ML-интеграции</h3>
+          <div class="grid-2">
+            <div>
+              <h4>Данные</h4>
+              <ul class="clean">
+                <li>Сильный дисбаланс классов (фрода мало).</li>
+                <li>Запаздывающие метки: подтверждение приходит позже события.</li>
+                <li>Потоковые и батчевые источники нужно согласовать по времени.</li>
+                <li>Финансовые суммы — Decimal, никакого float.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>ML в проде</h4>
+              <ul class="clean">
+                <li>Онлайн-инференс с бюджетом задержки (&lt; 100 мс) vs near-real-time vs batch.</li>
+                <li>Feature store, версионирование моделей и фич.</li>
+                <li>Shadow mode и A/B перед включением блокировок.</li>
+                <li>Бэктест на исторических данных с учётом задержки меток.</li>
+                <li>Метрики: precision/recall, стоимость FP vs FN, доля ручных разборов.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Проверь себя</h3>
+          <div class="stack stack--tight">
+            <details class="quiz"><summary>Почему в антифроде нельзя оптимизировать только accuracy?</summary><div><p>Классы сильно несбалансированы: модель «всё легально» даст 99% accuracy и ноль пользы. Нужны precision/recall и стоимость ошибок.</p></div></details>
+            <details class="quiz"><summary>Как связать Kafka-партиционирование с качеством антифрода?</summary><div><p>Ключ по <code>user_id</code> гарантирует порядок событий одного пользователя в партиции — важно для корректного расчёта velocity-фич.</p></div></details>
+            <details class="quiz"><summary>Что делать с запаздывающими метками?</summary><div><p>Учитывать horizon метки в бэктесте, переобучать с задержкой, использовать прокси-метки (подтверждённые кейсы) и мониторить дрифт.</p></div></details>
+          </div>
+        </div>
+      </section>
+
+      <!-- 08 interview -->
+      <section id="interview">
+        <div class="section-head">
+          <span class="phase">Фаза 7 · интервью</span>
+          <h2><a class="anchor-link" href="#interview">Процесс, вопросы, оффер</a></h2>
+          <p>Как проходит отбор по отзывам, что спросят и что спросить самому.</p>
+        </div>
+
+        <div class="card">
+          <h3>Этапы отбора</h3>
+          <ol class="timeline">
+            <li><strong>HR-скрин</strong><span class="lead-in">Опыт, мотивация, ожидания по деньгам и формату. 20–30 минут.</span></li>
+            <li><strong>Техническое интервью</strong><span class="lead-in">SQL, ClickHouse, ETL, Python. Могут дать задачу или кейс.</span></li>
+            <li><strong>Встреча с менеджером / командой</strong><span class="lead-in">Архитектура, поведенческие вопросы, иногда презентация опыта.</span></li>
+            <li><strong>Психологический тест и проверка СБ</strong><span class="lead-in">Для букмекерской/финансовой сферы — норма. В отзывах упоминается полиграф на отдельных ролях.</span></li>
+          </ol>
+          <p class="lead-in">По отзывам: обычно 3–5 этапов и 1–3 недели. Известны случаи, когда после финала HR пропадал без фидбека — держите параллельные процессы.</p>
+        </div>
+
+        <div class="card">
+          <h3>Вопросы, к которым стоит быть готовым</h3>
+          <div class="grid-2">
+            <div>
+              <h4>Технические</h4>
+              <ul class="clean">
+                <li>Чем ORDER BY отличается от PRIMARY KEY в ClickHouse?</li>
+                <li>Как дедуплицировать данные и почему <code>FINAL</code> дорогой?</li>
+                <li>Как сделать идемпотентную загрузку?</li>
+                <li>Как обрабатывать опоздавшие события?</li>
+                <li>Как спроектировать SCD2?</li>
+                <li>Почему запрос медленный и как читать план?</li>
+                <li>Как устроен exactly-once в Kafka?</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Кейсы и поведенческие (STAR)</h4>
+              <ul class="clean">
+                <li>Расскажи про самый сложный пайплайн и что в нём сломалось.</li>
+                <li>Как убедил бизнес изменить требование?</li>
+                <li>Как ловил и чинил инцидент с данными?</li>
+                <li>Как выбирал между скоростью и качеством?</li>
+                <li>Что делал, когда данных не хватало для решения?</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Что спросить у них</h3>
+          <ul class="clean">
+            <li>Какая команда и продукт: Риски/антифрод, трейдинг, платёжка, клиентская аналитика?</li>
+            <li>Стек и версия ClickHouse, размер кластера, Airflow или своё, что осталось на MSSQL.</li>
+            <li>Почему роль открыта — новая или замена; какая текучка в команде за год.</li>
+            <li>Процессы: как устроены согласования и релизы, есть ли on-call.</li>
+            <li>Политика индексации и премий; что входит в оффер (ДМС с первого дня, техника).</li>
+            <li>Этапы отбора и будет ли полиграф/проверка СБ — чтобы планировать время.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Красные флаги и торг</h3>
+          <div class="grid-2">
+            <div>
+              <h4>На что смотреть</h4>
+              <ul class="clean clean--warn">
+                <li>Размытое описание роли и команды.</li>
+                <li>«Зарплата по результатам собеседования» без диапазона.</li>
+                <li>Много вакансий на одну функцию одновременно.</li>
+                <li>В отзывах — высокая текучка и непрозрачность.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Ориентиры по деньгам</h4>
+              <ul class="clean">
+                <li>Прямых данных по DE в компании нет.</li>
+                <li>Бизнес-аналитик: 180–250 тыс.; верхние IT-роли до 340 тыс.</li>
+                <li>Рынок middle/senior DE: ~200–300 тыс.</li>
+                <li>Ориентир для middle DE в беттинге: 250–350 тыс. gross, торг от ClickHouse-экспертизы.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 09 checklist -->
+      <section id="checklist">
+        <div class="section-head">
+          <span class="phase">Финал · шпаргалка</span>
+          <h2><a class="anchor-link" href="#checklist">Чек-лист и шпаргалка</a></h2>
+          <p>Пройдитесь за день до интервью. Отметки сохраняются в этом браузере.</p>
+        </div>
+
+        <div class="card">
+          <h3>Технический минимум</h3>
+          <div class="checklist" id="checklist-tech">
+            <label class="check"><input type="checkbox" data-key="sql-null"><span>Объясняю трёхзначную логику NULL и ловушку <code>NOT IN</code></span></label>
+            <label class="check"><input type="checkbox" data-key="sql-join"><span>Различаю фильтр в <code>ON</code> и <code>WHERE</code> для LEFT JOIN</span></label>
+            <label class="check"><input type="checkbox" data-key="sql-window"><span>Пишу оконные функции и знаю разницу ROW_NUMBER / RANK / DENSE_RANK</span></label>
+            <label class="check"><input type="checkbox" data-key="ch-mt"><span>Перечисляю движки MergeTree-семейства и их назначение</span></label>
+            <label class="check"><input type="checkbox" data-key="ch-order"><span>Объясняю ORDER BY vs PRIMARY KEY и разреженный индекс</span></label>
+            <label class="check"><input type="checkbox" data-key="ch-part"><span>Понимаю партиции, part'ы, мержи и «too many parts»</span></label>
+            <label class="check"><input type="checkbox" data-key="ch-dedup"><span>Различаю дедуп вставок и логический дедуп (ReplacingMergeTree)</span></label>
+            <label class="check"><input type="checkbox" data-key="ch-mv"><span>Могу нарисовать MV-пайплайн с AggregatingMergeTree и <code>-State/-Merge</code></span></label>
+            <label class="check"><input type="checkbox" data-key="dwh-idem"><span>Объясняю идемпотентность загрузки и late-arriving data</span></label>
+            <label class="check"><input type="checkbox" data-key="dwh-scd"><span>Проектирую SCD2 и знаю остальные типы SCD</span></label>
+            <label class="check"><input type="checkbox" data-key="airflow"><span>Рассказываю про Airflow: catchup, backfill, XCom, sensors</span></label>
+            <label class="check"><input type="checkbox" data-key="kafka"><span>Объясняю партиции, consumer groups и семантики доставки</span></label>
+            <label class="check"><input type="checkbox" data-key="fraud"><span>Понимаю архитектуру антифрода и метрики качества модели</span></label>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Организационное</h3>
+          <div class="checklist" id="checklist-org">
+            <label class="check"><input type="checkbox" data-key="org-stage"><span>Уточнил этапы отбора, их длительность и наличие проверки СБ</span></label>
+            <label class="check"><input type="checkbox" data-key="org-team"><span>Знаю команду, продукт и грейд</span></label>
+            <label class="check"><input type="checkbox" data-key="org-money"><span>Определил целевой диапазон зарплаты и нижнюю границу</span></label>
+            <label class="check"><input type="checkbox" data-key="org-star"><span>Подготовил 3 истории по STAR: инцидент, сложный пайплайн, конфликт требований</span></label>
+            <label class="check"><input type="checkbox" data-key="org-questions"><span>Готов список вопросов к ним</span></label>
+            <label class="check"><input type="checkbox" data-key="org-setup"><span>Проверил связь, камеру, тихое место, резервный интернет</span></label>
+          </div>
+        </div>
+
+        <div class="callout callout--ok">
+          <span class="callout__label">Формула самопрезентации</span>
+          <p>Контекст → задача → что сделал → измеримый результат → вывод. Держите 60–90 секунд на историю и всегда заканчивайте цифрой: ускорение, объём, снижение ошибок.</p>
+        </div>
+
+        <div class="card">
+          <h3>Шпаргалка в одну строку</h3>
+          <ul class="clean">
+            <li><strong>SQL:</strong> NULL заражает, LEFT JOIN ломает WHERE, окно = PARTITION + ORDER + frame.</li>
+            <li><strong>ClickHouse:</strong> ORDER BY = сортировка + разреженный индекс, партиции по времени, батчи, MV = триггер на INSERT.</li>
+            <li><strong>ETL:</strong> идемпотентность, lookback, SCD2 на valid_from/valid_to, DQ на границах слоёв.</li>
+            <li><strong>Стек:</strong> Kafka делит по партициям, K8s probes, GitLab rules, Docker multi-stage.</li>
+            <li><strong>Домен:</strong> антифрод = правила + ML + ручной разбор, метки запаздывают, FP дороже FN не всегда.</li>
+          </ul>
+        </div>
+
+        <div class="callout">
+          <span class="callout__label">Источники</span>
+          <p>hh.ru/employer/223129 · dreamjob.ru/employers/37679 · career.ligastavok.ru · habr.com/ru/companies/ligastavok. Данные об отзывах и вакансиях — на момент подготовки; проверяйте актуальность перед интервью.</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <p>Лига Ставок · подготовка к интервью Data Engineer</p>
+    <p><a href="#main">Наверх</a></p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  // Reading progress
+  var bar = document.getElementById("progressBar");
+  function updateProgress() {
+    var doc = document.documentElement;
+    var max = doc.scrollHeight - doc.clientHeight;
+    var pct = max > 0 ? (doc.scrollTop / max) * 100 : 0;
+    if (bar) bar.style.width = pct.toFixed(2) + "%";
+  }
+  var ticking = false;
+  window.addEventListener("scroll", function () {
+    if (!ticking) {
+      ticking = true;
+      window.requestAnimationFrame(function () {
+        updateProgress();
+        ticking = false;
+      });
+    }
+  }, { passive: true });
+  updateProgress();
+
+  // Collapse TOC on small screens
+  var toc = document.getElementById("toc");
+  if (toc && window.matchMedia("(max-width: 1023px)").matches) {
+    toc.open = false;
+  }
+
+  // Scroll spy
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var sections = links.map(function (a) {
+    return document.getElementById(a.getAttribute("href").slice(1));
+  }).filter(Boolean);
+
+  function setActive(id) {
+    links.forEach(function (a) {
+      var active = a.getAttribute("href") === "#" + id;
+      a.classList.toggle("is-active", active);
+      if (active) a.setAttribute("aria-current", "true");
+      else a.removeAttribute("aria-current");
+    });
+  }
+
+  if ("IntersectionObserver" in window && sections.length) {
+    var visible = new Map();
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) visible.set(entry.target.id, entry.boundingClientRect.top);
+        else visible.delete(entry.target.id);
+      });
+      if (!visible.size) return;
+      var bestId = null;
+      var bestTop = Infinity;
+      visible.forEach(function (top, id) {
+        if (Math.abs(top) < Math.abs(bestTop)) { bestTop = top; bestId = id; }
+      });
+      if (bestId) setActive(bestId);
+    }, { rootMargin: "-20% 0px -65% 0px", threshold: [0, 0.1, 0.5, 1] });
+    sections.forEach(function (s) { observer.observe(s); });
+  }
+
+  // Copy buttons
+  document.querySelectorAll(".btn-copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var block = btn.closest(".code");
+      var code = block ? block.querySelector("pre code") : null;
+      if (!code) return;
+      var text = code.innerText;
+      var label = btn.querySelector("span");
+      var done = function () {
+        btn.classList.add("is-copied");
+        if (label) label.textContent = "Скопировано";
+        window.setTimeout(function () {
+          btn.classList.remove("is-copied");
+          if (label) label.textContent = "Копировать";
+        }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () {});
+      } else {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); done(); } catch (e) {}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  // Checklist persistence
+  var STORAGE_KEY = "liga-de-interview-checklist";
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch (e) { saved = {}; }
+
+  document.querySelectorAll(".check input[data-key]").forEach(function (input) {
+    var key = input.getAttribute("data-key");
+    if (saved[key]) input.checked = true;
+    input.addEventListener("change", function () {
+      saved[key] = input.checked;
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(saved)); } catch (e) {}
+    });
+  });
+
+  // Close mobile TOC after navigation
+  if (toc) {
+    toc.addEventListener("click", function (event) {
+      var target = event.target;
+      if (target && target.tagName === "A" && window.matchMedia("(max-width: 1023px)").matches) {
+        toc.open = false;
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
