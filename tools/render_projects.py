@@ -87,6 +87,21 @@ def main() -> None:
     new_text, count = pattern.subn(replacement, text, count=1)
     if count != 1:
         raise SystemExit("Could not replace the projects block")
+
+    total = len(projects)
+    new_text = re.sub(
+        r'(<strong id="project-count">)\d+(</strong>)',
+        lambda m: f"{m.group(1)}{total}{m.group(2)}",
+        new_text,
+    )
+    count_text = f"Показано {total} из {total}" if total else "Пока нет проектов"
+    new_text = re.sub(
+        r'(<p class="toolbar__count" id="count" aria-live="polite">).*?(</p>)',
+        lambda m: f"{m.group(1)}{count_text}{m.group(2)}",
+        new_text,
+        flags=re.S,
+    )
+
     INDEX.write_text(new_text, encoding="utf-8")
     print(f"Rendered {len(projects)} project(s) into index.html")
 
