@@ -24,5 +24,20 @@
     "path": "projects/pds-pension/index.html",
     "updated": "2026-11-04",
     "source": "finance-life3/ПДС-пенсия"
+  },
+  {
+    "slug": "etl-datamart-onboarding",
+    "title": "Онбординг: формирование витрин Datamart в Airflow",
+    "description": "Как устроен основной ETL Datamart: слои, SCD1/SCD2, факты, swap партиций, MSBI, чек-лист и troubleshooting.",
+    "tags": [
+      "airflow",
+      "vertica",
+      "datamart",
+      "etl",
+      "onboarding"
+    ],
+    "path": "projects/etl-datamart-onboarding/index.html",
+    "updated": "2026-11-04",
+    "source": "Work/Vertica/ETL_datamart_operators"
   }
 ]
