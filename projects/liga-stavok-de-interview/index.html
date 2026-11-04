@@ -600,6 +600,142 @@
   }
 }
 
+@layer components {
+  /* ---------- Bookmarks & resume ---------- */
+  .section-head__top {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--space-3); min-height: 36px;
+  }
+  .bookmark-btn {
+    display: inline-flex; align-items: center; gap: 6px; flex: none;
+    min-height: 36px; padding: 4px 12px;
+    border: 1px solid var(--line); border-radius: var(--radius-pill);
+    background: var(--bg-elevated); color: var(--ink-faint);
+    font-size: var(--text-xs); font-weight: 600; cursor: pointer;
+    transition: color var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+  }
+  .bookmark-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linejoin: round; }
+  .bookmark-btn:hover { color: var(--accent-strong); border-color: var(--accent-line); background: var(--accent-soft); }
+  .bookmark-btn[aria-pressed="true"] { color: var(--accent-strong); border-color: var(--accent-line); background: var(--accent-soft); }
+  .bookmark-btn[aria-pressed="true"] svg { fill: currentColor; }
+
+  .masthead__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .btn-action {
+    display: inline-flex; align-items: center; gap: 8px;
+    min-height: 44px; padding: 7px 14px;
+    border: 1px solid var(--accent-line); border-radius: var(--radius-pill);
+    background: var(--accent-soft); color: var(--accent-strong);
+    font-size: var(--text-sm); font-weight: 650; text-align: start; cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+  }
+  .btn-action:hover { background: color-mix(in oklab, var(--accent-soft) 70%, var(--bg-elevated)); border-color: var(--accent); }
+  .btn-action svg { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+  .btn-action span small {
+    display: block; font-size: var(--text-xs); font-weight: 500; color: var(--ink-soft);
+    max-width: 26ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .btn-action--ghost { background: var(--bg-elevated); color: var(--ink-soft); border-color: var(--line); }
+  .btn-action--ghost svg { fill: none; }
+  .btn-action--ghost:hover { color: var(--accent-strong); border-color: var(--accent-line); background: var(--accent-soft); }
+  .count-pill {
+    display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px;
+    border-radius: var(--radius-pill); background: var(--accent-soft); color: var(--accent-strong);
+    font-size: 0.72rem; font-weight: 700; font-variant-numeric: tabular-nums;
+  }
+
+  .iconbtn[aria-pressed="true"] { color: var(--accent-strong); border-color: var(--accent-line); background: var(--accent-soft); }
+  .iconbtn[aria-pressed="true"] svg { fill: currentColor; }
+
+  .drawer-tools { display: grid; gap: var(--space-3); padding: 0 0 var(--space-2); }
+  .drawer-action {
+    display: flex; align-items: center; gap: var(--space-3); width: 100%;
+    min-height: 58px; padding: 9px 14px;
+    border: 1px solid var(--accent-line); border-radius: var(--radius);
+    background: var(--accent-soft); color: var(--accent-strong);
+    font-size: 1rem; font-weight: 650; text-align: start; cursor: pointer;
+  }
+  .drawer-action:hover { border-color: var(--accent); }
+  .drawer-action svg { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+  .drawer-action small {
+    display: block; font-size: var(--text-xs); font-weight: 500; color: var(--ink-soft);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .drawer-tools .nav-group { padding: var(--space-2) 0 0; }
+  .bm-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .bm-item { display: flex; align-items: stretch; gap: 6px; }
+  .toc-dialog .bm-link {
+    flex: 1 1 auto; min-width: 0;
+    display: flex; flex-direction: column; justify-content: center; align-items: stretch;
+    min-height: 48px; padding: 6px 12px;
+    border: 1px solid var(--line); border-radius: var(--radius-sm);
+    background: var(--bg-elevated); color: var(--ink); text-decoration: none;
+  }
+  .toc-dialog .bm-link:hover { border-color: var(--accent-line); background: var(--accent-soft); }
+  .bm-title { font-size: var(--text-sm); font-weight: 650; text-align: start; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bm-meta { font-size: var(--text-xs); color: var(--ink-faint); text-align: start; }
+  .bm-remove {
+    flex: none; width: 44px;
+    border: 1px solid var(--line); border-radius: var(--radius-sm);
+    background: var(--bg-elevated); color: var(--ink-faint);
+    font-size: 20px; line-height: 1; cursor: pointer;
+  }
+  .bm-remove:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-soft); }
+  .bm-empty {
+    font-size: var(--text-sm); color: var(--ink-faint);
+    padding: 10px 12px; border: 1px dashed var(--line-strong); border-radius: var(--radius-sm);
+  }
+
+  .toast {
+    position: fixed; inset-inline-start: 50%;
+    inset-block-end: calc(env(safe-area-inset-bottom) + 84px);
+    z-index: 90;
+    max-width: calc(100% - 32px);
+    padding: 10px 16px;
+    border-radius: var(--radius-pill);
+    background: var(--ink); color: var(--bg);
+    font-size: var(--text-sm); font-weight: 600; text-align: center;
+    box-shadow: var(--shadow-md);
+    opacity: 0; pointer-events: none;
+    transform: translate(-50%, 10px);
+    transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+  }
+  .toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (min-width: 720px) {
+    .toc-dialog {
+      width: min(560px, calc(100% - 48px));
+      height: auto;
+      max-height: min(80dvh, 760px);
+      margin: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .masthead__actions { margin-block-start: var(--space-1); }
+    .btn-action span small { max-width: 34vw; }
+    .bookmark-btn { min-height: 40px; }
+  }
+
+  @media (max-width: 640px) {
+    .bookmark-btn { width: 42px; height: 42px; padding: 0; justify-content: center; border-radius: 50%; }
+    .bookmark-btn__text { display: none; }
+    .section-head__top { min-height: 42px; }
+  }
+
+  @media (max-width: 360px) {
+    .mobilebar .iconbtn { width: 40px; height: 40px; }
+    .mobilebar { gap: 6px; padding-inline: 10px; }
+    .mobilebar__section { font-size: var(--text-xs); }
+  }
+}
+
+@layer utilities {
+  [hidden] { display: none !important; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .01ms !important;
@@ -620,6 +756,9 @@
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
   </button>
   <span class="mobilebar__section" id="mbSection">Содержание</span>
+  <button class="iconbtn" type="button" id="bmToggleBar" aria-label="Добавить текущий раздел в закладки" aria-pressed="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg>
+  </button>
   <button class="iconbtn" type="button" id="themeToggle" aria-label="Переключить тему" aria-pressed="false">
     <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
     <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
@@ -629,12 +768,22 @@
 
 <dialog class="toc-dialog" id="tocDialog" aria-labelledby="tocDialogTitle">
   <div class="toc-dialog__head">
-    <h2 id="tocDialogTitle">Содержание</h2>
+    <h2 id="tocDialogTitle">Навигация</h2>
     <button class="iconbtn" type="button" id="tocClose" aria-label="Закрыть содержание">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
   </div>
   <nav aria-label="Содержание страницы">
+    <div class="drawer-tools">
+      <button class="drawer-action" type="button" id="resumeDrawer" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg>
+        <span>Продолжить чтение<small id="resumeMetaDrawer"></small></span>
+      </button>
+      <p class="nav-group">Закладки</p>
+      <ul class="bm-list" id="bmList"></ul>
+      <p class="bm-empty" id="bmEmpty">Закладок пока нет. Нажмите звёздочку у заголовка раздела.</p>
+    </div>
+    <p class="nav-group">Содержание</p>
     <a href="#company">00 · Компания и вакансия</a>
     <a href="#plan">01 · План подготовки</a>
     <p class="nav-group">Техника</p>
@@ -654,6 +803,8 @@
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
 </button>
 
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <header class="masthead">
   <div class="wrap masthead__inner">
     <p class="eyebrow">Подготовка к собеседованию</p>
@@ -667,6 +818,16 @@
       <span class="chip">ClickHouse · MSSQL · Python · C#</span>
       <span class="chip"><strong>~35 мин</strong> чтения</span>
       <span class="chip">обновлено 04.11.2026</span>
+    </div>
+    <div class="masthead__actions">
+      <button class="btn-action" type="button" id="resumeTop" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg>
+        <span>Продолжить чтение<small id="resumeMetaTop"></small></span>
+      </button>
+      <button class="btn-action btn-action--ghost" type="button" id="bmTopBtn">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg>
+        <span>Закладки <span class="count-pill" id="bmCountTop">0</span></span>
+      </button>
     </div>
   </div>
 </header>
@@ -1725,6 +1886,14 @@ deploy:
   var root = document.documentElement;
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
+  var PROGRESS_KEY = "liga-de-progress";
+  var BM_KEY = "liga-de-bookmarks";
+  var currentSectionId = null;
+  var savedProgress = null;
+  var bookmarks = [];
+  var lastSave = 0;
+  var toastTimer = null;
+
   /* ---------- Reading progress (top + mobile bar) ---------- */
   var bar = document.getElementById("progressBar");
   var mbBar = document.getElementById("mbBar");
@@ -1742,6 +1911,7 @@ deploy:
       var goingUp = y < lastY - 2;
       toTop.classList.toggle("is-visible", y > 900 && goingUp);
     }
+    maybeSaveProgress(y);
     lastY = y;
   }
 
@@ -1848,6 +2018,8 @@ deploy:
   });
 
   function setActive(id) {
+    if (id === currentSectionId) return;
+    currentSectionId = id;
     var label = "";
     links.forEach(function (a) {
       var active = a.getAttribute("href") === "#" + id;
@@ -1860,6 +2032,7 @@ deploy:
       }
     });
     if (mbSection && label) mbSection.textContent = label;
+    syncBookmarkButtons();
   }
 
   if ("IntersectionObserver" in window && sections.length) {
@@ -1924,6 +2097,215 @@ deploy:
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(saved)); } catch (e) {}
     });
   });
+
+  /* ---------- Resume reading & bookmarks ---------- */
+  var bmToggleBar = document.getElementById("bmToggleBar");
+  var toastEl = document.getElementById("toast");
+  var resumeTop = document.getElementById("resumeTop");
+  var resumeMetaTop = document.getElementById("resumeMetaTop");
+  var resumeDrawer = document.getElementById("resumeDrawer");
+  var resumeMetaDrawer = document.getElementById("resumeMetaDrawer");
+  var bmTopBtn = document.getElementById("bmTopBtn");
+  var bmCountTop = document.getElementById("bmCountTop");
+  var bmList = document.getElementById("bmList");
+  var bmEmpty = document.getElementById("bmEmpty");
+
+  var labels = {};
+  document.querySelectorAll("#toc a[href^='#'], #tocDialog a[href^='#']").forEach(function (a) {
+    var id = a.getAttribute("href").slice(1);
+    if (!labels[id]) labels[id] = a.textContent.trim();
+  });
+
+  function titleFor(id) {
+    if (labels[id]) return labels[id];
+    var el = document.getElementById(id);
+    var h = el ? el.querySelector("h2") : null;
+    return h ? h.textContent.trim() : id;
+  }
+
+  try { savedProgress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || "null"); } catch (e) { savedProgress = null; }
+  try {
+    var rawBookmarks = JSON.parse(localStorage.getItem(BM_KEY) || "[]");
+    if (Object.prototype.toString.call(rawBookmarks) === "[object Array]") bookmarks = rawBookmarks;
+  } catch (e) {}
+
+  function isBookmarked(id) {
+    for (var i = 0; i < bookmarks.length; i++) if (bookmarks[i].id === id) return true;
+    return false;
+  }
+  function persistBookmarks() {
+    try { localStorage.setItem(BM_KEY, JSON.stringify(bookmarks)); } catch (e) {}
+  }
+  function toast(message) {
+    if (!toastEl) return;
+    toastEl.textContent = message;
+    toastEl.classList.add("is-visible");
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(function () { toastEl.classList.remove("is-visible"); }, 1900);
+  }
+  function formatDate(ts) {
+    try { return new Date(ts).toLocaleDateString("ru-RU", { day: "numeric", month: "short" }); }
+    catch (e) { return ""; }
+  }
+
+  function syncResumeUI() {
+    var ok = !!(savedProgress && savedProgress.id && savedProgress.y > 400);
+    var meta = ok ? (savedProgress.title || titleFor(savedProgress.id)) : "";
+    if (resumeTop) resumeTop.hidden = !ok;
+    if (resumeDrawer) resumeDrawer.hidden = !ok;
+    if (resumeMetaTop) resumeMetaTop.textContent = meta;
+    if (resumeMetaDrawer) resumeMetaDrawer.textContent = meta;
+  }
+
+  function syncBookmarkButtons() {
+    var nodes = document.querySelectorAll(".bookmark-btn");
+    for (var i = 0; i < nodes.length; i++) {
+      var btn = nodes[i];
+      var id = btn.getAttribute("data-id");
+      var on = isBookmarked(id);
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      btn.setAttribute("aria-label", (on ? "Убрать закладку: " : "Добавить закладку: ") + btn.getAttribute("data-title"));
+      var txt = btn.querySelector(".bookmark-btn__text");
+      if (txt) txt.textContent = on ? "В закладках" : "В закладки";
+    }
+    if (bmToggleBar) {
+      var onBar = !!(currentSectionId && isBookmarked(currentSectionId));
+      bmToggleBar.setAttribute("aria-pressed", onBar ? "true" : "false");
+      bmToggleBar.setAttribute("aria-label", currentSectionId
+        ? ((onBar ? "Убрать текущий раздел из закладок: " : "Добавить текущий раздел в закладки: ") + titleFor(currentSectionId))
+        : "Закладка на текущий раздел");
+    }
+    if (bmCountTop) bmCountTop.textContent = String(bookmarks.length);
+  }
+
+  function renderBookmarks() {
+    if (!bmList) return;
+    while (bmList.firstChild) bmList.removeChild(bmList.firstChild);
+    if (bmEmpty) bmEmpty.hidden = bookmarks.length > 0;
+    bookmarks.forEach(function (bm) {
+      var li = document.createElement("li");
+      li.className = "bm-item";
+
+      var link = document.createElement("a");
+      link.className = "bm-link";
+      link.href = "#" + bm.id;
+
+      var title = document.createElement("span");
+      title.className = "bm-title";
+      title.textContent = bm.title || titleFor(bm.id);
+
+      var meta = document.createElement("span");
+      meta.className = "bm-meta";
+      meta.textContent = "добавлено " + formatDate(bm.ts);
+
+      link.appendChild(title);
+      link.appendChild(meta);
+
+      var rm = document.createElement("button");
+      rm.type = "button";
+      rm.className = "bm-remove";
+      rm.setAttribute("aria-label", "Удалить закладку: " + (bm.title || titleFor(bm.id)));
+      rm.textContent = "×";
+      rm.addEventListener("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleBookmark(bm.id, bm.title);
+      });
+
+      li.appendChild(link);
+      li.appendChild(rm);
+      bmList.appendChild(li);
+    });
+    syncBookmarkButtons();
+  }
+
+  function toggleBookmark(id, title) {
+    if (!id) return;
+    var idx = -1;
+    for (var i = 0; i < bookmarks.length; i++) if (bookmarks[i].id === id) { idx = i; break; }
+    if (idx >= 0) {
+      bookmarks.splice(idx, 1);
+      toast("Удалено из закладок");
+    } else {
+      bookmarks.unshift({ id: id, title: title || titleFor(id), ts: Date.now() });
+      if (bookmarks.length > 30) bookmarks.pop();
+      toast("В закладках: " + (title || titleFor(id)));
+    }
+    persistBookmarks();
+    renderBookmarks();
+  }
+
+  function maybeSaveProgress(y) {
+    if (y < 400 || !currentSectionId) return;
+    var now = Date.now();
+    if (now - lastSave < 1200) return;
+    lastSave = now;
+    savedProgress = { y: Math.round(y), id: currentSectionId, title: titleFor(currentSectionId), ts: now };
+    try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(savedProgress)); } catch (e) {}
+    syncResumeUI();
+  }
+
+  function resumeReading() {
+    if (!savedProgress) return;
+    var behavior = reduceMotion.matches ? "auto" : "smooth";
+    var el = document.getElementById(savedProgress.id);
+    if (el) el.scrollIntoView({ behavior: behavior, block: "start" });
+    else window.scrollTo({ top: savedProgress.y, behavior: behavior });
+    if (dialog && dialog.open) dialog.close();
+  }
+
+  document.querySelectorAll("main section[id]").forEach(function (section) {
+    var head = section.querySelector(".section-head");
+    if (!head) return;
+    var phase = head.querySelector(".phase");
+    var row = document.createElement("div");
+    row.className = "section-head__top";
+    if (phase) {
+      head.insertBefore(row, phase);
+      row.appendChild(phase);
+    } else {
+      head.insertBefore(row, head.firstChild);
+    }
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "bookmark-btn";
+    btn.setAttribute("data-id", section.id);
+    btn.setAttribute("data-title", titleFor(section.id));
+    btn.setAttribute("aria-pressed", "false");
+    btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg><span class="bookmark-btn__text">В закладки</span>';
+    btn.addEventListener("click", function () { toggleBookmark(section.id, titleFor(section.id)); });
+    row.appendChild(btn);
+  });
+
+  if (bmToggleBar) {
+    bmToggleBar.addEventListener("click", function () {
+      if (!currentSectionId) { toast("Прокрутите до любого раздела"); return; }
+      toggleBookmark(currentSectionId, titleFor(currentSectionId));
+    });
+  }
+  if (resumeTop) resumeTop.addEventListener("click", resumeReading);
+  if (resumeDrawer) resumeDrawer.addEventListener("click", resumeReading);
+  if (bmTopBtn && dialog) {
+    bmTopBtn.addEventListener("click", function () {
+      if (typeof dialog.showModal === "function") dialog.showModal();
+    });
+  }
+
+  window.addEventListener("pagehide", function () {
+    if (window.scrollY > 400 && currentSectionId) {
+      savedProgress = { y: Math.round(window.scrollY), id: currentSectionId, title: titleFor(currentSectionId), ts: Date.now() };
+      try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(savedProgress)); } catch (e) {}
+    }
+  });
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden" && window.scrollY > 400 && currentSectionId) {
+      savedProgress = { y: Math.round(window.scrollY), id: currentSectionId, title: titleFor(currentSectionId), ts: Date.now() };
+      try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(savedProgress)); } catch (e) {}
+    }
+  });
+
+  renderBookmarks();
+  syncResumeUI();
 })();
 </script>
 </body>
