@@ -556,6 +556,25 @@
   }
   .diagram__hint svg { width: 13px; height: 13px; }
 
+  .diagram-alt {
+    border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--surface); margin-block: var(--space-3) var(--space-4);
+  }
+  .diagram-alt summary {
+    list-style: none; cursor: pointer;
+    padding: 10px 14px; font-weight: 600; font-size: var(--text-sm);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .diagram-alt summary::-webkit-details-marker { display: none; }
+  .diagram-alt summary::before {
+    content: "+"; font-family: var(--font-mono); color: var(--brand); font-weight: 700;
+  }
+  .diagram-alt[open] summary::before { content: "−"; }
+  .diagram-alt ol {
+    margin: 0; padding: 0 16px 14px 34px;
+    color: var(--ink-soft); font-size: var(--text-sm); display: grid; gap: 6px;
+  }
+
   .legend { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-block: var(--space-2) var(--space-4); }
   .legend span { display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-xs); color: var(--ink-soft); }
   .swatch { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--line-strong); }
@@ -606,7 +625,14 @@
     .main, .content { min-width: 0; width: 100%; }
     .sectionbar__inner { padding-inline: var(--space-4); }
     .main { padding: var(--space-5) var(--space-4) var(--space-9); }
-    .section { scroll-margin-top: 112px; }
+    .section { scroll-margin-top: 120px; }
+    .nav a { min-height: 36px; padding: 8px 9px; }
+    .icon-btn { width: 44px; height: 44px; }
+    .copy { min-height: 32px; padding: 5px 8px; }
+    .checklist li { min-height: 36px; }
+    .checklist input[type="checkbox"] { width: 22px; height: 22px; }
+    .code pre { font-size: .88rem; }
+    .diagram svg { min-width: 1080px; }
   }
   @media (max-width: 560px) {
     .topbar__meta { display: none; }
@@ -617,6 +643,7 @@
     .op summary { padding: var(--space-4); }
     .op__body { padding-inline: var(--space-4); }
     .hero { padding-block-start: 0; }
+    .table-wrap table { font-size: .94rem; }
   }
   @media print {
     .topbar, .to-top, .progress, .copy, .diagram__hint { display: none !important; }
@@ -757,11 +784,11 @@
                   .dg-box-dash { fill: var(--surface-2); stroke: var(--line-strong); stroke-width: 1.2; stroke-dasharray: 5 4; }
                   .dg-lane { fill: var(--bg-soft); stroke: var(--line); stroke-width: 1; }
                   .dg-lane-brand { fill: color-mix(in oklab, var(--brand-soft) 55%, var(--bg)); stroke: color-mix(in oklab, var(--brand) 30%, var(--line)); stroke-width: 1; }
-                  .dg-title { fill: var(--ink); font-family: var(--font-sans); font-size: 14px; font-weight: 700; letter-spacing: .02em; }
-                  .dg-sub { fill: var(--ink-soft); font-family: var(--font-sans); font-size: 11.5px; }
-                  .dg-code { fill: var(--ink); font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; }
-                  .dg-code-soft { fill: var(--ink-soft); font-family: var(--font-mono); font-size: 11px; }
-                  .dg-lane-label { fill: var(--ink-faint); font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; }
+                  .dg-title { fill: var(--ink); font-family: var(--font-sans); font-size: 15px; font-weight: 700; letter-spacing: .02em; }
+                  .dg-sub { fill: var(--ink-soft); font-family: var(--font-sans); font-size: 12.5px; }
+                  .dg-code { fill: var(--ink); font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; }
+                  .dg-code-soft { fill: var(--ink-soft); font-family: var(--font-mono); font-size: 12px; }
+                  .dg-lane-label { fill: var(--ink-faint); font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
                   .dg-arrow { stroke: var(--brand); stroke-width: 1.8; fill: none; marker-end: url(#ar); }
                   .dg-arrow-soft { stroke: var(--ink-faint); stroke-width: 1.4; fill: none; marker-end: url(#ar-soft); stroke-dasharray: 5 4; }
                   .dg-chip { fill: var(--surface); stroke: var(--line); stroke-width: 1; }
@@ -852,7 +879,7 @@
               <rect class="dg-box" x="976" y="194" width="112" height="72" rx="7"/>
               <text class="dg-code" x="988" y="218">MS SQL</text>
               <text class="dg-code" x="988" y="236">cube</text>
-              <text class="dg-sub" x="988" y="254">факты и измерения</text>
+              <text class="dg-sub" x="988" y="254">факты и кубы</text>
 
               <text class="dg-sub" x="976" y="304">BI / отчёты</text>
 
@@ -884,6 +911,16 @@
           </div>
           <figcaption class="visually-hidden">Схема слоёв Datamart и движения данных.</figcaption>
         </figure>
+
+        <details class="diagram-alt">
+          <summary>Текстовая версия схемы</summary>
+          <ol>
+            <li><b>Источники</b> (SAP, 1C, API, файлы, public) попадают в <code>preparation</code>.</li>
+            <li><b>Измерения:</b> <code>V_D_*</code> → <code>P_D_*</code> → MERGE в <code>prepared.D_*</code>.</li>
+            <li><b>Факты:</b> <code>prepared.V_F_*</code> → <code>etl_prepared.F_*</code> → swap → <code>prepared.F_*</code>.</li>
+            <li><b>Потребление:</b> <code>prepared.D_* / F_*</code> → <code>V_MSBI_*</code> → MS SQL / куб MSBI.</li>
+          </ol>
+        </details>
 
         <div class="legend" aria-label="Легенда схемы">
           <span><i class="swatch" style="background:var(--brand-soft);border-color:var(--brand)"></i> preparation</span>
