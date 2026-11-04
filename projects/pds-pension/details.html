@@ -1,0 +1,2279 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ПДС: как государство софинансирует пенсию — разбор для пары</title>
+  <meta name="description" content="Разбор программы долгосрочных сбережений: коэффициенты софинансирования, сроки зачисления, где смотреть накопления, переход между НПФ и подводные камни.">
+  <style>
+    @layer reset, tokens, base, components, utilities;
+
+    @layer reset {
+      *, *::before, *::after { box-sizing: border-box; }
+      * { margin: 0; }
+      html { -webkit-text-size-adjust: 100%; }
+      body { min-height: 100dvh; }
+      img, svg { display: block; max-width: 100%; }
+      button, input { font: inherit; }
+      a { color: inherit; }
+    }
+
+    @layer tokens {
+      :root {
+        color-scheme: light dark;
+
+        --canvas: oklch(0.985 0.004 170);
+        --surface: oklch(1 0 0);
+        --surface-soft: oklch(0.965 0.006 170);
+        --surface-deep: oklch(0.94 0.008 170);
+
+        --ink: oklch(0.22 0.012 170);
+        --ink-soft: oklch(0.38 0.012 170);
+        --ink-faint: oklch(0.48 0.010 170);
+
+        --line: oklch(0.89 0.008 170);
+        --line-strong: oklch(0.62 0.010 170);
+
+        --accent: oklch(0.45 0.095 170);
+        --accent-strong: oklch(0.37 0.10 170);
+        --accent-soft: oklch(0.94 0.035 170);
+        --accent-ink: oklch(0.98 0.005 170);
+
+        --warn: oklch(0.50 0.13 55);
+        --warn-soft: oklch(0.96 0.03 55);
+
+        --focus: oklch(0.55 0.14 170);
+
+        --shadow-sm: 0 1px 1px oklch(0.2 0.01 170 / .04), 0 2px 4px oklch(0.2 0.01 170 / .05);
+        --shadow-md: 0 1px 1px oklch(0.2 0.01 170 / .04), 0 8px 20px -6px oklch(0.2 0.01 170 / .10);
+        --shadow-lg: 0 1px 1px oklch(0.2 0.01 170 / .05), 0 16px 40px -12px oklch(0.2 0.01 170 / .16);
+
+        --radius: 14px;
+        --radius-sm: 9px;
+        --radius-pill: 999px;
+
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-5: 24px;
+        --space-6: 32px;
+        --space-7: 40px;
+        --space-8: 48px;
+        --space-9: 64px;
+        --space-10: 96px;
+
+        --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Code", "Segoe UI Mono", Consolas, monospace;
+
+        --text-display: clamp(2.35rem, 1.4rem + 4.2vw, 4.2rem);
+        --text-h2: clamp(1.45rem, 1.15rem + 1.2vw, 1.95rem);
+        --text-h3: clamp(1.08rem, 1rem + 0.5vw, 1.28rem);
+        --text-body: clamp(1rem, 0.97rem + 0.15vw, 1.08rem);
+        --text-small: 0.9rem;
+        --text-micro: 0.78rem;
+
+        --duration-fast: 120ms;
+        --duration-base: 200ms;
+        --ease-out: cubic-bezier(.2,.8,.2,1);
+
+        --sb-size: 11px;
+        --sb-border: 3px;
+        --sb-thumb: color-mix(in oklab, var(--ink-faint) 55%, transparent);
+        --table-min: 560px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --canvas: oklch(0.17 0.012 170);
+          --surface: oklch(0.21 0.014 170);
+          --surface-soft: oklch(0.24 0.014 170);
+          --surface-deep: oklch(0.27 0.014 170);
+
+          --ink: oklch(0.93 0.006 170);
+          --ink-soft: oklch(0.80 0.010 170);
+          --ink-faint: oklch(0.68 0.010 170);
+
+          --line: oklch(0.31 0.012 170);
+          --line-strong: oklch(0.52 0.014 170);
+
+          --accent: oklch(0.72 0.095 170);
+          --accent-strong: oklch(0.80 0.09 170);
+          --accent-soft: oklch(0.28 0.035 170);
+          --accent-ink: oklch(0.17 0.012 170);
+
+          --warn: oklch(0.80 0.12 55);
+          --warn-soft: oklch(0.27 0.03 55);
+
+          --focus: oklch(0.78 0.12 170);
+
+          --shadow-sm: 0 1px 1px oklch(0 0 0 / .20), 0 2px 4px oklch(0 0 0 / .16);
+          --shadow-md: 0 1px 1px oklch(0 0 0 / .20), 0 8px 20px -6px oklch(0 0 0 / .30);
+          --shadow-lg: 0 1px 1px oklch(0 0 0 / .24), 0 16px 40px -12px oklch(0 0 0 / .40);
+
+          --sb-thumb: color-mix(in oklab, var(--ink-faint) 65%, transparent);
+        }
+      }
+    }
+
+    @layer base {
+      html { scroll-behavior: smooth; }
+
+      body {
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: var(--font-sans);
+        font-size: var(--text-body);
+        line-height: 1.62;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--sb-thumb) transparent;
+      }
+      *::-webkit-scrollbar {
+        width: var(--sb-size);
+        height: var(--sb-size);
+      }
+      *::-webkit-scrollbar-track { background: transparent; }
+      *::-webkit-scrollbar-thumb {
+        background: var(--sb-thumb) !important;
+        border: var(--sb-border) solid transparent;
+        border-radius: var(--radius-pill);
+        background-clip: padding-box;
+      }
+
+      ::selection {
+        background: var(--accent-soft);
+        color: var(--ink);
+      }
+
+      h1, h2, h3 {
+        line-height: 1.14;
+        letter-spacing: -0.025em;
+        text-wrap: balance;
+      }
+      h2 { font-size: var(--text-h2); }
+      h3 { font-size: var(--text-h3); }
+      p { text-wrap: pretty; }
+
+      a {
+        color: var(--accent-strong);
+        text-underline-offset: 0.18em;
+        text-decoration-thickness: from-font;
+      }
+      a:hover { color: var(--accent); }
+
+      :focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+        border-radius: var(--radius-sm);
+      }
+
+      .wrap {
+        width: min(100% - 2 * var(--space-5), 1080px);
+        margin-inline: auto;
+      }
+
+      .section {
+        padding-block: var(--space-9);
+        border-top: 1px solid var(--line);
+      }
+      .section:first-of-type { border-top: 0; }
+
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-size: var(--text-micro);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+      }
+
+      .lead {
+        color: var(--ink-soft);
+        font-size: clamp(1.05rem, 1rem + 0.4vw, 1.22rem);
+        max-width: 62ch;
+      }
+
+      .mono { font-family: var(--font-mono); }
+      .num { font-variant-numeric: tabular-nums; }
+    }
+
+    @layer components {
+      .skip {
+        position: absolute;
+        inset-block-start: var(--space-3);
+        inset-inline-start: var(--space-3);
+        z-index: 100;
+        padding: var(--space-2) var(--space-4);
+        background: var(--accent);
+        color: var(--accent-ink);
+        border-radius: var(--radius-sm);
+        transform: translateY(-200%);
+        transition: transform var(--duration-fast) var(--ease-out);
+      }
+      .skip:focus-visible { transform: translateY(0); }
+
+      .toc {
+        position: sticky;
+        inset-block-start: 0;
+        z-index: 50;
+        background: color-mix(in oklab, var(--canvas) 92%, transparent);
+        backdrop-filter: blur(10px);
+        border-block: 1px solid var(--line);
+      }
+      .toc__inner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-1);
+        padding-block: var(--space-2);
+      }
+      .toc__label {
+        flex: none;
+        padding-inline: var(--space-2) var(--space-3);
+        font-family: var(--font-mono);
+        font-size: var(--text-micro);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+      }
+      .toc a {
+        flex: none;
+        white-space: nowrap;
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-pill);
+        color: var(--ink-soft);
+        font-size: var(--text-small);
+        text-decoration: none;
+        transition:
+          background-color var(--duration-fast) var(--ease-out),
+          color var(--duration-fast) var(--ease-out);
+      }
+      .toc a:hover {
+        background: var(--surface-soft);
+        color: var(--ink);
+      }
+      .toc__top {
+        border: 1px solid var(--line-strong);
+        color: var(--ink) !important;
+      }
+      .toc__back {
+        border: 1px solid var(--line-strong);
+        color: var(--ink) !important;
+      }
+      .toc a[aria-current="location"] {
+        background: var(--accent-soft);
+        color: var(--accent-strong);
+        font-weight: 600;
+      }
+      section[id] {
+        scroll-margin-top: calc(var(--space-9) + var(--space-8));
+      }
+      section[id]:target .section-head h2 {
+        color: var(--accent-strong);
+      }
+
+      .hero {
+        padding-block: var(--space-9) var(--space-8);
+        background:
+          radial-gradient(120% 90% at 80% 0%, var(--accent-soft) 0%, transparent 60%),
+          var(--canvas);
+      }
+
+      .hero__grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+        gap: var(--space-7);
+        align-items: start;
+      }
+
+      .hero__copy h1 {
+        font-size: var(--text-display);
+        margin-block: var(--space-4) var(--space-5);
+        max-width: 18ch;
+      }
+
+      .hero__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-3);
+        margin-block-start: var(--space-6);
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        min-height: 44px;
+        padding: var(--space-3) var(--space-5);
+        border: 1px solid transparent;
+        border-radius: var(--radius-pill);
+        font-weight: 600;
+        font-size: var(--text-small);
+        text-decoration: none;
+        cursor: pointer;
+        transition:
+          background-color var(--duration-fast) var(--ease-out),
+          border-color var(--duration-fast) var(--ease-out),
+          color var(--duration-fast) var(--ease-out),
+          transform var(--duration-fast) var(--ease-out);
+      }
+      .button:active { transform: translateY(1px); }
+      .button--primary {
+        background: var(--accent);
+        color: var(--accent-ink);
+      }
+      .button--primary:hover {
+        background: var(--accent-strong);
+        color: var(--accent-ink);
+      }
+      .button--ghost {
+        background: transparent;
+        border-color: var(--line-strong);
+        color: var(--ink);
+      }
+      .button--ghost:hover {
+        background: var(--surface-soft);
+        border-color: var(--ink-faint);
+      }
+
+      .case-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: var(--space-5);
+        box-shadow: var(--shadow-md);
+      }
+      .case-card .eyebrow { margin-block-end: var(--space-4); }
+
+      .case-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        margin-block-start: var(--space-4);
+      }
+      .case-row:first-of-type { margin-block-start: 0; }
+      .case-row__label {
+        font-weight: 600;
+        font-size: var(--text-small);
+      }
+      .case-row__text {
+        color: var(--ink-soft);
+        font-size: var(--text-small);
+        margin-block-start: var(--space-1);
+      }
+      .case-row__text strong {
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+        padding: var(--space-1) var(--space-3);
+        border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent);
+        border-radius: var(--radius-pill);
+        background: var(--accent-soft);
+        color: var(--accent-strong);
+        font-family: var(--font-mono);
+        font-size: var(--text-micro);
+        white-space: nowrap;
+      }
+
+      .rule {
+        border: 0;
+        border-top: 1px solid var(--line);
+        margin-block: var(--space-4);
+      }
+
+      .case-note {
+        margin-block-start: var(--space-3);
+        padding: var(--space-3);
+        border-inline-start: var(--space-1) solid var(--accent);
+        background: var(--surface-soft);
+        border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        font-size: var(--text-micro);
+        color: var(--ink-soft);
+      }
+
+      .section-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--space-4);
+        margin-block-end: var(--space-6);
+      }
+      .section-head h2 { max-width: 26ch; }
+      .section-head .eyebrow { flex: none; }
+
+      .how-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--space-5);
+      }
+
+      .step-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: var(--space-5);
+        box-shadow: var(--shadow-sm);
+      }
+      .step-card__num {
+        font-family: var(--font-mono);
+        font-size: var(--text-micro);
+        color: var(--accent-strong);
+        letter-spacing: 0.08em;
+      }
+      .step-card h3 { margin-block: var(--space-3) var(--space-2); }
+      .step-card p { color: var(--ink-soft); font-size: var(--text-small); }
+
+      .pair-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-5);
+      }
+
+      .person-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: var(--space-5);
+        box-shadow: var(--shadow-sm);
+      }
+      .person-card__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        margin-block-end: var(--space-4);
+      }
+      .person-card__head h3 { font-size: var(--text-h3); }
+      .person-card__income {
+        color: var(--ink-soft);
+        font-size: var(--text-small);
+        margin-block-start: var(--space-1);
+      }
+
+      .kv {
+        display: grid;
+        gap: var(--space-2);
+      }
+      .kv__row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--space-3);
+        padding-block: var(--space-2);
+        border-bottom: 1px solid var(--line);
+      }
+      .kv__row:last-child { border-bottom: 0; }
+      .kv__key { color: var(--ink-soft); font-size: var(--text-small); }
+      .kv__value {
+        font-variant-numeric: tabular-nums;
+        font-weight: 650;
+        text-align: end;
+      }
+      .kv__value--accent { color: var(--accent-strong); }
+
+      .combined {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1.1fr 1fr 1fr 1fr;
+        gap: var(--space-4);
+        align-items: center;
+        background: var(--accent-soft);
+        border: 1px solid color-mix(in oklab, var(--accent) 26%, transparent);
+        border-radius: var(--radius);
+        padding: var(--space-5);
+      }
+      .combined h3 { font-size: var(--text-h3); }
+      .combined p {
+        color: var(--ink-soft);
+        font-size: var(--text-small);
+        margin-block-start: var(--space-1);
+      }
+      .combined__metric {
+        display: grid;
+        gap: var(--space-1);
+      }
+      .combined__metric dt {
+        font-family: var(--font-mono);
+        font-size: var(--text-micro);
+        color: var(--ink-faint);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .combined__metric dd {
+        font-size: clamp(1.2rem, 1rem + 0.8vw, 1.5rem);
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .timeline {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 0;
+        border-inline-start: 1px solid var(--line-strong);
+        margin-inline-start: var(--space-3);
+      }
+      .timeline li {
+        position: relative;
+        padding: 0 0 var(--space-6) var(--space-6);
+      }
+      .timeline li:last-child { padding-block-end: 0; }
+      .timeline li::before {
+        content: "";
+        position: absolute;
+        inset-block-start: 0.55em;
+        inset-inline-start: calc(-1 * var(--space-1));
+        width: calc(2 * var(--space-1));
+        height: calc(2 * var(--space-1));
+        border-radius: var(--radius-pill);
+        background: var(--accent);
+      }
+      .timeline__date {
+        font-family: var(--font-mono);
+        font-size: var(--text-micro);
+        color: var(--accent-strong);
+        letter-spacing: 0.04em;
+      }
+      .timeline h3 {
+        font-size: var(--text-h3);
+        margin-block: var(--space-1) var(--space-1);
+      }
+      .timeline p { color: var(--ink-soft); font-size: var(--text-small); max-width: 68ch; }
+
+      .look-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--space-5);
+      }
+      .look-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: var(--space-5);
+        box-shadow: var(--shadow-sm);
+      }
+      .look-card__tag {
+        font-family: var(--font-mono);
+        font-size: var(--text-micro);
+        color: var(--ink-faint);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .look-card h3 { margin-block: var(--space-2) var(--space-2); }
+      .look-card p { color: var(--ink-soft); font-size: var(--text-small); }
+      .look-card a { font-size: var(--text-small); }
+
+      .transfer {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: var(--space-6);
+        align-items: start;
+      }
+      .transfer__text p { color: var(--ink-soft); margin-block-start: var(--space-3); }
+      .transfer__text p:first-child { margin-block-start: 0; }
+
+      .transfer-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: var(--space-5);
+        box-shadow: var(--shadow-sm);
+      }
+      .transfer-card__row {
+        display: flex;
+        gap: var(--space-3);
+        align-items: flex-start;
+        padding-block: var(--space-3);
+        border-bottom: 1px solid var(--line);
+      }
+      .transfer-card__row:last-child { border-bottom: 0; padding-block-end: 0; }
+      .transfer-card__num {
+        flex: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: var(--radius-pill);
+        background: var(--accent-soft);
+        color: var(--accent-strong);
+        font-family: var(--font-mono);
+        font-size: var(--text-micro);
+      }
+      .transfer-card__row p {
+        color: var(--ink-soft);
+        font-size: var(--text-small);
+        margin-block-start: var(--space-1);
+      }
+
+      .nuance-group { margin-block-start: var(--space-7); }
+      .nuance-group:first-of-type { margin-block-start: 0; }
+      .nuance-group > h3 {
+        font-size: var(--text-h3);
+        margin-block-end: var(--space-4);
+      }
+
+      .nuance-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-4);
+      }
+
+      .nuance-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: var(--space-5);
+        box-shadow: var(--shadow-sm);
+      }
+      .nuance-card__num {
+        font-family: var(--font-mono);
+        font-size: var(--text-micro);
+        color: var(--accent-strong);
+        letter-spacing: 0.08em;
+      }
+      .nuance-card h4 {
+        font-size: var(--text-small);
+        font-weight: 700;
+        line-height: 1.3;
+        margin-block: var(--space-2) var(--space-2);
+      }
+      .nuance-card p { color: var(--ink-soft); font-size: var(--text-small); }
+
+      .calc {
+        display: grid;
+        grid-template-columns: 0.85fr 1.15fr;
+        gap: var(--space-6);
+        align-items: start;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: var(--space-6);
+        box-shadow: var(--shadow-md);
+      }
+
+      .calc__form {
+        display: grid;
+        gap: var(--space-4);
+      }
+      .field {
+        display: grid;
+        gap: var(--space-2);
+      }
+      .field label {
+        font-size: var(--text-small);
+        font-weight: 600;
+      }
+      .field__hint {
+        font-size: var(--text-micro);
+        color: var(--ink-faint);
+      }
+      .field input {
+        width: 100%;
+        min-height: 44px;
+        padding: var(--space-3) var(--space-4);
+        background: var(--surface-soft);
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius-sm);
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+        transition:
+          border-color var(--duration-fast) var(--ease-out),
+          background-color var(--duration-fast) var(--ease-out),
+          box-shadow var(--duration-fast) var(--ease-out);
+      }
+      .field input:hover { border-color: var(--ink-faint); }
+      .field input:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+        border-color: var(--accent);
+      }
+      .field input[aria-invalid="true"] {
+        border-color: var(--warn);
+        background: var(--warn-soft);
+      }
+
+      .calc__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-3);
+        margin-block-start: var(--space-2);
+      }
+
+      .calc__error {
+        min-height: 1.4em;
+        color: var(--warn);
+        font-size: var(--text-small);
+        font-weight: 600;
+      }
+
+      .calc__result {
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: var(--space-5);
+      }
+      .calc__result[hidden] { display: none; }
+      .calc__result-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--space-3);
+        margin-block-end: var(--space-4);
+      }
+      .calc__result-head h3 { font-size: var(--text-h3); }
+      .calc__metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-3);
+      }
+      .calc__metric {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        padding: var(--space-4);
+      }
+      .calc__metric dt {
+        font-family: var(--font-mono);
+        font-size: var(--text-micro);
+        color: var(--ink-faint);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .calc__metric dd {
+        font-size: clamp(1.15rem, 1rem + 0.6vw, 1.4rem);
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        margin-block-start: var(--space-1);
+      }
+      .calc__metric--wide { grid-column: 1 / -1; }
+      .calc__note {
+        margin-block-start: var(--space-4);
+        color: var(--ink-soft);
+        font-size: var(--text-micro);
+      }
+
+      .steps {
+        list-style: none;
+        counter-reset: step;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: var(--space-3);
+      }
+      .steps li {
+        counter-increment: step;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: var(--space-4);
+        padding: var(--space-4) var(--space-5);
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+      }
+      .steps li::before {
+        content: counter(step, decimal-leading-zero);
+        font-family: var(--font-mono);
+        font-size: var(--text-micro);
+        color: var(--accent-strong);
+        padding-block-start: 0.2em;
+      }
+      .steps strong { display: block; font-size: var(--text-small); }
+      .steps span { color: var(--ink-soft); font-size: var(--text-small); }
+
+      .sources {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-2) var(--space-6);
+        padding: 0;
+        list-style: none;
+        margin: 0;
+      }
+      .sources li {
+        padding-block: var(--space-2);
+        border-bottom: 1px solid var(--line);
+        font-size: var(--text-small);
+      }
+      .sources a { text-decoration: none; }
+      .sources a:hover { text-decoration: underline; }
+
+      .footer {
+        padding-block: var(--space-7);
+        border-top: 1px solid var(--line);
+        color: var(--ink-faint);
+        font-size: var(--text-micro);
+      }
+      .footer p + p { margin-block-start: var(--space-2); }
+
+      .return-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-6);
+        align-items: start;
+      }
+      .subhead {
+        font-size: var(--text-h3);
+        margin-block: var(--space-6) var(--space-4);
+      }
+      .return-callout {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: var(--space-6);
+        box-shadow: var(--shadow-md);
+      }
+      .return-callout > p {
+        color: var(--ink-soft);
+        font-size: var(--text-small);
+      }
+      .return-big {
+        font-size: clamp(2.4rem, 1.6rem + 3vw, 3.6rem);
+        font-weight: 750;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        font-variant-numeric: tabular-nums;
+        margin-block: var(--space-2) var(--space-1);
+      }
+      .return-big--accent { color: var(--accent-strong); }
+      .return-callout .case-note { margin-block-start: var(--space-4); }
+
+      .table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        box-shadow: var(--shadow-sm);
+      }
+      .return-table {
+        width: 100%;
+        min-width: var(--table-min);
+        border-collapse: collapse;
+        font-size: var(--text-small);
+      }
+      .return-table caption {
+        text-align: start;
+        padding: var(--space-4) var(--space-5);
+        font-family: var(--font-mono);
+        font-size: var(--text-micro);
+        color: var(--ink-faint);
+        border-bottom: 1px solid var(--line);
+      }
+      .return-table th,
+      .return-table td {
+        padding: var(--space-3) var(--space-5);
+        text-align: end;
+        border-bottom: 1px solid var(--line);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .return-table thead th {
+        font-family: var(--font-mono);
+        font-size: var(--text-micro);
+        font-weight: 600;
+        color: var(--ink-faint);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        background: var(--surface-soft);
+      }
+      .return-table tbody th {
+        text-align: start;
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .return-table tbody tr:last-child th,
+      .return-table tbody tr:last-child td { border-bottom: 0; }
+      .return-table tbody tr.is-base {
+        background: var(--accent-soft);
+      }
+      .return-table tbody tr.is-base th,
+      .return-table tbody tr.is-base td {
+        color: var(--accent-strong);
+        font-weight: 700;
+      }
+      .return-table tbody tr.group th {
+        text-align: start;
+        background: var(--surface-soft);
+        color: var(--ink-faint);
+        font-family: var(--font-mono);
+        font-size: var(--text-micro);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 600;
+      }
+      .return-table td.cell-wrap,
+      .return-table th.cell-wrap {
+        white-space: normal;
+        min-width: 16ch;
+      }
+
+      .return-notes {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-4);
+        margin-block-start: var(--space-5);
+      }
+      .return-notes p {
+        color: var(--ink-soft);
+        font-size: var(--text-small);
+        padding: var(--space-4);
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+      }
+      .return-notes strong { color: var(--ink); }
+
+      @media (max-width: 900px) {
+        .hero__grid,
+        .transfer,
+        .calc,
+        .return-grid { grid-template-columns: 1fr; }
+        .how-grid,
+        .look-grid { grid-template-columns: 1fr; }
+        .combined { grid-template-columns: 1fr 1fr; }
+        .toc__inner { flex-wrap: nowrap; overflow-x: auto; }
+        section[id] { scroll-margin-top: calc(var(--space-9) + var(--space-1)); }
+      }
+
+      @media (max-width: 620px) {
+        .pair-grid,
+        .nuance-grid,
+        .sources,
+        .calc__metrics,
+        .return-notes { grid-template-columns: 1fr; }
+        .combined { grid-template-columns: 1fr; }
+        .section { padding-block: var(--space-8); }
+        .hero { padding-block: var(--space-8) var(--space-7); }
+        .section-head { flex-direction: column; gap: var(--space-2); }
+        .case-card { padding: var(--space-4); }
+        .calc { padding: var(--space-5); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    }
+
+    @layer utilities {
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Перейти к содержанию</a>
+
+  <nav class="toc" id="top" aria-label="Разделы страницы">
+    <div class="wrap toc__inner">
+      <span class="toc__label">Содержание</span>
+      <a href="index.html" class="toc__back">← Просто</a>
+      <a href="#how">Как работает</a>
+      <a href="#pair">Ваш случай</a>
+      <a href="#timing">Сроки</a>
+      <a href="#return">Доходность</a>
+      <a href="#years15">15 лет</a>
+      <a href="#high-income">Доход выше</a>
+      <a href="#compare">Вклад</a>
+      <a href="#choose">Где открыть</a>
+      <a href="#where">Где смотреть</a>
+      <a href="#transfer">Смена фонда</a>
+      <a href="#legacy">Прошлые программы</a>
+      <a href="#payout">Выплаты</a>
+      <a href="#nuances">Нюансы</a>
+      <a href="#calc">Калькулятор</a>
+      <a href="#plan">План</a>
+      <a href="#sources">Источники</a>
+      <a href="#top" class="toc__top">Наверх</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="wrap hero__grid">
+      <div class="hero__copy">
+        <p class="eyebrow">ПДС · программа долгосрочных сбережений</p>
+        <h1>Государство добавит до 36 000 ₽ в год. Но забрать деньги можно не сразу.</h1>
+        <p class="lead">Разбор для пары с доходом 130 000 и 70 000 ₽ в месяц: сколько вносить, когда придут деньги, где смотреть накопления и какие подводные камни есть у ПДС.</p>
+        <div class="hero__actions">
+          <a class="button button--primary" href="#calc">Проверить свой расчёт</a>
+          <a class="button button--ghost" href="#nuances">Подводные камни</a>
+        </div>
+      </div>
+
+      <aside class="case-card" aria-label="Короткий ответ для вашей пары">
+        <p class="eyebrow">Короткий ответ</p>
+
+        <div class="case-row">
+          <span class="case-row__label">Муж · 130 000 ₽/мес</span>
+          <span class="pill">1 : 2</span>
+        </div>
+        <p class="case-row__text">72 000 ₽ взносов → <strong>36 000 ₽</strong> от государства</p>
+
+        <div class="case-row">
+          <span class="case-row__label">Жена · 70 000 ₽/мес</span>
+          <span class="pill">1 : 1</span>
+        </div>
+        <p class="case-row__text">36 000 ₽ взносов → <strong>36 000 ₽</strong> от государства</p>
+
+        <hr class="rule">
+
+        <p class="case-row__text">Вместе: <strong>108 000 ₽</strong> взносов → <strong>72 000 ₽</strong> от государства за год.</p>
+        <p class="case-note">Взнос 15 декабря 2026 года считается в 2026 год. Доплата придёт в 2027-м — ориентировочно с мая по июль.</p>
+      </aside>
+    </div>
+  </header>
+
+
+
+  <main id="main">
+    <section class="section" id="how">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Механика</p>
+            <h2>Как это работает</h2>
+          </div>
+        </div>
+
+        <div class="how-grid">
+          <article class="step-card">
+            <p class="step-card__num">01 / договор</p>
+            <h3>Заключаете договор с НПФ</h3>
+            <p>ПДС — это не банковский вклад, а договор с негосударственным пенсионным фондом. Банк может быть агентом, но оператор программы — НПФ.</p>
+          </article>
+
+          <article class="step-card">
+            <p class="step-card__num">02 / взносы</p>
+            <h3>Вносите личные взносы</h3>
+            <p>Сумма и периодичность — любые. Можно платить ежемесячно или одним платежом в декабре. Чтобы получить софинансирование, за год нужно внести минимум 2 000 ₽.</p>
+          </article>
+
+          <article class="step-card">
+            <p class="step-card__num">03 / доплата</p>
+            <h3>Государство добавляет свою часть</h3>
+            <p>Раз в год, в следующем году. Размер зависит от официального среднемесячного дохода и суммы личных взносов. Максимум — 36 000 ₽ в год на человека.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="pair">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Ваш случай</p>
+            <h2>Расчёт для пары на 2026 год</h2>
+          </div>
+        </div>
+
+        <div class="pair-grid">
+          <article class="person-card">
+            <div class="person-card__head">
+              <div>
+                <h3>Муж</h3>
+                <p class="person-card__income">130 000 ₽ в месяц, до НДФЛ</p>
+              </div>
+              <span class="pill">1 : 2</span>
+            </div>
+            <dl class="kv">
+              <div class="kv__row">
+                <dt class="kv__key">Взносы за год</dt>
+                <dd class="kv__value">72 000 ₽</dd>
+              </div>
+              <div class="kv__row">
+                <dt class="kv__key">Господдержка</dt>
+                <dd class="kv__value kv__value--accent">36 000 ₽</dd>
+              </div>
+              <div class="kv__row">
+                <dt class="kv__key">Возврат НДФЛ 13%</dt>
+                <dd class="kv__value">9 360 ₽</dd>
+              </div>
+              <div class="kv__row">
+                <dt class="kv__key">На счёте до инвестдохода</dt>
+                <dd class="kv__value">108 000 ₽</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article class="person-card">
+            <div class="person-card__head">
+              <div>
+                <h3>Жена</h3>
+                <p class="person-card__income">70 000 ₽ в месяц, до НДФЛ</p>
+              </div>
+              <span class="pill">1 : 1</span>
+            </div>
+            <dl class="kv">
+              <div class="kv__row">
+                <dt class="kv__key">Взносы за год</dt>
+                <dd class="kv__value">36 000 ₽</dd>
+              </div>
+              <div class="kv__row">
+                <dt class="kv__key">Господдержка</dt>
+                <dd class="kv__value kv__value--accent">36 000 ₽</dd>
+              </div>
+              <div class="kv__row">
+                <dt class="kv__key">Возврат НДФЛ 13%</dt>
+                <dd class="kv__value">4 680 ₽</dd>
+              </div>
+              <div class="kv__row">
+                <dt class="kv__key">На счёте до инвестдохода</dt>
+                <dd class="kv__value">72 000 ₽</dd>
+              </div>
+            </dl>
+          </article>
+
+          <div class="combined">
+            <div>
+              <h3>Вместе за год</h3>
+              <p>Если оба остаются в своих доходных группах и вносят полную сумму.</p>
+            </div>
+            <dl class="combined__metric">
+              <dt>Взносы</dt>
+              <dd>108 000 ₽</dd>
+            </dl>
+            <dl class="combined__metric">
+              <dt>Господдержка</dt>
+              <dd>72 000 ₽</dd>
+            </dl>
+            <dl class="combined__metric">
+              <dt>На счетах</dt>
+              <dd>180 000 ₽</dd>
+            </dl>
+          </div>
+        </div>
+
+        <p class="case-note" style="margin-block-start: var(--space-5);">Расчёт не учитывает инвестдоход и другие договоры ПДС. Возврат НДФЛ — при ставке 13%; при другой ставке сумма будет иной. Лимит вычета 400 000 ₽ в год общий для ПДС, ИИС-3 и НПО.</p>
+      </div>
+    </section>
+
+    <section class="section" id="timing">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Сроки</p>
+            <h2>Когда и как начисляют</h2>
+          </div>
+        </div>
+
+        <ol class="timeline">
+          <li>
+            <p class="timeline__date">15 декабря 2026</p>
+            <h3>Взнос 72 000 ₽</h3>
+            <p>Считается в 2026 год. Дата внутри года не важна: государство суммирует все личные взносы с 1 января по 31 декабря. Можно вносить частями — результат тот же.</p>
+          </li>
+          <li>
+            <p class="timeline__date">31 декабря 2026</p>
+            <h3>Год закрыт</h3>
+            <p>Сумма личных взносов зафиксирована. Если за год внесено меньше 2 000 ₽, софинансирования за этот год не будет.</p>
+          </li>
+          <li>
+            <p class="timeline__date">2027</p>
+            <h3>Расчёт и перечисление</h3>
+            <p>Администратор софинансирования получает данные ФНС о доходе, считает доплату и перечисляет деньги в НПФ. Точной даты закон не устанавливает.</p>
+          </li>
+          <li>
+            <p class="timeline__date">май–июль 2027</p>
+            <h3>36 000 ₽ отражаются на счёте</h3>
+            <p>Ориентировочный период. СберНПФ говорит про июль. В 2025 году первая волна задержалась до сентября — это не гарантированный день, а окно.</p>
+          </li>
+          <li>
+            <p class="timeline__date">2027</p>
+            <h3>Можно подать на вычет за 2026</h3>
+            <p>Возврат 13% с 72 000 ₽ — 9 360 ₽. Через личный кабинет ФНС или упрощённый порядок через НПФ.</p>
+          </li>
+          <li>
+            <p class="timeline__date">далее</p>
+            <h3>Инвестдоход</h3>
+            <p>Это не фиксированный процент, как по вкладу. Фонд инвестирует средства и фиксирует результат не реже раза в 5 лет (часто ежегодно). После фиксации доход становится частью баланса и тоже работает.</p>
+          </li>
+        </ol>
+
+        <p class="case-note" style="margin-block-start: var(--space-5);">Господдержка за 2026 год придёт в 2027-м. Инвестдоход на эти 36 000 ₽ начнёт начисляться только после того, как они появятся на счёте.</p>
+      </div>
+    </section>
+
+    <section class="section" id="return">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Доходность</p>
+            <h2>Какой средний процент получается за 10 лет</h2>
+          </div>
+        </div>
+
+        <div class="return-grid">
+          <aside class="return-callout">
+            <p class="eyebrow">Муж · 72 000 ₽/год</p>
+            <p class="return-big">≈ 16,5%</p>
+            <p>среднегодовая доходность без вычета при фонде 10%</p>
+            <p class="return-big return-big--accent">≈ 17,9%</p>
+            <p>с вычетом 13%, если возврат налога реинвестировать</p>
+            <p class="case-note">36 000 ₽ господдержки к 72 000 ₽ взносов — это +50% к каждому взносу. Доходность фонда — 10%, остальное даёт государство.</p>
+          </aside>
+
+          <aside class="return-callout">
+            <p class="eyebrow">Жена · 36 000 ₽/год</p>
+            <p class="return-big">≈ 21,2%</p>
+            <p>среднегодовая доходность без вычета при фонде 10%</p>
+            <p class="return-big return-big--accent">≈ 22,3%</p>
+            <p>с вычетом 13%, если возврат налога реинвестировать</p>
+            <p class="case-note">36 000 ₽ господдержки к 36 000 ₽ взносов — это +100% к каждому взносу. Поэтому её IRR выше, чем у мужа.</p>
+          </aside>
+        </div>
+
+        <h3 class="subhead">Муж: 72 000 ₽ взносов + 36 000 ₽ господдержки в год</h3>
+        <div class="table-wrap">
+          <table class="return-table">
+            <caption>Итог — сумма на счетах в конце 10-го года. Вычет — 13% от взносов, реинвестирован.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Доходность фонда</th>
+                <th scope="col">Итог за 10 лет</th>
+                <th scope="col">IRR</th>
+                <th scope="col">С вычетом</th>
+                <th scope="col">IRR с вычетом</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">0%</th>
+                <td>1,08 млн ₽</td>
+                <td>7,3%</td>
+                <td>1,17 млн ₽</td>
+                <td>8,7%</td>
+              </tr>
+              <tr>
+                <th scope="row">8%</th>
+                <td>1,65 млн ₽</td>
+                <td>14,7%</td>
+                <td>1,78 млн ₽</td>
+                <td>16,0%</td>
+              </tr>
+              <tr class="is-base">
+                <th scope="row">10%</th>
+                <td>1,84 млн ₽</td>
+                <td>16,5%</td>
+                <td>1,99 млн ₽</td>
+                <td>17,9%</td>
+              </tr>
+              <tr>
+                <th scope="row">12%</th>
+                <td>2,05 млн ₽</td>
+                <td>18,4%</td>
+                <td>2,21 млн ₽</td>
+                <td>19,8%</td>
+              </tr>
+              <tr>
+                <th scope="row">15%</th>
+                <td>2,41 млн ₽</td>
+                <td>21,3%</td>
+                <td>2,60 млн ₽</td>
+                <td>22,6%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="subhead">Жена: 36 000 ₽ взносов + 36 000 ₽ господдержки в год</h3>
+        <div class="table-wrap">
+          <table class="return-table">
+            <caption>Итог — сумма на счетах в конце 10-го года. Вычет — 13% от взносов, реинвестирован.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Доходность фонда</th>
+                <th scope="col">Итог за 10 лет</th>
+                <th scope="col">IRR</th>
+                <th scope="col">С вычетом</th>
+                <th scope="col">IRR с вычетом</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">0%</th>
+                <td>0,72 млн ₽</td>
+                <td>12,3%</td>
+                <td>0,77 млн ₽</td>
+                <td>13,4%</td>
+              </tr>
+              <tr>
+                <th scope="row">8%</th>
+                <td>1,08 млн ₽</td>
+                <td>19,4%</td>
+                <td>1,15 млн ₽</td>
+                <td>20,5%</td>
+              </tr>
+              <tr class="is-base">
+                <th scope="row">10%</th>
+                <td>1,20 млн ₽</td>
+                <td>21,2%</td>
+                <td>1,28 млн ₽</td>
+                <td>22,3%</td>
+              </tr>
+              <tr>
+                <th scope="row">12%</th>
+                <td>1,34 млн ₽</td>
+                <td>23,1%</td>
+                <td>1,42 млн ₽</td>
+                <td>24,1%</td>
+              </tr>
+              <tr>
+                <th scope="row">15%</th>
+                <td>1,57 млн ₽</td>
+                <td>25,9%</td>
+                <td>1,67 млн ₽</td>
+                <td>26,9%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="return-notes">
+          <p><strong>Почему так высоко.</strong> У мужа государство добавляет 36 000 ₽ к 72 000 ₽ — +50%; у жены 36 000 ₽ к 36 000 ₽ — +100%. Поэтому даже при нулевой доходности фонда IRR ≈ 7,3% у мужа и ≈ 12,3% у жены.</p>
+          <p><strong>Жена обгоняет.</strong> При 10% у жены IRR ≈ 21,2% без вычета и 22,3% с вычетом; у мужа — ≈ 16,5% и 17,9%. Причина — коэффициент 1:1 против 1:2.</p>
+          <p><strong>20% — не база.</strong> В 2024–2025 фонды давали около 20% из-за высоких ставок. Для 10-летнего плана лучше считать 8–12%; 20% в таблице — сценарий «если снова повезёт».</p>
+          <p><strong>Это номинал.</strong> Доходность не гарантирована и указана до инфляции. Реальная доходность будет ниже на инфляцию; при 4–6% инфляции это примерно 12–15% реальных.</p>
+          <p><strong>Всё держится на 10 годах.</strong> При досрочном выходе теряется часть инвестдохода, а гос. деньги и переведённые накопления остаются заблокированными. Тогда расчёт уже не работает.</p>
+          <p><strong>Доход может всё сломать.</strong> Если официальный среднемесячный доход вырастет выше 150 000 ₽ у мужа или 80 000 ₽ у жены, коэффициент упадёт, и IRR снизится.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="years15">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">После субсидии</p>
+            <h2>10 лет субсидии, 15 лет до выплат</h2>
+          </div>
+        </div>
+
+        <p class="lead">Если первый взнос в 2026 году, субсидия идёт 10 лет — до 2035 года, последняя доплата приходит в 2036-м. Выплаты — через 15 лет с даты договора или в 55/60. Если вам 41, это примерно 56 лет. Между концом субсидии и выплатами остаётся около 5 лет, когда новых взносов и доплат нет — работает только инвестдоход.</p>
+
+        <h3 class="subhead">Муж: 72 000 ₽/год + 36 000 ₽ господдержки</h3>
+        <div class="table-wrap">
+          <table class="return-table">
+            <caption>С вычетом 13%, реинвестированным. «К 10 годам» — после последней доплаты; «К 15 годам» — выплаты. Второй блок — доход вырос во 2-й год, взнос увеличен до 144 000 ₽, коэффициент 1:4.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Доходность фонда</th>
+                <th scope="col">К 10 годам</th>
+                <th scope="col">К 15 годам</th>
+                <th scope="col">Прирост 11→15</th>
+                <th scope="col">IRR 10 лет</th>
+                <th scope="col">IRR 15 лет</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="group"><th colspan="6">Стабильный доход: 1:2 все 10 лет</th></tr>
+              <tr><th scope="row">8%</th><td>1,78 млн ₽</td><td>2,43 млн ₽</td><td>+643 тыс ₽</td><td>16,0%</td><td>12,9%</td></tr>
+              <tr class="is-base"><th scope="row">10%</th><td>1,99 млн ₽</td><td>2,91 млн ₽</td><td>+921 тыс ₽</td><td>17,9%</td><td>14,9%</td></tr>
+              <tr><th scope="row">12%</th><td>2,21 млн ₽</td><td>3,48 млн ₽</td><td>+1,27 млн ₽</td><td>19,8%</td><td>16,8%</td></tr>
+              <tr><th scope="row">15%</th><td>2,60 млн ₽</td><td>4,55 млн ₽</td><td>+1,95 млн ₽</td><td>22,6%</td><td>19,8%</td></tr>
+              <tr class="group"><th colspan="6">Доход вырос, взнос до максимума: 1:2 → 1:4, 144 000 ₽/год</th></tr>
+              <tr><th scope="row">8%</th><td>2,87 млн ₽</td><td>3,91 млн ₽</td><td>+1,04 млн ₽</td><td>13,8%</td><td>11,5%</td></tr>
+              <tr class="is-base"><th scope="row">10%</th><td>3,19 млн ₽</td><td>4,67 млн ₽</td><td>+1,48 млн ₽</td><td>15,7%</td><td>13,4%</td></tr>
+              <tr><th scope="row">12%</th><td>3,54 млн ₽</td><td>5,57 млн ₽</td><td>+2,03 млн ₽</td><td>17,6%</td><td>15,4%</td></tr>
+              <tr><th scope="row">15%</th><td>4,15 млн ₽</td><td>7,26 млн ₽</td><td>+3,11 млн ₽</td><td>20,5%</td><td>18,4%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="subhead">Жена: 36 000 ₽/год + 36 000 ₽ господдержки</h3>
+        <div class="table-wrap">
+          <table class="return-table">
+            <caption>С вычетом 13%, реинвестированным. «К 10 годам» — после последней доплаты; «К 15 годам» — выплаты. Второй блок — доход вырос во 2-й год, взнос увеличен до 72 000 ₽, коэффициент 1:2.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Доходность фонда</th>
+                <th scope="col">К 10 годам</th>
+                <th scope="col">К 15 годам</th>
+                <th scope="col">Прирост 11→15</th>
+                <th scope="col">IRR 10 лет</th>
+                <th scope="col">IRR 15 лет</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="group"><th colspan="6">Стабильный доход: 1:1 все 10 лет</th></tr>
+              <tr><th scope="row">8%</th><td>1,15 млн ₽</td><td>1,57 млн ₽</td><td>+415 тыс ₽</td><td>20,5%</td><td>15,7%</td></tr>
+              <tr class="is-base"><th scope="row">10%</th><td>1,28 млн ₽</td><td>1,87 млн ₽</td><td>+594 тыс ₽</td><td>22,3%</td><td>17,6%</td></tr>
+              <tr><th scope="row">12%</th><td>1,42 млн ₽</td><td>2,24 млн ₽</td><td>+815 тыс ₽</td><td>24,1%</td><td>19,6%</td></tr>
+              <tr><th scope="row">15%</th><td>1,67 млн ₽</td><td>2,91 млн ₽</td><td>+1,25 млн ₽</td><td>26,9%</td><td>22,5%</td></tr>
+              <tr class="group"><th colspan="6">Доход вырос, взнос до максимума: 1:1 → 1:2, 72 000 ₽/год</th></tr>
+              <tr><th scope="row">8%</th><td>1,70 млн ₽</td><td>2,31 млн ₽</td><td>+612 тыс ₽</td><td>16,8%</td><td>13,3%</td></tr>
+              <tr class="is-base"><th scope="row">10%</th><td>1,88 млн ₽</td><td>2,75 млн ₽</td><td>+873 тыс ₽</td><td>18,7%</td><td>15,3%</td></tr>
+              <tr><th scope="row">12%</th><td>2,09 млн ₽</td><td>3,28 млн ₽</td><td>+1,20 млн ₽</td><td>20,6%</td><td>17,3%</td></tr>
+              <tr><th scope="row">15%</th><td>2,44 млн ₽</td><td>4,27 млн ₽</td><td>+1,83 млн ₽</td><td>23,4%</td><td>20,2%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="return-notes">
+          <p><strong>Сумма растёт, процент падает.</strong> К 15 годам денег больше, но среднегодовая доходность ниже: последние 5 лет работают только накопления, без новых субсидий. У мужа при 10% IRR падает с 17,9% до 14,9%; у жены — с 22,3% до 17,6%.</p>
+          <p><strong>Если доход вырастет во 2-й год.</strong> Вы увеличиваете взнос до максимума: муж — 144 000 ₽, жена — 72 000 ₽. Господдержка остаётся 36 000 ₽/год. При 10% итог к 15 годам: муж 4,67 млн ₽, жена 2,75 млн ₽ — сильно выше стабильного сценария. Но IRR ниже (13,4% и 15,3% против 14,9% и 17,6%), потому что дополнительные взносы получают только 25%/50% субсидии. По сравнению с вкладом при тех же взносах всё равно выгоднее: 4,67 против 3,34 млн у мужа, 2,75 против 1,71 млн у жены.</p>
+          <p><strong>Последняя доплата — в 11-м году.</strong> Строго говоря, «чистых» лет без субсидии 4: последняя доплата за 10-й год приходит в 11-м. Дальше до выплаты — только инвестдоход.</p>
+          <p><strong>Если 55/60 раньше 15 лет.</strong> Можно начать выплаты раньше, но со следующего года субсидия прекратится. Иногда выгоднее дождаться конца 10-летнего окна.</p>
+          <p><strong>При высоком доходе.</strong> Логика та же, но субсидия меньше: при 10% 15-летний IRR у вариантов A–F — 13,8%, 13,8%, 13,6%, 14,1%, 14,9%, 13,2% соответственно.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="high-income">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Если доход выше</p>
+            <h2>Муж &gt;150 000 ₽, жена &gt;80 000 ₽</h2>
+          </div>
+        </div>
+
+        <p class="lead">Коэффициенты станут 1:4 и 1:2. Максимум 36 000 ₽ всё равно доступен, но своими взносами: мужу нужно 144 000 ₽, жене — 72 000 ₽. Вот варианты при доходности фонда 10%.</p>
+
+        <div class="table-wrap" style="margin-block-start: var(--space-5);">
+          <table class="return-table">
+            <caption>10 лет, доходность фонда 10%, вычет 13% реинвестирован. Вклад — те же взносы, проценты реинвестируются.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Вариант</th>
+                <th scope="col">Взносы/год</th>
+                <th scope="col">Господдержка</th>
+                <th scope="col">Доля субсидии</th>
+                <th scope="col">ПДС + вычет</th>
+                <th scope="col">IRR с вычетом</th>
+                <th scope="col">Вклад</th>
+                <th scope="col">Вклад IRR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">A. Прежние: 72 + 36</th><td>108 000 ₽</td><td>36 000 ₽</td><td>33,3%</td><td>2,69 млн ₽</td><td>16,1%</td><td>1,89 млн ₽</td><td>10,0%</td></tr>
+              <tr><th scope="row">B. Максимум: 144 + 72</th><td>216 000 ₽</td><td>72 000 ₽</td><td>33,3%</td><td>5,38 млн ₽</td><td>16,1%</td><td>3,72 млн ₽</td><td>9,7%</td></tr>
+              <tr><th scope="row">C. Муж max, жена прежние: 144 + 36</th><td>180 000 ₽</td><td>54 000 ₽</td><td>30,0%</td><td>4,39 млн ₽</td><td>15,8%</td><td>3,12 млн ₽</td><td>9,8%</td></tr>
+              <tr class="is-base"><th scope="row">D. Муж прежние, жена max: 72 + 72</th><td>144 000 ₽</td><td>54 000 ₽</td><td>37,5%</td><td>3,68 млн ₽</td><td>16,6%</td><td>2,51 млн ₽</td><td>9,9%</td></tr>
+              <tr><th scope="row">E. Только жена max: 0 + 72</th><td>72 000 ₽</td><td>36 000 ₽</td><td>50,0%</td><td>1,99 млн ₽</td><td>17,9%</td><td>1,26 млн ₽</td><td>10,0%</td></tr>
+              <tr><th scope="row">F. Только муж max: 144 + 0</th><td>144 000 ₽</td><td>36 000 ₽</td><td>25,0%</td><td>3,40 млн ₽</td><td>15,2%</td><td>2,51 млн ₽</td><td>9,9%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="return-notes">
+          <p><strong>Приоритет — жена.</strong> У неё коэффициент 1:2: 36 000 ₽ субсидии на 72 000 ₽ взносов — 50%. У мужа 1:4: 36 000 ₽ на 144 000 ₽ — 25%. Если денег мало, сначала max жену; если больше — добавляйте мужа.</p>
+          <p><strong>Масштаб не меняет IRR.</strong> Варианты A и B — одно и то же в разном масштабе: IRR 16,1% оба. А вот перекос в сторону мужа (C) снижает IRR, в сторону жены (D, E) — повышает.</p>
+          <p><strong>Вычет 13% учтён.</strong> Без вычета IRR ниже примерно на 1,3–1,5 п.п. Вклад — те же взносы, проценты реинвестируются, НДФЛ с процентов сверх лимита.</p>
+          <p><strong>36 000 ₽ — на человека.</strong> Максимум не меняется: 36 000 ₽ мужу + 36 000 ₽ жене. Но чтобы получить его при высоком доходе, нужно внести 144 000 ₽ и 72 000 ₽ соответственно.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="compare">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Сравнение</p>
+            <h2>ПДС против вклада</h2>
+          </div>
+        </div>
+
+        <h3 class="subhead">Муж: 72 000 ₽ взносов + 36 000 ₽ господдержки</h3>
+        <div class="table-wrap">
+          <table class="return-table">
+            <caption>ПДС: 36 000 ₽ господдержки + вычет 13%. Вклад: проценты реинвестируются, НДФЛ с процентов сверх лимита.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Доходность</th>
+                <th scope="col">ПДС: итог</th>
+                <th scope="col">ПДС IRR</th>
+                <th scope="col">ПДС + вычет</th>
+                <th scope="col">ПДС + вычет IRR</th>
+                <th scope="col">Вклад: итог</th>
+                <th scope="col">Вклад IRR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">8%</th><td>1,65 млн ₽</td><td>14,7%</td><td>1,78 млн ₽</td><td>16,0%</td><td>1,13 млн ₽</td><td>8,0%</td></tr>
+              <tr class="is-base"><th scope="row">10%</th><td>1,84 млн ₽</td><td>16,5%</td><td>1,99 млн ₽</td><td>17,9%</td><td>1,26 млн ₽</td><td>10,0%</td></tr>
+              <tr><th scope="row">12%</th><td>2,05 млн ₽</td><td>18,4%</td><td>2,21 млн ₽</td><td>19,8%</td><td>1,42 млн ₽</td><td>12,0%</td></tr>
+              <tr><th scope="row">15%</th><td>2,41 млн ₽</td><td>21,3%</td><td>2,60 млн ₽</td><td>22,6%</td><td>1,67 млн ₽</td><td>14,9%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="subhead">Жена: 36 000 ₽ взносов + 36 000 ₽ господдержки</h3>
+        <div class="table-wrap">
+          <table class="return-table">
+            <caption>ПДС: 36 000 ₽ господдержки + вычет 13%. Вклад: проценты реинвестируются, НДФЛ с процентов сверх лимита.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Доходность</th>
+                <th scope="col">ПДС: итог</th>
+                <th scope="col">ПДС IRR</th>
+                <th scope="col">ПДС + вычет</th>
+                <th scope="col">ПДС + вычет IRR</th>
+                <th scope="col">Вклад: итог</th>
+                <th scope="col">Вклад IRR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">8%</th><td>1,08 млн ₽</td><td>19,4%</td><td>1,15 млн ₽</td><td>20,5%</td><td>0,56 млн ₽</td><td>8,0%</td></tr>
+              <tr class="is-base"><th scope="row">10%</th><td>1,20 млн ₽</td><td>21,2%</td><td>1,28 млн ₽</td><td>22,3%</td><td>0,63 млн ₽</td><td>10,0%</td></tr>
+              <tr><th scope="row">12%</th><td>1,34 млн ₽</td><td>23,1%</td><td>1,42 млн ₽</td><td>24,1%</td><td>0,71 млн ₽</td><td>12,0%</td></tr>
+              <tr><th scope="row">15%</th><td>1,57 млн ₽</td><td>25,9%</td><td>1,67 млн ₽</td><td>26,9%</td><td>0,84 млн ₽</td><td>15,0%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="return-notes">
+          <p><strong>Разница при 10%.</strong> У мужа ПДС с вычетом ~1,99 млн ₽ против ~1,26 млн ₽ по вкладу — +~723 тыс ₽. У жены ~1,28 млн ₽ против ~0,63 млн ₽ — +~648 тыс ₽. Вместе — ~+1,37 млн ₽. При 8% вместе ~+1,25 млн ₽, при 15% — ~+1,76 млн ₽.</p>
+          <p><strong>Вклад ликвидный, ПДС — нет.</strong> Вклад можно забрать в любой момент; ПДС — только через 15 лет/55–60 или в ОЖС. Поэтому ПДС сравнивают не с вкладом «на 10 лет», а с деньгами, которые точно не понадобятся.</p>
+          <p><strong>Налог на вклад.</strong> НДФЛ 13% с процентов сверх лимита (1 млн × ключевая ставка). В расчёте лимит 160 000 ₽/год; при 10% налог почти нулевой, при 15% он уже заметен.</p>
+          <p><strong>Страховка.</strong> Вклад — 1,4 млн ₽ на банк; ПДС — 2,8 млн ₽ на фонд, а гос. деньги и переведённые накопления — сверх лимита. Большие суммы дробите.</p>
+          <p><strong>Ставки не фиксированы.</strong> Вклад придётся перекладывать каждые 1–2 года; доходность фонда тоже меняется. Таблица — сценарий, а не гарантия.</p>
+          <p><strong>Вычет — не автоматический.</strong> В ПДС он учтён как 13% от взносов, заявленный и реинвестированный. Без заявки уберите колонки «с вычетом».</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="choose">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Выбор фонда</p>
+            <h2>Где открыть: доходность и акции</h2>
+          </div>
+        </div>
+
+        <p class="lead">Данные ЦБ: 2025 год — полная доходность, H1 2026 — годовая доходность за полугодие, net of fees. Акции — на 4 ноября 2026; проверяйте условия на сайтах.</p>
+
+        <div class="table-wrap" style="margin-block-start: var(--space-5);">
+          <table class="return-table">
+            <caption>Доходность — по данным ЦБ; акции — маркетинг банков/НПФ, не часть госпрограммы.</caption>
+            <thead>
+              <tr>
+                <th scope="col">НПФ / канал</th>
+                <th scope="col">2025</th>
+                <th scope="col">H1 2026</th>
+                <th scope="col" class="cell-wrap">Акция</th>
+                <th scope="col" class="cell-wrap">Кому подходит</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">Ростех + Новиком</th><td>19,59%</td><td>12,09%</td><td class="cell-wrap">4% кешбэк с взносов</td><td class="cell-wrap">максимум деньгами сейчас</td></tr>
+              <tr class="is-base"><th scope="row">Совкомбанк</th><td>16,66%</td><td>13,18%</td><td class="cell-wrap">3% с покупок на ПДС</td><td class="cell-wrap">баланс дохода и удобства</td></tr>
+              <tr><th scope="row">ВТБ (Тест-драйв)</th><td>17,01%</td><td>9,19%</td><td class="cell-wrap">выход без штрафов</td><td class="cell-wrap">гибкость</td></tr>
+              <tr><th scope="row">Альфа (Премиум)</th><td>20,67%</td><td>11,28%</td><td class="cell-wrap">страховка до 1,2 млн</td><td class="cell-wrap">потенциал + защита</td></tr>
+              <tr><th scope="row">Сбербанк</th><td>12,67%</td><td>6,21%</td><td class="cell-wrap">розыгрыш квартиры</td><td class="cell-wrap">надёжность и сервис</td></tr>
+              <tr><th scope="row">Социум</th><td>17,90%</td><td>15,06%</td><td class="cell-wrap">—</td><td class="cell-wrap">высокая доходность</td></tr>
+              <tr><th scope="row">Корабел</th><td>17,23%</td><td>13,47%</td><td class="cell-wrap">—</td><td class="cell-wrap">высокая доходность</td></tr>
+              <tr><th scope="row">Т-Пенсия</th><td>19,20%</td><td>−2,10%</td><td class="cell-wrap">—</td><td class="cell-wrap">пока пауза</td></tr>
+              <tr><th scope="row">Ренессанс Накопления</th><td>16,68%</td><td>2,56%</td><td class="cell-wrap">—</td><td class="cell-wrap">слабый H1</td></tr>
+              <tr><th scope="row">ПСБ</th><td>16,82%</td><td>13,09%</td><td class="cell-wrap">розыгрыш призов</td><td class="cell-wrap">хороший текущий</td></tr>
+              <tr><th scope="row">ГАЗФОНД</th><td>12,56%</td><td>8,46%</td><td class="cell-wrap">—</td><td class="cell-wrap">крупный, но ниже</td></tr>
+              <tr><th scope="row">Национальный</th><td>15,80%</td><td>11,02%</td><td class="cell-wrap">—</td><td class="cell-wrap">средний</td></tr>
+              <tr><th scope="row">ВЭФ.Русские Фонды</th><td>8,60%</td><td>9,27%</td><td class="cell-wrap">—</td><td class="cell-wrap">ниже среднего</td></tr>
+              <tr><th scope="row">Согласие</th><td>9,78%</td><td>14,98%</td><td class="cell-wrap">—</td><td class="cell-wrap">волатильный</td></tr>
+              <tr><th scope="row">Атомфонд</th><td>21,76%</td><td>8,68%</td><td class="cell-wrap">—</td><td class="cell-wrap">сильный 2025</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="return-notes">
+          <p><strong>Максимум кэшбэка: Ростех + Новиком.</strong> 4% с каждого личного взноса, без лимита, весь 2026. Нужны договор ПДС с НПФ Ростех, карта Новикома и подключение к «КЕШБЭК». 72 000 ₽ → 2 880 ₽; 144 000 ₽ → 5 760 ₽. Доходность: 19,59% за 2025, 12,09% H1 2026.</p>
+          <p><strong>Баланс: Совкомбанк.</strong> 16,66% за 2025, 13,18% H1 2026 — один из лучших текущих результатов среди крупных. Плюс 3% кешбэка с покупок по дебетовой карте, который идёт на ПДС. Удобный ЛК; хороший вариант, если вы уже в экосистеме Совкомбанка.</p>
+          <p><strong>Гибкость: ВТБ «Тест-драйв».</strong> Можно выйти в любой момент без штрафов и забрать личные взносы + инвестдоход. 17,01% за 2025, 9,19% H1 2026, прогноз 15,1%. Минус — ниже текущая доходность; плюс — не боитесь 15-летней заморозки.</p>
+          <p><strong>Потенциал: Альфа «Премиум».</strong> 20,67% за 2025, 11,28% H1 2026; «Премиум» — до 30% акций/валюты/золота, прогноз 19% на 2026 и 14% далее. Бесплатная страховка от НС на год: 36 000 ₽ → 430 тыс, 72 000 ₽ → 850 тыс, 144 000 ₽ → 1,205 млн. Фонд новый — учитывайте риск.</p>
+          <p><strong>Надёжность: Сбербанк.</strong> Крупнейший, лучший сервис, но H1 2026 — 6,21%, 2025 — 12,67%. Акция «квартира» — лотерея за перевод ОПС, не кэшбэк. Подходит, если важнее спокойствие и приложение, а не текущая доходность.</p>
+          <p><strong>Высокая доходность, но меньше фонды:</strong> Социум (17,90% / 15,06%) и Корабел (17,23% / 13,47%). Проверьте сервис, комиссии и 3–5-летнюю историю. Т-Пенсия — 19,20% за 2025, но −2,10% H1 2026: пауза.</p>
+          <p><strong>Остальные из списка:</strong> Ренессанс 16,68% / 2,56%; ПСБ 16,82% / 13,09%; ГАЗФОНД 12,56% / 8,46% (ГАЗФОНД ПН — 13,95% / 10,59%); Национальный 15,80% / 11,02%; ВЭФ.Русские Фонды 8,60% / 9,27% (ВЭФ.Жизнь — 8,38% / 8,51%); Согласие 9,78% / 14,98% — волатильный (в Q3 2025 было −37,93%); Атомфонд 21,76% / 8,68%.</p>
+        </div>
+
+        <p class="case-note" style="margin-block-start: var(--space-5);">Не выбирайте фонд только из-за акции: 1 п.п. доходности за 15 лет весит больше, чем 3–5 тыс. ₽ кэшбэка. Смотрите 2025 + H1 2026 + 3–5 лет, комиссии и сервис. Если сумма &gt;2,8 млн ₽ — дробите по фондам, но не более 3 счетов для вычета.</p>
+      </div>
+    </section>
+
+    <section class="section" id="where">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Контроль</p>
+            <h2>Где смотреть, сколько вложено и накоплено</h2>
+          </div>
+        </div>
+
+        <div class="look-grid">
+          <article class="look-card">
+            <p class="look-card__tag">01 / основной источник</p>
+            <h3>Личный кабинет НПФ</h3>
+            <p>Взносы, текущая сумма, инвестдоход и софинансирование. У НПФ Совкомбанк — <a href="https://sovcomnpf.ru/lk">sovcomnpf.ru/lk</a>. Если фонд другой — его ЛК.</p>
+          </article>
+
+          <article class="look-card">
+            <p class="look-card__tag">02 / раз в год</p>
+            <h3>Отчёт фонда</h3>
+            <p>НПФ обязан бесплатно предоставлять отчёт о состоянии счёта. Если в ЛК нет детализации — запросите выписку по договору.</p>
+          </article>
+
+          <article class="look-card">
+            <p class="look-card__tag">03 / не путать</p>
+            <h3>Госуслуги и СФР</h3>
+            <p>Там видны пенсионные накопления по ОПС, а не ПДС. Для ПДС смотреть нужно фонд. Свой официальный доход проверяйте в ЛК ФНС.</p>
+          </article>
+        </div>
+
+        <p class="case-note" style="margin-block-start: var(--space-5);">Если софинансирование не появилось к концу июля, попросите НПФ дать расчёт по конкретному договору: какие взносы учтены, какой доход применён и когда фонд получил деньги.</p>
+      </div>
+    </section>
+
+    <section class="section" id="transfer">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Смена фонда</p>
+            <h2>Можно ли перейти из Совкомбанка в другой НПФ</h2>
+          </div>
+        </div>
+
+        <div class="transfer">
+          <div class="transfer__text">
+            <p><strong>Да, можно. 10 лет — это срок софинансирования, а не срок «сидения» в одном банке.</strong></p>
+            <p>Без потери инвестиционного дохода перевести сбережения в другой НПФ можно не чаще одного раза в 5 лет. Для этого заключаете договор с новым фондом, до 1 декабря подаёте в старый фонд заявление о переводе и прикладываете копию нового договора.</p>
+            <p>Деньги придут в новый фонд на шестой год — до 31 марта. Взносы в новый фонд можно делать сразу, не дожидаясь перевода. Отсчёт 10 лет софинансирования при смене фонда не начинается заново.</p>
+            <p>Если переводить чаще, чем раз в 5 лет, можно потерять часть инвестиционного дохода. А при переводе на время появится второй договор — это допустимое исключение для налогового вычета, но общее правило «не больше трёх счетов» лучше не нарушать.</p>
+          </div>
+
+          <aside class="transfer-card" aria-label="Порядок перехода в другой НПФ">
+            <div class="transfer-card__row">
+              <span class="transfer-card__num">1</span>
+              <div>
+                <strong>Договор с новым НПФ</strong>
+                <p>Заключаете его до подачи заявления на перевод.</p>
+              </div>
+            </div>
+            <div class="transfer-card__row">
+              <span class="transfer-card__num">2</span>
+              <div>
+                <strong>Заявление до 1 декабря</strong>
+                <p>В старый фонд + копия договора с новым.</p>
+              </div>
+            </div>
+            <div class="transfer-card__row">
+              <span class="transfer-card__num">3</span>
+              <div>
+                <strong>Перевод на шестой год</strong>
+                <p>Деньги приходят в новый фонд до 31 марта.</p>
+              </div>
+            </div>
+            <div class="transfer-card__row">
+              <span class="transfer-card__num">4</span>
+              <div>
+                <strong>Взносы можно не ждать</strong>
+                <p>Пополнять новый счёт можно сразу.</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <div class="return-notes">
+          <p><strong>Зачем переходить.</strong> Не ради субсидии — она не меняется. Смысл — лучшая доходность, ниже комиссии, удобнее ЛК, надёжнее фонд или объединение счетов. 10-летний срок софинансирования при смене фонда не сбрасывается; без потери инвестдохода — не чаще раза в 5 лет.</p>
+          <p><strong>Акции банков.</strong> Да, банки и НПФ периодически проводят маркетинговые акции: cashback или бонус за открытие ПДС, подарок за перевод накоплений, скидка на комиссию, розыгрыш. Это не часть госпрограммы: проверяйте условия, налог на подарок, минимальный срок и не переводите чаще раза в 5 лет ради бонуса — можно потерять инвестдоход.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="legacy">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Наследие</p>
+            <h2>Что с предыдущими программами НПФ</h2>
+          </div>
+        </div>
+
+        <div class="nuance-grid">
+          <article class="nuance-card">
+            <p class="nuance-card__num">01 / ОПС</p>
+            <h4>Накопительная часть пенсии</h4>
+            <p>Это обязательная накопительная пенсия 2002–2013 годов. Деньги лежат в СФР или НПФ и инвестируются. Их можно перевести в ПДС единовременным взносом, но госсофинансирование на них не начисляется и в минимум 2 000 ₽ они не входят. При переводе в ПДС выплаты идут по правилам ПДС: 15 лет/55–60 или ОЖС.</p>
+          </article>
+
+          <article class="nuance-card">
+            <p class="nuance-card__num">02 / НПО</p>
+            <h4>Старая негосударственная пенсия</h4>
+            <p>Отдельный договор с НПФ — корпоративная или личная программа. Это не ПДС: софинансирования 36 000 ₽ нет, гарантия 2,8 млн ₽ — тоже про ПДС. С 2025 года взносы по НПО входят в общий лимит вычета 400 000 ₽ вместе с ПДС, ИИС-3 и ДСЖ. Выплаты — по условиям договора. Перевести НПО в ПДС нельзя; можно расторгнуть по условиям договора.</p>
+          </article>
+
+          <article class="nuance-card">
+            <p class="nuance-card__num">03 / 2008–2014</p>
+            <h4>Старая программа госсофинансирования</h4>
+            <p>Государство удваивало взносы от 2 000 до 12 000 ₽ в год в течение 10 лет. Приём новых участников закрыт. Деньги находятся в ОПС; их можно перевести в ПДС, но это уже не даёт старого софинансирования. Новое софинансирование — только по ПДС и только на личные взносы.</p>
+          </article>
+
+          <article class="nuance-card">
+            <p class="nuance-card__num">04 / 2027</p>
+            <h4>Автоконвертация ОПС в ПДС</h4>
+            <p>В ноябре 2026 года правительство одобрило законопроект об автоматической конвертации ОПС в ПДС с 1 апреля 2027 года. Накопления в НПФ переведут на счета ПДС в тех же фондах, «молчунов» — в уполномоченный НПФ под ВЭБ. Новые участники смогут 2 года менять фонд без потери инвестдохода. Это пока проект: проверьте финальный закон.</p>
+          </article>
+        </div>
+
+        <p class="case-note" style="margin-block-start: var(--space-5);">Если у вас уже есть старый договор, сначала определите его тип: ОПС можно перевести в ПДС, НПО — нет. И проверьте, не теряете ли вы инвестдоход при смене фонда: для ОПС есть 5-летняя фиксация.</p>
+      </div>
+    </section>
+
+    <section class="section" id="payout">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Сроки и выплаты</p>
+            <h2>10 лет, 15 лет и когда можно забрать</h2>
+          </div>
+        </div>
+
+        <div class="nuance-grid">
+          <article class="nuance-card">
+            <p class="nuance-card__num">10 лет / софинансирование</p>
+            <h4>Государство перестаёт доплачивать</h4>
+            <p>10 лет считаются с года первого взноса. Последняя доплата за 10-й год приходит в следующем году. После этого государство больше не добавляет 36 000 ₽, но деньги продолжают инвестироваться. Выплаты в этот момент ещё не открываются.</p>
+          </article>
+
+          <article class="nuance-card">
+            <p class="nuance-card__num">15 лет / 55–60</p>
+            <h4>Когда можно назначить выплаты</h4>
+            <p>По истечении 15 лет с даты договора или при 55 годах у женщин и 60 у мужчин — что наступит раньше. Можно выбрать пожизненные выплаты, срочные (не менее 10 лет) или единовременную, если сумма маленькая или прошло 15 лет.</p>
+          </article>
+
+          <article class="nuance-card">
+            <p class="nuance-card__num">ОЖС</p>
+            <h4>Досрочно — только лечение и потеря кормильца</h4>
+            <p>Дорогостоящее лечение по перечню Правительства и потеря кормильца. Можно забрать до 100% без потери софинансирования и налоговых льгот. Не образование, не квартира и не «просто понадобились деньги».</p>
+          </article>
+
+          <article class="nuance-card">
+            <p class="nuance-card__num">Досрочный выход</p>
+            <h4>Расторжение договора</h4>
+            <p>Вернут личные взносы, но могут удержать часть инвестдохода. Гос. деньги и переведённые накопления останутся на счёте до 15 лет/55–60. Право на будущее софинансирование теряется; вычеты придётся вернуть, с инвестдохода удержат НДФЛ.</p>
+          </article>
+        </div>
+
+        <h3 class="subhead">Что с деньгами, если вас не станет</h3>
+        <div class="look-grid">
+          <article class="look-card">
+            <p class="look-card__tag">01 / до выплат</p>
+            <h3>Весь остаток — наследникам</h3>
+            <p>Если вы умерли до назначения выплат, наследникам уходит всё: ваши взносы, гос. деньги, переведённые накопления и инвестдоход. Правопреемники — те, кого вы указали в договоре; если не указаны — по закону: дети, супруг, родители, затем братья и сёстры, бабушки и дедушки, внуки.</p>
+          </article>
+
+          <article class="look-card">
+            <p class="look-card__tag">02 / срочные выплаты</p>
+            <h3>Остаток срока — наследникам</h3>
+            <p>Если выбрали выплаты на срок (например, 10 лет) и умерли в середине, наследникам уходит остаток — выплаты, которые вы ещё не получили. Это ваш «растянутый» возврат денег.</p>
+          </article>
+
+          <article class="look-card">
+            <p class="look-card__tag">03 / пожизненные</p>
+            <h3>Наследникам — ничего</h3>
+            <p>Если выбрали пожизненные выплаты и умерли рано, выплаты прекращаются, наследникам ничего не уходит. Остаток остаётся у фонда: это цена гарантии получать деньги сколько бы вы ни прожили. Фонд платит долгожителям из этих остатков.</p>
+          </article>
+        </div>
+
+        <p class="case-note" style="margin-block-start: var(--space-5);">Пример: на счёте 3 млн ₽. Пожизненные — 20 тыс ₽/мес; умерли через 2 года — наследникам 0. Срочные на 10 лет — 25 тыс ₽/мес; умерли через 2 года — наследникам остаток ~2,4 млн ₽. Цифры условные; точный расчёт — у фонда.</p>
+
+        <div class="return-notes">
+          <p><strong>Как следить за 10 годами.</strong> Смотрите дату первого взноса в договоре и ЛК НПФ. Господдержка за каждый год отражается в следующем году; последняя — за 10-й год. Поставьте напоминание на «первый взнос + 10 лет» и отдельно на «дата договора + 15 лет» или 55/60.</p>
+          <p><strong>Что можно после 10 лет.</strong> Продолжать инвестировать, прекратить взносы, перевести в другой НПФ (раз в 5 лет), заявлять вычеты, если пополняете. Забрать деньги только потому, что прошло 10 лет, нельзя — нужны 15 лет/55–60 или ОЖС.</p>
+          <p><strong>Если 55/60 раньше 10 лет.</strong> Выплаты назначить можно, но с года, следующего за назначением, софинансирование прекратится. Иногда выгоднее подождать до конца 10-летнего окна.</p>
+          <p><strong>Выплаты не автоматические.</strong> Нужно подать заявление в НПФ и выбрать вариант. Перед этим проверьте остаток, налоговые условия и документы по ОЖС.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="nuances">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Важные детали</p>
+            <h2>Что легко упустить</h2>
+          </div>
+        </div>
+
+        <div class="nuance-group">
+          <h3>Лимиты и расчёт</h3>
+          <div class="nuance-grid">
+            <article class="nuance-card">
+              <p class="nuance-card__num">01</p>
+              <h4>10 лет — про государство, не про банк</h4>
+              <p>Софинансирование идёт 10 лет с года первого взноса: за каждый календарный год — доплата в следующем году. Перейти в другой НПФ можно, но не чаще раза в 5 лет без потери инвестдохода. Отсчёт 10 лет при смене фонда не сбрасывается.</p>
+            </article>
+
+            <article class="nuance-card">
+              <p class="nuance-card__num">02</p>
+              <h4>36 000 ₽ — на человека, а не на счёт</h4>
+              <p>Если открыть несколько договоров, лимит общий. Сумма делится между фондами пропорционально взносам. Второй договор не удваивает господдержку.</p>
+            </article>
+
+            <article class="nuance-card">
+              <p class="nuance-card__num">03</p>
+              <h4>Доход считает ФНС, а не вы</h4>
+              <p>В среднемесячный доход входят зарплата, премии, аренда, дивиденды, проценты по вкладам, доход от ценных бумаг и бизнеса. При зарплате 130 000 ₽ буфер до 150 000 ₽ — 240 000 ₽/год (20 000 ₽/мес). Проценты по вкладам учитываются полностью: при 15% вклад ~1,6 млн ₽ даст 240 000 ₽ и переведёт в 1:4. У жены при 70 000 ₽ буфер до 80 000 ₽ — 120 000 ₽/год. Заранее точно не узнать, но можно оценить по ЛК ФНС.</p>
+            </article>
+
+            <article class="nuance-card">
+              <p class="nuance-card__num">04</p>
+              <h4>Если ФНС не видит доход — 1:1</h4>
+              <p>Это лучший вариант: 36 000 ₽ взносов → 36 000 ₽ от государства. Но если доход официальный, он, скорее всего, виден налоговой.</p>
+            </article>
+
+            <article class="nuance-card">
+              <p class="nuance-card__num">05</p>
+              <h4>15 декабря — нормально</h4>
+              <p>Взносы суммируются за календарный год; дата внутри года не важна. Главное — чтобы деньги зачислились до 31 декабря. Не отправляйте платёж в последний вечер.</p>
+            </article>
+
+            <article class="nuance-card">
+              <p class="nuance-card__num">06</p>
+              <h4>Пропущенный год не вернуть</h4>
+              <p>10-летнее окно не продлевается: если за год внести меньше 2 000 ₽, софинансирования за этот год не будет.</p>
+            </article>
+
+            <article class="nuance-card">
+              <p class="nuance-card__num">07</p>
+              <h4>Работодатель и накопления не софинансируются</h4>
+              <p>Господдержка — только на личные взносы. Средства ОПС, переведённые в ПДС, и взносы работодателя в расчёт не входят.</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="nuance-group">
+          <h3>Сроки и выход</h3>
+          <div class="nuance-grid">
+            <article class="nuance-card">
+              <p class="nuance-card__num">08</p>
+              <h4>Досрочный выход — не «забрать всё»</h4>
+              <p>Личные взносы забрать можно, но с потерей части инвестдохода — зависит от срока и договора. Гос. деньги и переведённые накопления остаются на счёте до 15 лет или 55/60 лет. Плюс теряется право на софинансирование по всем договорам.</p>
+            </article>
+
+            <article class="nuance-card">
+              <p class="nuance-card__num">09</p>
+              <h4>Исключение до 1 апреля</h4>
+              <p>Если расторгнуть договор, по которому ещё не было софинансирования, до 1 апреля года, когда должны прийти деньги, право на софинансирование по другим договорам сохраняется.</p>
+            </article>
+
+            <article class="nuance-card">
+              <p class="nuance-card__num">10</p>
+              <h4>ОЖС — только лечение и потеря кормильца</h4>
+              <p>Не образование и не покупка квартиры. Дорогостоящее лечение — по перечню Правительства. В этих случаях можно забрать до 100% без потери софинансирования и льгот.</p>
+            </article>
+
+            <article class="nuance-card">
+              <p class="nuance-card__num">11</p>
+              <h4>Пожизненные выплаты не наследуются</h4>
+              <p>До назначения выплат сбережения переходят правопреемникам. После назначения срочных выплат — остаток. После пожизненных — ничего.</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="nuance-group">
+          <h3>Налоги, защита и доходность</h3>
+          <div class="nuance-grid">
+            <article class="nuance-card">
+              <p class="nuance-card__num">12</p>
+              <h4>Вычет 400 000 ₽ — общий с ИИС-3 и НПО</h4>
+              <p>Возврат 13–22% в зависимости от ставки НДФЛ. При досрочном выходе вычет придётся вернуть. Для льготы — не более трёх счетов ПДС.</p>
+            </article>
+
+            <article class="nuance-card">
+              <p class="nuance-card__num">13</p>
+              <h4>Выплаты: взносы, гос. деньги и накопления — без НДФЛ</h4>
+              <p>Инвестдоход не облагается до 30 млн ₽ на договор и 30 млн ₽ в год при условиях: договор на себя или близких, выплата не раньше 10 лет, не более трёх счетов.</p>
+            </article>
+
+            <article class="nuance-card">
+              <p class="nuance-card__num">14</p>
+              <h4>Гарантия 2,8 млн ₽ — на фонд</h4>
+              <p>В лимит входят взносы и инвестдоход по всем ПДС-счетам в одном фонде. Гос. деньги и переведённые накопления защищены сверх лимита. Если сумма больше — можно разделить по фондам, но помнить про три счёта.</p>
+            </article>
+
+            <article class="nuance-card">
+              <p class="nuance-card__num">15</p>
+              <h4>Доходность не гарантирована</h4>
+              <p>Фонд обеспечивает безубыточность в номинале за период 1–5 лет, но не обещает процент. 2024–2025 были высокими из-за ставок; дальше может быть ниже. Комиссии: 0,6% в 2024–2026, 0,5% с 2027 плюс 20–25% переменной части.</p>
+            </article>
+
+            <article class="nuance-card">
+              <p class="nuance-card__num">16</p>
+              <h4>Это не вклад</h4>
+              <p>Банк может продавать ПДС как «вклад», но деньги заблокированы надолго, а доходность не фиксирована. Для денег, которые могут понадобиться в ближайшие годы, ПДС не подходит.</p>
+            </article>
+
+            <article class="nuance-card">
+              <p class="nuance-card__num">17</p>
+              <h4>Деньги не делятся при разводе и не арестовываются</h4>
+              <p>Это плюс программы. Но он же означает, что быстро достать деньги из ПДС не получится.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="calc">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Калькулятор</p>
+            <h2>Проверьте свой коэффициент</h2>
+          </div>
+        </div>
+
+        <div class="calc">
+          <form class="calc__form" id="calc-form" novalidate>
+            <div class="field">
+              <label for="income">Официальный среднемесячный доход, ₽</label>
+              <input id="income" name="income" type="number" inputmode="numeric" min="0" step="1000" value="130000" aria-describedby="income-hint">
+              <p class="field__hint" id="income-hint">По данным ФНС за год взносов: зарплата, премии, аренда, дивиденды, проценты по вкладам.</p>
+            </div>
+
+            <div class="field">
+              <label for="contribution">Личные взносы за год, ₽</label>
+              <input id="contribution" name="contribution" type="number" inputmode="numeric" min="0" step="1000" value="72000" aria-describedby="contribution-hint">
+              <p class="field__hint" id="contribution-hint">Минимум 2 000 ₽, чтобы получить софинансирование. Максимум господдержки — 36 000 ₽ в год.</p>
+            </div>
+
+            <div class="calc__actions">
+              <button class="button button--primary" type="submit">Рассчитать</button>
+              <button class="button button--ghost" type="reset">Сбросить</button>
+            </div>
+
+            <p class="calc__error" id="calc-error" role="alert"></p>
+          </form>
+
+          <div class="calc__result" id="calc-result" aria-live="polite">
+            <div class="calc__result-head">
+              <h3>Результат</h3>
+              <span class="pill" id="calc-ratio">1 : 2</span>
+            </div>
+            <dl class="calc__metrics">
+              <div class="calc__metric">
+                <dt>Господдержка</dt>
+                <dd id="calc-state">36 000 ₽</dd>
+              </div>
+              <div class="calc__metric">
+                <dt>На счёте до инвестдохода</dt>
+                <dd id="calc-total">108 000 ₽</dd>
+              </div>
+              <div class="calc__metric">
+                <dt>Возврат НДФЛ 13%</dt>
+                <dd id="calc-tax">9 360 ₽</dd>
+              </div>
+              <div class="calc__metric">
+                <dt>Для максимума нужно внести</dt>
+                <dd id="calc-max">72 000 ₽</dd>
+              </div>
+              <div class="calc__metric calc__metric--wide">
+                <dt>Ваша доходная группа</dt>
+                <dd id="calc-group">80 000,01–150 000 ₽</dd>
+              </div>
+            </dl>
+            <p class="calc__note">Расчёт по правилам 2026 года. Не учитывает другие договоры ПДС, инвестдоход и особые жизненные ситуации. Если взносов меньше 2 000 ₽, господдержка равна нулю.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="plan">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">План</p>
+            <h2>Что сделать по шагам</h2>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>
+            <div>
+              <strong>Проверьте официальный доход в ЛК ФНС</strong>
+              <span>Особенно у жены: 70 000 ₽ близко к порогу 80 000 ₽. Премии и проценты по вкладам могут перевести в группу 1:2, и тогда 36 000 ₽ взносов дадут не 36 000 ₽, а 18 000 ₽.</span>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>Решите, готовы ли заморозить 108 000 ₽ в год</strong>
+              <span>Если нет — уменьшите сумму, но не ниже 2 000 ₽ на человека, чтобы не потерять год софинансирования.</span>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>Выберите НПФ</strong>
+              <span>Проверьте реестр ЦБ, участие в системе АСВ, доходность за 3–5 лет, комиссии и удобство личного кабинета. Совкомбанк — не плохой вариант, но в 2025 году его доходность была 17% против 22,7% у лидера.</span>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>Откройте два договора — на мужа и на жену</strong>
+              <span>У каждого свой лимит 36 000 ₽. Один договор на двоих не удваивает господдержку.</span>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>Внесите 72 000 ₽ и 36 000 ₽ до конца года</strong>
+              <span>Можно частями. 15 декабря — нормально, но не в последний день: платёж должен зачислиться до 31 декабря.</span>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>Проверьте отражение взносов в ЛК НПФ</strong>
+              <span>Сохраните выписку или скриншот. Это пригодится, если софинансирование придёт не в полном размере.</span>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>В 2027 году подайте на вычет за 2026</strong>
+              <span>Через ЛК ФНС или упрощённый порядок через НПФ. Возврат — 13% от взносов, если ставка 13%.</span>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>В мае–июле 2027 проверьте софинансирование</strong>
+              <span>Если денег нет — запросите у НПФ расчёт по договору: какие взносы учтены и какой доход применён.</span>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>Повторяйте 10 лет и не пропускайте годы</strong>
+              <span>Окно не продлевается. Следите за доходом: при переходе в другую группу коэффициент меняется.</span>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>Держите не больше трёх счетов ПДС</strong>
+              <span>Это условие налоговых льгот. Если сумма превысит 2,8 млн ₽, можно разделить по фондам — но без фанатизма.</span>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" id="sources">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Источники</p>
+            <h2>Где проверять</h2>
+          </div>
+        </div>
+
+        <ul class="sources">
+          <li><a href="https://minfin.gov.ru/ru/perfomance/pds/">Минфин России — ПДС</a></li>
+          <li><a href="https://www.cbr.ru/rsci/activity_npf/program/">Банк России — программа долгосрочных сбережений</a></li>
+          <li><a href="https://www.cbr.ru/faq/pens_k_inv/program/">Банк России — вопросы и ответы</a></li>
+          <li><a href="https://fincult.info/article/kak-ustroena-programma-dolgosrochnykh-sberezheniy/">Финансовая культура — как устроена ПДС</a></li>
+          <li><a href="https://npfsberbanka.ru/pds/gospodderzhka">СберНПФ — господдержка</a></li>
+          <li><a href="https://finuslugi.ru/navigator/kak-ehto-rabotaet/stat_sofinansirovanie-po-pds-kak-gosudarstvo-doplachivaet-k-vashim-vznosam">Финуслуги — когда приходит софинансирование</a></li>
+          <li><a href="https://ru.wikipedia.org/wiki/Программа_долгосрочных_сбережений">Википедия — программа долгосрочных сбережений</a></li>
+          <li><a href="https://www.nalog.gov.ru/rn77/news/activities_fts/16645567/">ФНС — новые правила вычетов с 1 сентября 2026</a></li>
+          <li><a href="http://publication.pravo.gov.ru/document/0001202412210021">Постановление Правительства № 1837</a></li>
+          <li><a href="https://www.consultant.ru/document/cons_doc_LAW_18626/">75-ФЗ «О негосударственных пенсионных фондах»</a></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p>Это не индивидуальная инвестиционная рекомендация. Цифры и правила — на ноябрь 2026 года; условия могут меняться.</p>
+      <p>Перед решением проверьте закон, договор фонда и свой официальный доход в ФНС. Главный риск ПДС — длинная блокировка денег, а не сама господдержка.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const form = document.querySelector('#calc-form');
+      const incomeInput = document.querySelector('#income');
+      const contributionInput = document.querySelector('#contribution');
+      const errorBox = document.querySelector('#calc-error');
+      const result = document.querySelector('#calc-result');
+
+      const ratioEl = document.querySelector('#calc-ratio');
+      const stateEl = document.querySelector('#calc-state');
+      const totalEl = document.querySelector('#calc-total');
+      const taxEl = document.querySelector('#calc-tax');
+      const maxEl = document.querySelector('#calc-max');
+      const groupEl = document.querySelector('#calc-group');
+
+      const rub = new Intl.NumberFormat('ru-RU', {
+        style: 'currency',
+        currency: 'RUB',
+        maximumFractionDigits: 0
+      });
+
+      function parseMoney(value) {
+        const s = String(value).trim().replace(/\s/g, '').replace(',', '.');
+        if (s === '') return NaN;
+        const n = Number(s);
+        return Number.isFinite(n) ? n : NaN;
+      }
+
+      function calculate() {
+        errorBox.textContent = '';
+        incomeInput.removeAttribute('aria-invalid');
+        contributionInput.removeAttribute('aria-invalid');
+
+        const income = parseMoney(incomeInput.value);
+        const contribution = parseMoney(contributionInput.value);
+
+        if (!Number.isFinite(income) || income < 0) {
+          errorBox.textContent = 'Введите неотрицательный доход.';
+          incomeInput.setAttribute('aria-invalid', 'true');
+          result.hidden = true;
+          return;
+        }
+
+        if (!Number.isFinite(contribution) || contribution < 0) {
+          errorBox.textContent = 'Введите неотрицательную сумму взносов.';
+          contributionInput.setAttribute('aria-invalid', 'true');
+          result.hidden = true;
+          return;
+        }
+
+        let ratio;
+        let group;
+        if (income <= 80000) {
+          ratio = 1;
+          group = 'до 80 000 ₽';
+        } else if (income <= 150000) {
+          ratio = 2;
+          group = '80 000,01–150 000 ₽';
+        } else {
+          ratio = 4;
+          group = 'свыше 150 000 ₽';
+        }
+
+        const maxContribution = 36000 * ratio;
+        const state = contribution < 2000
+          ? 0
+          : Math.min(36000, Math.floor(contribution / ratio));
+        const total = contribution + state;
+        const tax = Math.floor(contribution * 0.13);
+
+        ratioEl.textContent = '1 : ' + ratio;
+        stateEl.textContent = rub.format(state);
+        totalEl.textContent = rub.format(total);
+        taxEl.textContent = rub.format(tax);
+        maxEl.textContent = rub.format(maxContribution);
+        groupEl.textContent = group;
+
+        if (contribution < 2000) {
+          errorBox.textContent = 'Взносов меньше 2 000 ₽ — софинансирования за год не будет.';
+        }
+
+        result.hidden = false;
+      }
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        calculate();
+      });
+
+      form.addEventListener('reset', function () {
+        window.setTimeout(calculate, 0);
+      });
+
+      incomeInput.addEventListener('input', calculate);
+      contributionInput.addEventListener('input', calculate);
+
+      calculate();
+    })();
+  </script>
+  <script>
+    (function () {
+      const nav = document.querySelector('.toc');
+      const inner = document.querySelector('.toc__inner');
+      if (!nav || !inner) return;
+
+      const links = Array.from(nav.querySelectorAll('a[href^="#"]'))
+        .filter((a) => a.getAttribute('href') !== '#top');
+
+      const sections = links
+        .map((a) => {
+          const id = a.getAttribute('href').slice(1);
+          const el = document.getElementById(id);
+          return el ? { link: a, el: el } : null;
+        })
+        .filter(Boolean);
+
+      let active = null;
+
+      function setActive(link) {
+        if (active === link) return;
+        if (active) active.removeAttribute('aria-current');
+        active = link;
+        if (!active) return;
+        active.setAttribute('aria-current', 'location');
+
+        if (inner.scrollWidth > inner.clientWidth) {
+          const linkRect = active.getBoundingClientRect();
+          const innerRect = inner.getBoundingClientRect();
+          if (linkRect.left < innerRect.left + 8) {
+            inner.scrollLeft -= innerRect.left + 8 - linkRect.left;
+          } else if (linkRect.right > innerRect.right - 8) {
+            inner.scrollLeft += linkRect.right - innerRect.right + 8;
+          }
+        }
+      }
+
+      function updateActive() {
+        const offset = nav.offsetHeight + 16;
+        const scrollY = window.scrollY || window.pageYOffset;
+        const atBottom = window.innerHeight + scrollY >= document.documentElement.scrollHeight - 2;
+        let current = null;
+
+        if (atBottom) {
+          current = sections[sections.length - 1];
+        } else {
+          for (const item of sections) {
+            if (item.el.getBoundingClientRect().top <= offset) {
+              current = item;
+            } else {
+              break;
+            }
+          }
+        }
+
+        setActive(current ? current.link : null);
+      }
+
+      function onScroll() {
+        updateActive();
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', updateActive);
+      window.addEventListener('hashchange', function () {
+        window.setTimeout(updateActive, 350);
+      });
+      updateActive();
+    })();
+  </script>
+</body>
+</html>

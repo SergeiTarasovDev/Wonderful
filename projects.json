@@ -11,5 +11,18 @@
     "path": "projects/wonderful/index.html",
     "updated": "2026-11-04",
     "source": "projects/wonderful"
+  },
+  {
+    "slug": "pds-pension",
+    "title": "ПДС: коротко и понятно",
+    "description": "Государство доплачивает до 36 000 ₽ в год: коротко о плюсах, минусах и входе.",
+    "tags": [
+      "пдс",
+      "пенсия",
+      "финансы"
+    ],
+    "path": "projects/pds-pension/index.html",
+    "updated": "2026-11-04",
+    "source": "finance-life3/ПДС-пенсия"
   }
 ]
