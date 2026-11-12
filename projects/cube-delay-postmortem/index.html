@@ -235,7 +235,7 @@
   </section>
 
   <section class="section" aria-labelledby="cubes">
-    <div class="s-head"><span class="num">02</span><h2 id="cubes">Готовность кубов: три ночи</h2><p>Время готовности от 19:00 UTC. Серая — эталон 09→10, красная — инцидент 10→11, янтарная — сегодня 11→12 (на срез 04:05 ещё в процессе).</p></div>
+    <div class="s-head"><span class="num">02</span><h2 id="cubes">Готовность кубов: три ночи</h2><p>Время готовности от 19:00 UTC. Серая — эталон 09→10, красная — инцидент 10→11, янтарная — сегодня 11→12 (на срез 06:35: SD готов 06:26, SC — 00:33, остальные ещё идут).</p></div>
     <div class="card">
       <div class="chart" id="ganttChart" role="img" aria-label="Гант готовности кубов: эталон, инцидент и сегодня"></div>
       <div class="legend">
@@ -351,14 +351,14 @@ const SVGNS = "http://www.w3.org/2000/svg";
 function renderGantt() {
   const host = document.getElementById("ganttChart");
   const cubes = [
-    { n: "SD", base: 305, inc: 803, today: null },
+    { n: "SD", base: 305, inc: 803, today: 686 },
     { n: "PH", base: 423, inc: 1078, today: null },
     { n: "SC", base: 326, inc: 383, today: 333 },
     { n: "BS", base: 402, inc: null, today: null },
     { n: "DM", base: 521, inc: null, today: null },
     { n: "ST", base: 589, inc: null, today: null }
   ];
-  const snapshot = 545; // срез 12.11 04:05 UTC ≈ 9ч05 после 19:00
+  const snapshot = 695; // срез 12.11 06:35 UTC ≈ 11ч35 после 19:00
   const W = 640, rowH = 54, left = 64, maxMin = 1100;
   const plotW = W - left;
   const H = cubes.length * rowH + 28;
