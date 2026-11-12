@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Почему кубы опоздали на 8 часов — постмортем</title>
+<meta name="description" content="Разбор ночного батча КХД 08–12 ноября: причина задержки кубов — очередь ресурсов Vertica. Наглядно для коллег и PM.">
+<style>
+@layer reset,tokens,base,layout,components;
+
+@layer reset {
+  *,*::before,*::after{box-sizing:border-box}
+  *{margin:0}
+  html{-webkit-text-size-adjust:100%}
+  body{min-height:100dvh}
+  h1,h2,h3{text-wrap:balance}
+  p{text-wrap:pretty}
+  ul[role="list"]{list-style:none;padding:0}
+}
+
+@layer tokens {
+  :root {
+    /* warm paper + one gold accent */
+    --paper-0:oklch(.985 .005 80);
+    --paper-1:oklch(.965 .006 80);
+    --paper-2:oklch(.945 .008 80);
+    --ink-900:oklch(.22 .010 80);
+    --ink-600:oklch(.38 .010 80);
+    --ink-400:oklch(.48 .010 80);
+    --line:oklch(.89 .008 80);
+
+    --gold-600:oklch(.55 .120 75);
+    --gold-700:oklch(.45 .120 75);
+    --gold-100:oklch(.95 .040 75);
+    --crimson-600:oklch(.55 .165 25);
+    --crimson-100:oklch(.95 .030 25);
+    --amber-600:oklch(.66 .125 75);
+    --amber-100:oklch(.95 .040 80);
+    --green-600:oklch(.52 .100 155);
+    --green-100:oklch(.94 .030 155);
+
+    --accent:var(--gold-600);
+    --accent-strong:var(--gold-700);
+    --accent-soft:var(--gold-100);
+    --danger:var(--crimson-600);
+    --danger-soft:var(--crimson-100);
+    --warn:var(--amber-600);
+    --warn-soft:var(--amber-100);
+    --ok:var(--green-600);
+    --ok-soft:var(--green-100);
+
+    --ink:var(--ink-900);
+    --body:var(--ink-600);
+    --mute:var(--ink-400);
+    --canvas:var(--paper-0);
+    --canvas-soft:var(--paper-1);
+    --surface:var(--paper-0);
+    --grid:var(--paper-2);
+    --sb:oklch(.82 .008 80);
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,"JetBrains Mono",Menlo,Consolas,monospace;
+
+    --xs:.75rem;--sm:.875rem;--base:1rem;--lg:1.125rem;
+    --h3:1.05rem;
+    --h2:clamp(1.45rem,1.25rem + 1vw,1.9rem);
+    --h1:clamp(2rem,1.5rem + 2.6vw,3.2rem);
+
+    --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;
+    --r-sm:6px;--r-md:12px;--r-lg:20px;--r-full:9999px;
+    --shadow:0 1px 2px oklch(0 0 0/.04),0 12px 32px -18px oklch(0 0 0/.14);
+    --max:1120px;
+  }
+  @media(prefers-color-scheme:dark){
+    :root{
+      --paper-0:oklch(.19 .01 80);--paper-1:oklch(.22 .01 80);--paper-2:oklch(.26 .012 80);
+      --ink-900:oklch(.95 .008 80);--ink-600:oklch(.80 .010 80);--ink-400:oklch(.66 .010 80);
+      --line:oklch(.32 .012 80);
+      --accent:oklch(.78 .130 75);--accent-strong:oklch(.86 .110 75);--accent-soft:oklch(.28 .040 75);
+      --danger:oklch(.72 .140 25);--danger-soft:oklch(.28 .045 25);
+      --warn:oklch(.80 .110 78);--warn-soft:oklch(.28 .040 78);
+      --ok:oklch(.74 .095 155);--ok-soft:oklch(.26 .030 155);
+      --sb:oklch(.40 .010 80);
+    }
+  }
+}
+
+@layer base {
+  *{scrollbar-width:thin;scrollbar-color:var(--sb) transparent}
+  *::-webkit-scrollbar{width:10px;height:10px}
+  *::-webkit-scrollbar-track{background:transparent}
+  *::-webkit-scrollbar-thumb{background:var(--sb);border-radius:999px;border:3px solid transparent;background-clip:content-box}
+  body{background:var(--canvas);color:var(--ink);font:var(--base)/1.6 var(--sans);letter-spacing:-.003em;-webkit-font-smoothing:antialiased}
+  h1{font:680 var(--h1)/1.08 var(--sans);letter-spacing:-.025em}
+  h2{font:650 var(--h2)/1.15 var(--sans);letter-spacing:-.015em}
+  h3{font:640 var(--h3)/1.3 var(--sans)}
+  a{color:var(--accent);text-underline-offset:3px}
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+  ::selection{background:var(--accent-soft);color:var(--ink)}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .wrap{width:min(100% - 2*var(--s5),var(--max));margin-inline:auto}
+  .page{padding-block:var(--s7) var(--s8)}
+}
+
+@layer layout {
+  .hero{display:grid;gap:var(--s4);max-width:74ch;padding-bottom:var(--s6);border-bottom:1px solid var(--line)}
+  .eyebrow{display:inline-flex;align-items:center;gap:var(--s2);font:650 var(--xs)/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+  .eyebrow i{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+  .lede{color:var(--body);font-size:var(--lg);margin-top:var(--s3)}
+  .meta{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
+  .chip{padding:5px 11px;border:1px solid var(--line);border-radius:var(--r-full);background:var(--surface);color:var(--body);font:500 var(--xs)/1.2 var(--mono)}
+}
+
+@layer components {
+  /* verdict band */
+  .verdict{display:grid;grid-template-columns:auto 1fr;gap:var(--s4);align-items:center;padding:var(--s5);margin-top:var(--s5);border-radius:var(--r-lg);background:var(--accent-soft);border:1px solid var(--accent)}
+  .verdict .mark{font:680 2.4rem/1 var(--sans);color:var(--accent-strong)}
+  .verdict p{color:var(--ink);font-size:var(--lg)}
+  .verdict strong{font-weight:680}
+
+  /* kpi */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:var(--s3);margin-block:var(--s6)}
+  .kpi{position:relative;padding:var(--s5) var(--s4) var(--s4);border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow)}
+  .kpi::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;border-radius:var(--r-md) var(--r-md) 0 0;background:var(--accent)}
+  .kpi.bad::before{background:var(--danger)}
+  .kpi .k-label{font:600 var(--xs)/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+  .kpi .k-value{display:block;margin-top:var(--s2);font:680 clamp(1.9rem,1.5rem + 1.6vw,2.8rem)/1 var(--sans);letter-spacing:-.02em;color:var(--ink)}
+  .kpi.bad .k-value{color:var(--danger)}
+  .kpi .k-note{margin-top:var(--s2);color:var(--body);font-size:var(--sm)}
+
+  .section{padding-block:var(--s7);border-bottom:1px solid var(--line)}
+  .section:last-of-type{border-bottom:0}
+  .s-head{display:grid;gap:var(--s2);max-width:70ch;margin-bottom:var(--s5)}
+  .s-head .num{font:650 var(--xs)/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+  .s-head p{color:var(--body);font-size:var(--sm)}
+
+  /* causal chain */
+  .chain{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--s2);align-items:stretch}
+  .chain .step{position:relative;display:grid;gap:var(--s1);padding:var(--s4);border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface)}
+  .chain .step b{font:650 var(--sm)/1.3 var(--sans)}
+  .chain .step span{color:var(--body);font-size:var(--xs)}
+  .chain .step.hot{border-color:var(--danger);background:var(--danger-soft)}
+  .chain .step.hot b{color:var(--danger)}
+  .chain .step:not(:last-child)::after{content:"→";position:absolute;right:-14px;top:50%;transform:translateY(-50%);color:var(--mute);font-size:18px;z-index:1}
+  @media(max-width:840px){.chain{grid-template-columns:1fr}.chain .step:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-14px;transform:translateX(-50%)}}
+
+  /* two-column split */
+  .split{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:var(--s6);align-items:start}
+  @media(max-width:840px){.split{grid-template-columns:1fr}}
+  .prose{display:grid;gap:var(--s3);max-width:62ch}
+  .prose p{color:var(--body)}
+  .prose strong{color:var(--ink);font-weight:650}
+
+  /* charts */
+  .card{border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow);padding:var(--s5)}
+  .card h3{font:650 1.15rem/1.3 var(--sans)}
+  .card .cap{color:var(--body);font-size:var(--sm);margin-top:var(--s1)}
+  .chart{width:100%;margin-top:var(--s4);overflow-x:auto}
+  .chart svg{display:block;width:100%;min-width:480px}
+  .axis-t{fill:var(--mute);font:500 11px var(--mono)}
+  .legend{display:flex;flex-wrap:wrap;gap:var(--s4);margin-top:var(--s3);color:var(--body);font-size:var(--xs)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .swatch{width:14px;height:8px;border-radius:3px}
+
+  /* recurrence */
+  .recur{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s4)}
+  @media(max-width:700px){.recur{grid-template-columns:1fr}}
+  .recur .b{display:grid;gap:var(--s1);padding:var(--s5);border-radius:var(--r-md);background:var(--canvas-soft);border:1px solid var(--line)}
+  .recur .b .big{font:680 clamp(1.8rem,1.4rem + 1.6vw,2.6rem)/1 var(--sans);color:var(--danger)}
+  .recur .b .lbl{font:600 var(--xs)/1.3 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--mute)}
+  .recur .b p{color:var(--body);font-size:var(--sm)}
+
+  /* rag checklist */
+  .rag{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--s2)}
+  .rag .row{display:grid;grid-template-columns:auto 1fr;gap:var(--s3);align-items:start;padding:var(--s3) var(--s4);border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface)}
+  .rag .dot{width:10px;height:10px;border-radius:50%;margin-top:5px}
+  .rag .dot.bad{background:var(--danger)}
+  .rag .dot.ok{background:var(--ok)}
+  .rag .row b{font-weight:650}
+  .rag .row span{display:block;color:var(--mute);font-size:var(--xs);margin-top:2px}
+
+  /* actions */
+  .acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--s3)}
+  .act{display:grid;gap:var(--s2);padding:var(--s5);border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);counter-increment:a}
+  .act .n{font:650 var(--xs)/1 var(--mono);color:var(--accent)}
+  .act b{font:650 1.02rem/1.3 var(--sans)}
+  .act p{color:var(--body);font-size:var(--sm)}
+
+  .foot{margin-top:var(--s7);padding-top:var(--s4);border-top:1px solid var(--line);color:var(--mute);font-size:var(--xs);display:grid;gap:var(--s1)}
+  .foot .mono{color:var(--body)}
+
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+}
+</style>
+</head>
+<body>
+<div class="wrap page">
+
+  <header class="hero">
+    <div class="eyebrow"><i></i> Постмортем · Ночной батч КХД · 08–12 ноября 2026</div>
+    <h1>Кубы опоздали на 8 часов.<br>Виновата очередь за памятью, а не «медленная» Vertica</h1>
+    <p class="lede">Разобрали четыре ночи. Задержка начинается в 19:00, когда десятки dmt-дагов одновременно просят ресурсы Vertica. Дальше она каскадом растягивает MSBI — и кубы приходят утром. Причина воспроизводится ночь в ночь.</p>
+    <div class="meta">
+      <span class="chip">все времена UTC</span>
+      <span class="chip">источники: Airflow · Vertica · Grafana</span>
+      <span class="chip">срез 12.11 · 04:05</span>
+    </div>
+  </header>
+
+  <div class="verdict" role="note">
+    <span class="mark" aria-hidden="true">→</span>
+    <p><strong>Если коротко:</strong> куб не виноват. Он собирается за те же 48 минут. Время ушло на ожидание — запросы Vertica стояли в очереди за памятью до 100 минут, а самые тяжёлые потом падали по OOM. Лечить нужно старт dmt и память пула, а не «ускорять куб».</p>
+  </div>
+
+  <section aria-label="Ключевые цифры">
+    <div class="kpis">
+      <div class="kpi bad"><span class="k-label">Сдвиг SD-куба</span><span class="k-value">+8:18</span><span class="k-note">готов 08:23 вместо 00:05 UTC</span></div>
+      <div class="kpi bad"><span class="k-label">Кубы не собрались</span><span class="k-value">3</span><span class="k-note">BS · DM · ST — их facts упали по OOM</span></div>
+      <div class="kpi bad"><span class="k-label">Максимум ожидания</span><span class="k-value">~100 мин</span><span class="k-note">очередь AcquireAdditional в пуле etl_1</span></div>
+      <div class="kpi bad"><span class="k-label">Очередь памяти</span><span class="k-value">каждую ночь</span><span class="k-note">даже в норме ~112 мин, в сбой — на 60 % плотнее</span></div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="chain">
+    <div class="s-head"><span class="num">01</span><h2 id="chain">Как разъехалась ночь</h2><p>Пять шагов от старта до задержанного куба. Красный — узкое место.</p></div>
+    <div class="chain">
+      <div class="step"><b>19:00</b><span>десятки dmt-дагов стартуют одновременно</span></div>
+      <div class="step hot"><b>Пул etl_1 в лимите</b><span>память ~298 ГБ занята</span></div>
+      <div class="step hot"><b>Запросы ждут</b><span>AcquireAdditional до 100 мин</span></div>
+      <div class="step"><b>MSBI facts тянутся</b><span>последовательно, пул в 1 слот</span></div>
+      <div class="step"><b>Кубы позже</b><span>SD +8:18 · BS/DM/ST упали</span></div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="cubes">
+    <div class="s-head"><span class="num">02</span><h2 id="cubes">Готовность кубов: эталон и инцидент</h2><p>Время готовности от 19:00 UTC. Серая полоса — обычная ночь 09→10, красная — проблемная 10→11. «✕» — куб не собрался.</p></div>
+    <div class="card">
+      <div class="chart" id="ganttChart" role="img" aria-label="Гант готовности кубов: эталон и инцидент"></div>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--ink-400)"></i> эталон 09→10</span>
+        <span><i class="swatch" style="background:var(--danger)"></i> инцидент 10→11</span>
+        <span>✕ — не собран (facts упали)</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="queue">
+    <div class="s-head"><span class="num">03</span><h2 id="queue">Причина: очередь за памятью — она хроническая</h2><p>Когда запросу Vertica не хватает памяти, он делает дозапрос <span class="mono">AcquireAdditional</span>. Если пул на лимите — дозапрос встаёт в очередь. Это происходило каждую ночь, включая «нормальные».</p></div>
+
+    <div class="card" style="margin-bottom:var(--s4)">
+      <h3>Что такое AcquireAdditional</h3>
+      <p class="cap">Запрос стартует с базовой порцией памяти. По ходу выполнения (большой join или сортировка) ему нужно ещё — он просит <span class="mono">AcquireAdditional</span>. Свободно — выдают сразу; пул на лимите — дозапрос <strong>ждёт</strong>. Я измерил это ожидание: от постановки дозапроса до его удовлетворения. Поэтому CPU низкий (запросы стоят, а не считают), и в профилях нет «длинного выполняющегося» запроса — запрос именно ждёт память.</p>
+    </div>
+
+    <div class="recur">
+      <div class="b"><span class="lbl">Ночь 09→10 · нормально</span><span class="big" style="color:var(--warn)">~112 мин</span><p>максимум ожидания; 3 696 дозапросов ждали дольше минуты</p></div>
+      <div class="b"><span class="lbl">Ночь 10→11 · сбой</span><span class="big">~103 мин</span><p>5 931 дозапрос — на 60 % плотнее</p></div>
+      <div class="b"><span class="lbl">Ночь 11→12 · сбой</span><span class="big">~101 мин</span><p>5 041 дозапрос ждал дольше минуты</p></div>
+      <div class="b"><span class="lbl">11→12 · утро, ещё идёт</span><span class="big">~75 мин</span><p>657 дозапросов — частичный срез</p></div>
+    </div>
+
+    <div class="split" style="margin-top:var(--s6)">
+      <div class="prose">
+        <p><strong>Ключевой вывод.</strong> Очередь была <strong>всегда</strong> — даже в нормальные дни запросы ждали до 112 минут. Разница не в появлении очереди, а в её плотности: в сбойные ночи длинных ожиданий на ~60 % больше, пул не успевает восстановиться, и запросы начинают спиллиться на диск.</p>
+        <p><strong>Почему это бьёт по кубам.</strong> MSBI читает ту же Vertica, а обработка партиций SSAS идёт строго последовательно (пул в один слот). Простой источника умножается на число шагов.</p>
+      </div>
+      <div class="card">
+        <h3>А сам хост — не перегружен</h3>
+        <p class="cap">Ресурсы есть, их не отдаёт пул:</p>
+        <div class="rag" style="margin-top:var(--s3);grid-template-columns:1fr">
+          <div class="row"><span class="dot ok"></span><div><b>CPU 18–76 %</b><span>нет упора в процессор</span></div></div>
+          <div class="row"><span class="dot ok"></span><div><b>RAM 10–62 % · диск 7–15 %</b><span>память и IO хоста в норме</span></div></div>
+          <div class="row"><span class="dot ok"></span><div><b>Сеть ~0,8 Гбит/с · 0 ошибок</b><span>канал не насыщен</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="smoking">
+    <div class="s-head"><span class="num">04</span><h2 id="smoking">Главное доказательство: одни и те же данные — разное время</h2><p>Таска <span class="mono">msbi_update_sd_order_guid</span> (источник куба SD) всегда возвращает ~75 млн строк. А время колеблется от 6 до 89 минут в зависимости от загрузки Vertica.</p></div>
+    <div class="card">
+      <div class="chart" id="orderChart" role="img" aria-label="Длительность order_guid по ночам при неизменных 75 млн строк"></div>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--danger)"></i> контеншн (&gt; 60 мин)</span>
+        <span><i class="swatch" style="background:var(--warn)"></i> повышенная нагрузка</span>
+        <span><i class="swatch" style="background:var(--accent)"></i> норма (6–10 мин)</span>
+        <span>строк в результате ≈ 75 млн — постоянно</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="why">
+    <div class="s-head"><span class="num">05</span><h2 id="why">Почему одни кубы пострадали, а SC — нет</h2><p>Дело не в том, что SC «не читает Vertica», а в том, что его загрузка разбита на маленькие даги и стартует раньше пика.</p></div>
+    <div class="split">
+      <div class="prose">
+        <p><strong>У SD/PH/BS/DM/ST — один тяжёлый facts-даг.</strong> Он ждёт десятки датасетов, стартует в самый пик (23:00–03:00) и гоняет длинную цепочку партиций строго последовательно (пул в 1 слот).</p>
+        <p><strong>У SC факты разбиты на отдельные даги</strong> — <span class="mono">sc_common</span>, <span class="mono">sc_invoice</span>, <span class="mono">sc_stock</span>, <span class="mono">sc_partition</span>. Каждый ждёт только свои немногочисленные датасеты и стартует раньше — с 20:00 до 00:00, когда Vertica ещё не перегружена. Куб затем просто пересчитывается (<span class="mono">msbi_recalc_SC</span>).</p>
+        <p><strong>Почему BS/DM/ST упали.</strong> Их самые тяжёлые задачи (<span class="mono">balance_sheet</span>, <span class="mono">material_stock</span>, <span class="mono">main_product</span>) убил OOM-киллер воркера: в логе <span class="mono">SIGKILL (-9)</span> — «Job killed before it finished (likely due to running out of memory)».</p>
+      </div>
+      <div class="card">
+        <h3>Старт vs пик</h3>
+        <p class="cap">SC размазан по времени, SD/PH/BS/DM/ST — в одном узле ночи.</p>
+        <div class="rag" style="margin-top:var(--s3);grid-template-columns:1fr">
+          <div class="row"><span class="dot bad"></span><div><b>SD / PH / BS / DM / ST</b><span>один facts-даг, старт в пик 23:00–03:00</span></div></div>
+          <div class="row"><span class="dot ok"></span><div><b>SC</b><span>4 маленьких дага, старт 20:00–00:00</span></div></div>
+          <div class="row"><span class="dot bad"></span><div><b>Пул msbi_* — 1 слот</b><span>тяжёлый facts идёт строго последовательно</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="excluded">
+    <div class="s-head"><span class="num">06</span><h2 id="excluded">Что проверили и исключили</h2><p>Каждый слой проверялся отдельно. Красное — нашли, зелёное — исключили.</p></div>
+    <div class="rag">
+      <div class="row"><span class="dot bad"></span><div><b>Память пула etl_1</b><span>лимит ~298 ГБ занят</span></div></div>
+      <div class="row"><span class="dot bad"></span><div><b>Очередь AcquireAdditional</b><span>до ~100 минут</span></div></div>
+      <div class="row"><span class="dot bad"></span><div><b>OOM воркера</b><span>убил bs/dm/st facts</span></div></div>
+      <div class="row"><span class="dot ok"></span><div><b>CPU / RAM / диск</b><span>18–76 % · 10–62 % · 7–15 %</span></div></div>
+      <div class="row"><span class="dot ok"></span><div><b>Сеть Yandex → ЦОД</b><span>~0,8 Гбит/с, 0 ошибок</span></div></div>
+      <div class="row"><span class="dot ok"></span><div><b>Airflow executor</b><span>очередь 0–8, слоты ~110</span></div></div>
+      <div class="row"><span class="dot ok"></span><div><b>Рост данных</b><span>75 млн строк стабильны</span></div></div>
+      <div class="row"><span class="dot ok"></span><div><b>План запроса</b><span>не менялся</span></div></div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="actions">
+    <div class="s-head"><span class="num">07</span><h2 id="actions">Что предлагаем сделать</h2><p>Четыре шага, чтобы кубы перестали опаздывать.</p></div>
+    <div class="acts">
+      <div class="act"><span class="n">01</span><b>Развести старт dmt</b><p>Не запускать десятки тяжёлых reload одновременно в 19:00; ограничить <span class="mono">planned_concurrency</span> пула etl_1.</p></div>
+      <div class="act"><span class="n">02</span><b>Снизить потребность в памяти</b><p>Фильтр <span class="mono">load_dt</span> внутрь CTE до больших join, убрать <span class="mono">BROADCAST</span>, обновить статистику.</p></div>
+      <div class="act"><span class="n">03</span><b>Защитить facts от падения</b><p>Разобрать OOM воркера (лимиты памяти) и лимит пула <span class="mono">msbi_bs_pool</span> (слот отдаётся через 6 ч).</p></div>
+      <div class="act"><span class="n">04</span><b>Алертить заранее</b><p>Мониторить ожидание <span class="mono">AcquireAdditional</span> и длительность facts — ловить сдвиг до кубов.</p></div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>Метод: сравнение четырёх ночей по dagRuns/taskInstances (Airflow), <span class="mono">v_internal.dc_resource_acquisitions</span> (очереди), Grafana (CPU/RAM/диск/сеть).</p>
+    <p>Срез: 12.11.2026 04:05 UTC — ночь 11→12 ещё в процессе.</p>
+  </footer>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+
+// — Гант готовности кубов —
+function renderGantt() {
+  const host = document.getElementById("ganttChart");
+  const cubes = [
+    { n: "SD", base: 305, inc: 803 },
+    { n: "PH", base: 423, inc: 1078 },
+    { n: "SC", base: 326, inc: 383 },
+    { n: "BS", base: 402, inc: null },
+    { n: "DM", base: 521, inc: null },
+    { n: "ST", base: 589, inc: null }
+  ];
+  const W = 640, rowH = 40, left = 64, right = 40, maxMin = 1100, labelW = 0;
+  const plotW = W - left - right;
+  const H = cubes.length * rowH + 30;
+  const x = m => left + (m / maxMin) * plotW;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  // grid + axis labels (часы от 19:00)
+  for (let h = 0; h <= 14; h += 2) {
+    const m = h * 60;
+    const px = x(m);
+    s += `<line x1="${px}" y1="10" x2="${px}" y2="${H - 18}" stroke="var(--grid)"/>`;
+    s += `<text x="${px}" y="${H - 6}" class="axis-t" text-anchor="middle">${String(19 + h).padStart(2, "0")}:00</text>`;
+  }
+  cubes.forEach((c, i) => {
+    const y = 18 + i * rowH;
+    s += `<text x="${left - 8}" y="${y + 12}" class="axis-t" text-anchor="end">${c.n}</text>`;
+    // эталон
+    if (c.base != null) {
+      s += `<rect x="${x(0)}" y="${y}" width="${x(c.base) - x(0)}" height="8" rx="4" fill="var(--ink-400)" opacity=".45"/>`;
+      s += `<text x="${x(c.base) + 4}" y="${y + 8}" class="axis-t">${fmt(c.base)}</text>`;
+    }
+    // инцидент
+    if (c.inc != null) {
+      s += `<rect x="${x(0)}" y="${y + 14}" width="${x(c.inc) - x(0)}" height="12" rx="6" fill="var(--danger)"/>`;
+      s += `<text x="${x(c.inc) + 4}" y="${y + 24}" class="axis-t">${fmt(c.inc)}</text>`;
+    } else {
+      s += `<rect x="${x(0)}" y="${y + 14}" width="${x(1100) - x(0)}" height="12" rx="6" fill="none" stroke="var(--danger)" stroke-dasharray="4 3"/>`;
+      s += `<text x="${W - 8}" y="${y + 24}" class="axis-t" text-anchor="end" fill="var(--danger)">не собран</text>`;
+    }
+  });
+  s += `</svg>`;
+  host.innerHTML = s;
+}
+function fmt(m) {
+  const h = String(Math.floor(m / 60)).padStart(2, "0");
+  const mm = String(m % 60).padStart(2, "0");
+  return `${h}:${mm}`;
+}
+
+// — order_guid: время при неизменных 75 млн строк —
+function renderOrder() {
+  const host = document.getElementById("orderChart");
+  const data = [
+    { d: "05.11 21:48", m: 6.7 },
+    { d: "05.11 21:59", m: 25 },
+    { d: "06.11 22:18", m: 27 },
+    { d: "08.11 05:36", m: 78 },
+    { d: "09.11 22:24", m: 9.4 },
+    { d: "10.11 22:05", m: 74 },
+    { d: "11.11 01:10", m: 89 },
+    { d: "12.11 03:30", m: 80 }
+  ];
+  const W = 640, H = 260, top = 18, bottom = 58, left = 8, maxM = 100;
+  const plotH = H - top - bottom;
+  const bw = (W - left * 2) / data.length;
+  const y = m => top + plotH * (1 - m / maxM);
+  const color = m => m > 60 ? "var(--danger)" : m > 20 ? "var(--warn)" : "var(--accent)";
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  for (let g = 0; g <= 100; g += 20) {
+    s += `<line x1="${left}" y1="${y(g)}" x2="${W - left}" y2="${y(g)}" stroke="var(--grid)"/>`;
+    s += `<text x="${left - 4}" y="${y(g) + 3}" class="axis-t" text-anchor="end">${g}</text>`;
+  }
+  data.forEach((p, i) => {
+    const cx = left + i * bw + bw / 2;
+    const h = plotH * (p.m / maxM);
+    s += `<rect x="${left + i * bw + bw * 0.22}" y="${top + plotH - h}" width="${bw * 0.56}" height="${h}" rx="3" fill="${color(p.m)}"/>`;
+    s += `<text x="${cx}" y="${H - bottom + 16}" class="axis-t" text-anchor="middle">${p.d.split(" ")[0]}</text>`;
+    s += `<text x="${cx}" y="${H - bottom + 30}" class="axis-t" text-anchor="middle" fill="${color(p.m)}">${p.m}′</text>`;
+  });
+  // референс "норма"
+  s += `<line x1="${left}" y1="${y(10)}" x2="${W - left}" y2="${y(10)}" stroke="var(--accent)" stroke-dasharray="5 4" opacity=".6"/>`;
+  s += `<text x="${W - left - 4}" y="${y(10) - 4}" class="axis-t" text-anchor="end" fill="var(--accent)">норма ≈ 6–10 мин</text>`;
+  s += `</svg>`;
+  host.innerHTML = s;
+}
+
+renderGantt();
+renderOrder();
+</script>
+</body>
+</html>

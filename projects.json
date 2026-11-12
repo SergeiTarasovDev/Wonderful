@@ -54,5 +54,20 @@
     "path": "projects/liga-stavok-de-interview/index.html",
     "updated": "2026-11-04",
     "source": "Work/Vertica · подготовка к собеседованию"
+  },
+  {
+    "slug": "cube-delay-postmortem",
+    "title": "Кубы опоздали на 8 часов: разбор ночного батча Vertica",
+    "description": "Постмортем: почему MSBI-кубы пришли утром. Причина — очередь за памятью в Vertica, а не медленный куб. С диаграммами.",
+    "tags": [
+      "vertica",
+      "airflow",
+      "msbi",
+      "etl",
+      "postmortem"
+    ],
+    "path": "projects/cube-delay-postmortem/index.html",
+    "updated": "2026-11-12",
+    "source": "Work/2026-11-11_cube_delay"
   }
 ]
