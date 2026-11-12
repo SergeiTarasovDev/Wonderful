@@ -235,13 +235,13 @@
   </section>
 
   <section class="section" aria-labelledby="cubes">
-    <div class="s-head"><span class="num">02</span><h2 id="cubes">Готовность кубов: эталон и инцидент</h2><p>Время готовности от 19:00 UTC. Серая полоса — обычная ночь 09→10, красная — проблемная 10→11. «✕» — куб не собрался.</p></div>
+    <div class="s-head"><span class="num">02</span><h2 id="cubes">Готовность кубов: три ночи</h2><p>Время готовности от 19:00 UTC. Серая — эталон 09→10, красная — инцидент 10→11, янтарная — сегодня 11→12 (на срез 04:05 ещё в процессе).</p></div>
     <div class="card">
-      <div class="chart" id="ganttChart" role="img" aria-label="Гант готовности кубов: эталон и инцидент"></div>
+      <div class="chart" id="ganttChart" role="img" aria-label="Гант готовности кубов: эталон, инцидент и сегодня"></div>
       <div class="legend">
         <span><i class="swatch" style="background:var(--ink-400)"></i> эталон 09→10</span>
-        <span><i class="swatch" style="background:var(--danger)"></i> инцидент 10→11</span>
-        <span>✕ — не собран (facts упали)</span>
+        <span><i class="swatch" style="background:var(--danger)"></i> инцидент 10→11 · ✕ не собран</span>
+        <span><i class="swatch" style="background:var(--warn)"></i> сегодня 11→12 · ещё идёт</span>
       </div>
     </div>
   </section>
@@ -348,40 +348,47 @@ const SVGNS = "http://www.w3.org/2000/svg";
 function renderGantt() {
   const host = document.getElementById("ganttChart");
   const cubes = [
-    { n: "SD", base: 305, inc: 803 },
-    { n: "PH", base: 423, inc: 1078 },
-    { n: "SC", base: 326, inc: 383 },
-    { n: "BS", base: 402, inc: null },
-    { n: "DM", base: 521, inc: null },
-    { n: "ST", base: 589, inc: null }
+    { n: "SD", base: 305, inc: 803, today: null },
+    { n: "PH", base: 423, inc: 1078, today: null },
+    { n: "SC", base: 326, inc: 383, today: 333 },
+    { n: "BS", base: 402, inc: null, today: null },
+    { n: "DM", base: 521, inc: null, today: null },
+    { n: "ST", base: 589, inc: null, today: null }
   ];
-  const W = 640, rowH = 40, left = 64, right = 40, maxMin = 1100, labelW = 0;
-  const plotW = W - left - right;
-  const H = cubes.length * rowH + 30;
+  const snapshot = 545; // срез 12.11 04:05 UTC ≈ 9ч05 после 19:00
+  const W = 640, rowH = 54, left = 64, maxMin = 1100;
+  const plotW = W - left;
+  const H = cubes.length * rowH + 28;
   const x = m => left + (m / maxMin) * plotW;
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img">`;
-  // grid + axis labels (часы от 19:00)
   for (let h = 0; h <= 14; h += 2) {
-    const m = h * 60;
-    const px = x(m);
-    s += `<line x1="${px}" y1="10" x2="${px}" y2="${H - 18}" stroke="var(--grid)"/>`;
-    s += `<text x="${px}" y="${H - 6}" class="axis-t" text-anchor="middle">${String(19 + h).padStart(2, "0")}:00</text>`;
+    const m = h * 60, px = x(m);
+    s += `<line x1="${px}" y1="6" x2="${px}" y2="${H - 14}" stroke="var(--grid)"/>`;
+    s += `<text x="${px}" y="${H - 2}" class="axis-t" text-anchor="middle">${String(19 + h).padStart(2, "0")}:00</text>`;
   }
   cubes.forEach((c, i) => {
-    const y = 18 + i * rowH;
+    const y = 12 + i * rowH;
     s += `<text x="${left - 8}" y="${y + 12}" class="axis-t" text-anchor="end">${c.n}</text>`;
-    // эталон
+    // эталон 09→10
     if (c.base != null) {
-      s += `<rect x="${x(0)}" y="${y}" width="${x(c.base) - x(0)}" height="8" rx="4" fill="var(--ink-400)" opacity=".45"/>`;
+      s += `<rect x="${x(0)}" y="${y}" width="${x(c.base) - x(0)}" height="8" rx="4" fill="var(--ink-400)" opacity=".5"/>`;
       s += `<text x="${x(c.base) + 4}" y="${y + 8}" class="axis-t">${fmt(c.base)}</text>`;
     }
-    // инцидент
+    // инцидент 10→11
     if (c.inc != null) {
-      s += `<rect x="${x(0)}" y="${y + 14}" width="${x(c.inc) - x(0)}" height="12" rx="6" fill="var(--danger)"/>`;
-      s += `<text x="${x(c.inc) + 4}" y="${y + 24}" class="axis-t">${fmt(c.inc)}</text>`;
+      s += `<rect x="${x(0)}" y="${y + 14}" width="${x(c.inc) - x(0)}" height="10" rx="5" fill="var(--danger)"/>`;
+      s += `<text x="${x(c.inc) + 4}" y="${y + 23}" class="axis-t">${fmt(c.inc)}</text>`;
     } else {
-      s += `<rect x="${x(0)}" y="${y + 14}" width="${x(1100) - x(0)}" height="12" rx="6" fill="none" stroke="var(--danger)" stroke-dasharray="4 3"/>`;
-      s += `<text x="${W - 8}" y="${y + 24}" class="axis-t" text-anchor="end" fill="var(--danger)">не собран</text>`;
+      s += `<rect x="${x(0)}" y="${y + 14}" width="${x(1100) - x(0)}" height="10" rx="5" fill="none" stroke="var(--danger)" stroke-dasharray="4 3"/>`;
+      s += `<text x="${W - 6}" y="${y + 23}" class="axis-t" text-anchor="end" fill="var(--danger)">не собран</text>`;
+    }
+    // сегодня 11→12
+    if (c.today != null) {
+      s += `<rect x="${x(0)}" y="${y + 28}" width="${x(c.today) - x(0)}" height="10" rx="5" fill="var(--warn)"/>`;
+      s += `<text x="${x(c.today) + 4}" y="${y + 37}" class="axis-t">${fmt(c.today)}</text>`;
+    } else {
+      s += `<rect x="${x(0)}" y="${y + 28}" width="${x(snapshot) - x(0)}" height="10" rx="5" fill="none" stroke="var(--warn)" stroke-dasharray="4 3"/>`;
+      s += `<text x="${x(snapshot) + 4}" y="${y + 37}" class="axis-t" fill="var(--warn)">ещё идёт</text>`;
     }
   });
   s += `</svg>`;
