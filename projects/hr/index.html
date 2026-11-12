@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>HR · статьи и подготовка к интервью</title>
+<meta name="description" content="Личные заметки: подготовка к собеседованиям, разборы интервью.">
+<style>
+@layer reset, tokens, base, components;
+
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; }
+  * { margin: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { min-height: 100dvh; }
+  h1, h2 { text-wrap: balance; }
+  p { text-wrap: pretty; }
+  a { color: inherit; }
+}
+
+@layer tokens {
+  :root {
+    --canvas: oklch(0.985 0.005 80);
+    --surface: oklch(1 0 0);
+    --surface-soft: oklch(0.965 0.006 80);
+    --ink: oklch(0.22 0.010 80);
+    --ink-soft: oklch(0.38 0.010 80);
+    --ink-faint: oklch(0.48 0.010 80);
+    --line: oklch(0.89 0.008 80);
+    --accent: oklch(0.55 0.12 75);
+    --accent-strong: oklch(0.45 0.12 75);
+    --accent-soft: oklch(0.95 0.04 75);
+    --accent-ink: oklch(0.18 0.010 75);
+    --focus: oklch(0.60 0.13 75);
+    --shadow-sm: 0 1px 1px oklch(0.2 0.01 80 / .04), 0 2px 4px oklch(0.2 0.01 80 / .05);
+    --shadow-md: 0 1px 1px oklch(0.2 0.01 80 / .04), 0 8px 20px -6px oklch(0.2 0.01 80 / .10);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --radius-pill: 999px;
+    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+    --space-5: 24px; --space-6: 32px; --space-7: 40px; --space-8: 48px;
+    --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Code", "Segoe UI Mono", Consolas, monospace;
+    --text-h2: clamp(1.45rem, 1.15rem + 1.2vw, 1.95rem);
+    --text-body: clamp(1rem, 0.97rem + 0.15vw, 1.08rem);
+    --text-small: 0.9rem;
+    --text-micro: 0.78rem;
+    --sb-thumb: color-mix(in oklab, var(--ink-faint) 55%, transparent);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --canvas: oklch(0.17 0.010 80);
+      --surface: oklch(0.21 0.012 80);
+      --surface-soft: oklch(0.24 0.012 80);
+      --ink: oklch(0.93 0.006 80);
+      --ink-soft: oklch(0.80 0.010 80);
+      --ink-faint: oklch(0.68 0.010 80);
+      --line: oklch(0.31 0.012 80);
+      --accent: oklch(0.78 0.13 75);
+      --accent-strong: oklch(0.86 0.11 75);
+      --accent-soft: oklch(0.28 0.04 75);
+      --accent-ink: oklch(0.17 0.010 75);
+      --focus: oklch(0.80 0.12 75);
+      --shadow-sm: 0 1px 1px oklch(0 0 0 / .20), 0 2px 4px oklch(0 0 0 / .16);
+      --shadow-md: 0 1px 1px oklch(0 0 0 / .20), 0 8px 20px -6px oklch(0 0 0 / .30);
+      --sb-thumb: color-mix(in oklab, var(--ink-faint) 65%, transparent);
+    }
+  }
+}
+
+@layer base {
+  body {
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+  * { scrollbar-width: thin; scrollbar-color: var(--sb-thumb) transparent; }
+  *::-webkit-scrollbar { width: 11px; height: 11px; }
+  *::-webkit-scrollbar-thumb { background: var(--sb-thumb); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
+  a:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 4px; }
+  .wrap { width: min(100% - 2 * var(--space-5), 880px); margin-inline: auto; }
+}
+
+@layer components {
+  .head { padding-block: var(--space-8) var(--space-5); }
+  .head .eyebrow { color: var(--accent); font: 650 var(--text-micro)/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
+  .head h1 { font-size: var(--text-h2); letter-spacing: -.02em; font-weight: 680; margin-top: var(--space-2); }
+  .head p { color: var(--ink-soft); max-width: 60ch; margin-top: var(--space-2); }
+
+  .list { display: grid; gap: var(--space-4); padding-bottom: var(--space-8); }
+  .card {
+    display: grid; gap: var(--space-2);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow .2s ease, transform .2s ease;
+  }
+  .card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .card .top { display: flex; justify-content: space-between; color: var(--ink-faint); font: 500 var(--text-micro)/1 var(--font-mono); }
+  .card h2 { font-size: 1.12rem; font-weight: 650; letter-spacing: -.01em; }
+  .card h2 a { text-decoration: none; color: var(--ink); }
+  .card h2 a:hover { color: var(--accent); }
+  .card p { color: var(--ink-soft); font-size: var(--text-small); }
+  .card .tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-1); }
+  .tag { color: var(--accent-strong); background: var(--accent-soft); border-radius: var(--radius-pill); padding: 2px 10px; font: 600 var(--text-micro)/1.5 var(--font-mono); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div class="eyebrow">HR · личное</div>
+    <h1>Подготовка к собеседованиям</h1>
+    <p>Разборы интервью и заметки. Не для публичного списка — ссылка только у меня.</p>
+  </header>
+
+  <main class="list">
+    <article class="card">
+      <div class="top"><span>liga-stavok-de-interview</span><time>04.11.2026</time></div>
+      <h2><a href="../liga-stavok-de-interview/index.html">Лига Ставок · Data Engineer — подготовка к интервью</a></h2>
+      <p>Разбор собеседования: SQL, ClickHouse, ETL/данные, стек, система, вопросы и ответы. С задачами и разбором.</p>
+      <div class="tags">
+        <span class="tag">data engineering</span>
+        <span class="tag">clickhouse</span>
+        <span class="tag">sql</span>
+        <span class="tag">интервью</span>
+      </div>
+    </article>
+  </main>
+</div>
+</body>
+</html>
